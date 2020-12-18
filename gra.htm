@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+<html id="html">
+    <head>
+        <title>JSGra</title>
+        <style>
+            canvas {
+                position: absolute;
+                top: 0px;
+                left: 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="tabulaRasa" width=640 height=480></canvas>
+        <script>
+            var canvas = document.getElementById("tabulaRasa");
+            var context = canvas.getContext("2d");
+            var gravity = 0.1;
+            var floors = [];
+            var spikes = [];
+            var bounce = [];
+            var mps = [];
+            var goal;
+            var checkpoint;
+            var clouds = [];
+            var tiles = [];
+	        var demoLevels = [1, 5, 9, 13];
+            var scrollx = 0;
+            var checkx = -99;
+            var level = 1;
+            var ded = false;
+            var nextLevel = false;
+            var demo = true;
+            var map = false;
+            var menu = false;
+            var inter;
+            var menunr = 1;
+            var lang = 0;
+            var ws = [-99, 640, 800, 1024];
+            var hs = [-99, 480, 600, 768];
+            var wh = 0;
+            var hh = wh;
+            if (wh == 0) {
+                canvas.height = window.screen.height;
+                canvas.width = window.screen.width;
+            } else {
+                canvas.height = hs[hh];
+                canvas.width = ws[wh];
+            }
+            var select = 1;
+            var last = 1;
+	        var world = 1;
+            var stage = 1;
+            var record = false;
+            var recorded = false;
+            var pause = false;
+            var pSelect = false;
+            var backgroundPalette = ["#D0E0FF", "#102030", "#80D0F8", "#F0E0D0", "#C0C0FF", "#FF8020"];
+            var foregroundPalette = ["#E0C860", "#A040A0", "#BADA55", "#D0C050", "#B87A57", "#908880"];
+            /*var names = ["Witamy w JSGra", 
+                         "Rozwidlenie", 
+                         "Wzloty i upadki", 
+                         "Schody", 
+                         "Przedstawiamy kolce", 
+                         "Bieg z przeszkodami", 
+                         "Co w ziemi piszczy", 
+                         "Bramki", 
+                         "Przedstawiamy trampoliny", 
+                         "Wąskie przejścia", 
+                         "Skok w dal", 
+                         "Bez tytułu", 
+                         "Przedstawiamy ruchome platformy", 
+                         "Precyzyjne skoki", 
+                         "Bez tytułu", 
+                         "Bez tytułu", 
+                         "Test cierpliwości", 
+                         "Ostrożnie, kolce!", 
+                         "Test refleksu", 
+                         "Ostatnie wyzwanie", 
+                         "Witamy w JSGra", 
+                         "Rozwidlenie", 
+                         "Wzloty i upadki", 
+                         "Schody", 
+                         "Przedstawiamy kolce", 
+                         "Bieg z przeszkodami", 
+                         "Co w ziemi piszczy", 
+                         "Bramki", 
+                         "Przedstawiamy trampoliny", 
+                         "Wąskie przejścia", 
+                         "Skok w dal", 
+                         "Jeszcze nie ma", 
+                         "Przedstawiamy ruchome platformy", 
+                         "Precyzyjne skoki", 
+                         "Jeszcze nie ma", 
+                         "Jeszcze nie ma", 
+                         "Test cierpliwości", 
+                         "Ostrożnie, kolce!", 
+                         "Jeszcze nie ma", 
+                         "Ostatnie wyzwanie"];*/
+            var names = [];
+            for (var i = 0;i < 20;i++) {
+                names.push("Czekam na propozycje");
+            }
+            for (var i = 20;i < 40;i++) {
+                names.push("Waiting for ideas");
+            }
+            var credits = ["JSGra - twórcy", "Krzysztof Żałobka", "Krzysztof Żałobka", "KŻ", "JSGra - credits", "Krzysztof Zalobka", "Krzysztof Zalobka", "KZ"];
+            var smolCredits = ["", "Programowanie:", "Projektowanie: ", "2020", "", "Programming:", "Design: ", "2020"];
+            var times = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            var currentTime = 0;
+            var endTimer = 0;
+
+            function daed() {
+                var replay = true;
+                //replay = confirm("Przegrałeś. Czy chcesz spróbować ponownie?");
+                ded = false;
+                if (replay) {
+                    if (checkx != -99) {
+                        scrollx -= 240;
+                        scrollx += checkx;
+                    }
+                    p1.x = 100;
+                    p1.y = canvas.height - 220;
+                    p1.velx = 0;
+                    p1.vely = 0;
+                    p1.vels = 0;
+                    p1.atj = true;
+                    p1.dir = 0;
+                    for (var i = 0;i < floors.length;i++) {
+                        floors[i].x -= scrollx;
+                    }
+                    for (var i = 0;i < spikes.length;i++) {
+                        spikes[i].x -= scrollx;
+                    }
+                    for (var i = 0;i < bounce.length;i++) {
+                        bounce[i].x -= scrollx;
+                    }
+                    for (var i = 0;i < mps.length;i++) {
+                        mps[i].startx -= scrollx;
+                        mps[i].finishx -= scrollx;
+                        mps[i].x = mps[i].startx;
+                        mps[i].y = mps[i].starty;
+                        mps[i].disp = 0;
+                    }
+                    goal.x -= scrollx;
+                    checkpoint.x -= scrollx;
+                    if (checkx != -99) {
+                        scrollx = -1 * checkx;
+                        scrollx += 110;
+                    } else {
+                        scrollx = 0;
+                    }
+                } else {
+                    clearInterval(inter);
+                    p1.y = 0;
+                }
+            }
+
+            var Player = function (x, y) {
+                this.x = x;
+                this.y = y;
+                this.velx = 0;
+                this.vely = 0;
+                this.vels = 0;
+                this.counter = 0;
+                this.atj = true;
+                this.atj2 = false;
+                this.atj3 = false;
+                this.atj4 = false;
+                this.j2 = false;
+                this.dir = 0;
+            }
+
+            Player.prototype.draw = function () {
+                context.fillStyle = "#4AB0F0";
+                context.fillRect(this.x, this.y, 20, 20);
+            }
+
+            Player.prototype.update = function () {
+                if (this.dir == 1) {
+                    this.velx = 3;
+                    if (this.x + this.velx > 240) {
+                        this.x = 245;
+                        this.vels = -3;
+                        scrollx -= 3;
+                    } else {
+                        this.x += this.velx;
+                        this.vels = 0;
+                    }
+                } else if (this.dir == 2) {
+                    this.velx = -3;
+                    this.x += this.velx;
+                    if (this.x < 10) {
+                        this.velx = 0;
+                        this.x += 3;
+                    }
+                } else {
+                    this.velx = 0;
+                    this.vels = 0;
+                }
+                this.y += this.vely;
+                this.vely += gravity;
+            }
+
+            Player.prototype.collide = function (floor) {
+                this.atj = false;
+                this.atj4 = false;
+                for (var i = 0;i < floors.length;i++) {
+                    if (this.x + 20 > floors[i].x && this.x < floors[i].x + floors[i].sizex && this.y < floors[i].y && floors[i].y - (this.y + 20) < 20) {
+                        this.atj = true;
+                        this.counter = 0;
+                    }
+                }
+                if (!this.atj) {
+                    this.counter++;
+                }
+                if (((this.counter < 50 && this.counter > 00) || this.atj4) && this.vely > 0) {
+                    this.atj4 = true;
+                } else {
+                    this.atj4 = false;
+                }
+                if ((this.y <= floor.y + floor.sizey && this.y >= floor.y + floor.sizey - 30 && this.x + 20 > floor.x && this.x < floor.x + floor.sizex) && floor.sizey != 1) {
+                    if (this.vely < 0) {
+                        this.vely = 0;
+                        this.y = floor.y + floor.sizey + 1;
+                    } else {
+                        this.vely = 1;
+                    }
+                }
+                if ((this.y + 20 > floor.y && this.x + 20 > floor.x && this.x < floor.x + floor.sizex && this.y - 20 < floor.y) && (floor.sizey != 1 || this.vely >= 0.2)) {
+                    this.y = floor.y - 20;
+                    this.vely = 0;
+                }
+                if ((Math.abs(this.x + 20 - floor.x) < 5 || Math.abs(this.x - floor.x - floor.sizex) < 5) && this.y < floor.y + floor.sizey && this.y > floor.y) {
+                    this.velx = 0;
+                    if (Math.abs(this.x + 20 - floor.x) < 10) {
+                        if (this.x > 235) {
+                            this.x -= 10;
+                        } else {
+                            this.x -= 3;
+                        }
+                    }
+                    if (Math.abs(this.x - floor.x - floor.sizex) < 10) {
+                        if (this.x > 235) {
+                            this.x += 10;
+                        } else {
+                            this.x += 3;
+                        }
+                    }
+                }
+                if (this.y > canvas.height) {
+                    ded = true;
+                }
+            }
+
+            Player.prototype.spikes = function (spike) {
+                if (spike.visible == 1) {
+                    if (this.x + 20 >= spike.x - 10 && this.x <= spike.x + 10 && (this.y + 20 >= spike.y - 20 && this.y <= spike.y) && ((Math.abs(this.vely) > 0.2) || ((spike.type == 1 || spike.type == 2) && spike.timer > 2 && spike.timer < 12))) {
+                        ded = true;
+                    }
+                    if ((Math.abs(this.x + 20 - spike.x + 10) < 5 || Math.abs(this.x - spike.x - 10) < 5) && (this.y + 20 >= spike.y - 20 && this.y <= spike.y)) {
+                        this.velx = 0;
+                        if (Math.abs(this.x + 20 - spike.x + 10) < 10) {
+                            if (this.x > 235) {
+                                this.x -= 10;
+                            } else {
+                                this.x -= 3;
+                            }
+                        }
+                        if (Math.abs(this.x - spike.x - 10) < 10) {
+                            if (this.x > 235) {
+                                this.x += 10;
+                            } else {
+                                this.x += 3;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Player.prototype.bounce = function (bounceObj) {
+                this.atj2 = false;
+                for (var i = 0;i < bounce.length;i++) {
+                    if (bounce[i].y - this.y <= 40 && this.x + 20 > bounce[i].x && this.x < bounce[i].x + 80 && this.y < bounce[i].y) {
+                        this.atj2 = true;
+                        this.counter = 0;
+                    }
+                }
+                if (!this.atj2) {
+                    this.counter++;
+                }
+                if ((this.counter < 50 && this.counter > 0) || this.atj4) {
+                    this.atj4 = true;
+                } else {
+                    this.atj4 = false;
+                }
+                if (this.y <= bounceObj.y + 20 && this.y >= bounceObj.y && this.x + 20 > bounceObj.x && this.x < bounceObj.x + 80) {
+                    if (this.vely < 0) {
+                        this.vely = 0;
+                        this.y = bounceObj.y + 21;
+                    } else {
+                        this.vely = 1;
+                    }
+                }
+                if (this.y + 20 > bounceObj.y && this.x + 20 > bounceObj.x && this.x < bounceObj.x + 80 && this.y - 20 < bounceObj.y) {
+                    this.y = bounceObj.y - 20;
+                    this.vely = 0;
+                    this.atj2 = true;
+                }
+                if (this.x + 20 >= bounceObj.x && this.x <= bounceObj.x + 80 && Math.abs((this.y + 20) - bounceObj.y) < 10) {
+                    if (this.vely > 2) {
+                        if (bounceObj.pow == 1) {
+                            this.vely = -7;
+                        } else {
+                            this.vely = -5;
+                        }
+                    }
+                }
+                if ((Math.abs(this.x + 20 - bounceObj.x) < 5 || Math.abs(this.x - bounceObj.x - 80) < 5) && this.y <= bounceObj.y + 20 && this.y >= bounceObj.y) {
+                    this.velx = 0;
+                    if (Math.abs(this.x + 20 - bounceObj.x) < 10) {
+                        if (this.x > 235) {
+                            this.x -= 10;
+                        } else {
+                            this.x -= 3;
+                        }
+                    }
+                    if (Math.abs(this.x - bounceObj.x - 80) < 10) {
+                        if (this.x > 235) {
+                            this.x += 10;
+                        } else {
+                            this.x += 3;
+                        }
+                    }
+                }
+            }
+
+            Player.prototype.checkGoal = function (goal) {
+                if (this.y + 20 <= goal.y + 40 && this.x + 20 > goal.x && this.x < goal.x + 15 && this.y >= goal.y) {
+                    nextLevel = true;
+                }
+            }
+
+            Player.prototype.move = function (moving) {
+                var added = false;
+                this.atj3 = false;
+                this.j2 = false;
+                for (var i = 0;i < mps.length;i++) {
+                    if (mps[i].y - (this.y + 20) < 40 && this.x + 20 > mps[i].x && this.x < mps[i].x + 80 && this.y < mps[i].y) {
+                        this.atj3 = true;
+                        this.counter = 0;
+                        this.j = true;
+                        this.j2 = true;
+                    }
+                }
+                if (!this.atj3) {
+                    this.counter++;
+                }
+                if ((this.counter < 50 && this.counter > 0) || this.atj4) {
+                    this.atj4 = true;
+                } else {
+                    this.atj4 = false;
+                }
+                if (this.y <= moving.y + 20 && this.y >= moving.y && this.x + 20 > moving.x && this.x < moving.x + 80) {
+                    if (this.vely < 0) {
+                        this.vely = 0;
+                        this.y = moving.y + 20 + 1;
+                    } else {
+                        this.vely = 1;
+                    }
+                }
+                if (this.y + 20 > moving.y && this.x + 20 > moving.x && this.x < moving.x + 80 && this.y - 20 < moving.y) {
+                    this.y = moving.y - 20;
+                    this.vely = 0;
+                    if (this.x > 240) {
+                        this.x = 245;
+                        this.vels = -2 * moving.dirx;
+                        scrollx += -2 * moving.dirx;
+                        if (this.vels > 0) {
+                            this.x = 235;
+                        }
+                    } else {
+                        if (this.x > 10 || moving.dirx == 1) {
+                            if (moving.diry == 1 && moving.dirx != 0) {
+                                this.x += moving.dirx;
+                            } else {
+                                this.x += 2 * moving.dirx;
+                            }
+                            this.vels = 0;
+                        }
+                    }
+                    this.y += 2 * moving.diry;
+                }
+                if ((Math.abs(this.x + 20 - moving.x) < 5 || Math.abs(this.x - moving.x - 80) < 5) && this.y < moving.y + 20 && this.y > moving.y) {
+                    this.velx = 0;
+                    if (Math.abs(this.x + 20 - moving.x) < 10) {
+                        if (this.x > 235) {
+                            this.x -= 10;
+                        } else {
+                            this.x -= 3;
+                        }
+                    }
+                    if (Math.abs(this.x - moving.x - 80) < 10) {
+                        if (this.x > 235) {
+                            this.x += 10;
+                        } else {
+                            this.x += 3;
+                        }
+                    }
+                }
+                if (this.y > canvas.height) {
+                    ded = true;
+                }
+            }
+
+            Player.prototype.checkCheck = function (checkpoint) {
+                if (this.y + 20 <= checkpoint.y + 40 && this.x + 20 > checkpoint.x && this.x < checkpoint.x + 15 && this.y >= checkpoint.y) {
+                    checkpoint.active = true;
+                    checkx = checkpoint.startx;
+                }
+            }
+
+            var Floor = function (x, y, sizex, sizey) {
+                this.x = x;
+                this.y = y;
+                this.sizex = sizex;
+                this.sizey = sizey;
+                this.startx = x;
+            }
+
+            Floor.prototype.draw = function () {
+                if (level < 20) {
+                    context.fillStyle = foregroundPalette[world-1];
+                } else {
+                    context.fillStyle = foregroundPalette[world];
+                }
+                context.fillRect(this.x, this.y, this.sizex, this.sizey);
+            }
+
+            Floor.prototype.update = function () {
+                this.x = this.startx + scrollx;
+            }
+
+            var Spike = function (x, y, type, srx) {
+                this.x = x;
+                this.y = y;
+                this.startx = x;
+                this.starty = y;
+                this.type = type;
+                this.timer = 0;
+                this.visible = 1;
+                this.disp = 0;
+                if (this.srx == undefined) {
+                    this.srx = srx;
+                    this.startsrx = srx;
+                } else {
+                    this.srx = 0;
+                    this.startsrx = 0;
+                }
+            }
+
+            Spike.prototype.draw = function () {
+                context.fillStyle = "#A01050";
+                if (this.type == 0) {
+                    context.beginPath();
+                    context.moveTo(this.x, this.y);
+                    context.lineTo(this.x-10, this.y+20);
+                    context.lineTo(this.x+10, this.y+20);
+                    context.lineTo(this.x, this.y);
+                    context.fill();
+                } else if (this.type == 1) {
+                    if (this.visible == 1) {
+                        context.beginPath();
+                        context.moveTo(this.x, this.y);
+                        context.lineTo(this.x-10, this.y+20);
+                        context.lineTo(this.x+10, this.y+20);
+                        context.lineTo(this.x, this.y);
+                        context.fill();
+                    } else {
+                        context.beginPath();
+                        context.moveTo(this.x, this.y+15);
+                        context.lineTo(this.x-10, this.y+20);
+                        context.lineTo(this.x+10, this.y+20);
+                        context.lineTo(this.x, this.y+15);
+                        context.fill();
+                    }
+                } else {
+                    if (this.visible == 1) {
+                        context.beginPath();
+                        context.moveTo(this.x, this.y);
+                        context.lineTo(this.x-10, this.y+20);
+                        context.lineTo(this.x+10, this.y+20);
+                        context.lineTo(this.x, this.y);
+                        context.fill();
+                    } else if (this.visible == 0 || this.visible == 2) {
+                        context.beginPath();
+                        context.moveTo(this.x, this.y+15);
+                        context.lineTo(this.x-10, this.y+20);
+                        context.lineTo(this.x+10, this.y+20);
+                        context.lineTo(this.x, this.y+15);
+                        context.fill();
+                    }
+                }
+            }
+
+            Spike.prototype.update = function () {
+                this.x = this.startx + scrollx + this.disp;
+                this.srx = this.startsrx + scrollx;
+                this.timer++;
+                if (this.type == 0) {
+                    this.visible = 1;
+                } else if (this.type == 1) {
+                    if (this.timer == 100) {
+                        if (this.visible == 0) {
+                            this.visible = 1;
+                        } else {
+                            this.visible = 0;
+                        }
+                        this.timer = 0;
+                    }
+                } else {
+                    if (this.timer == 100) {
+                        if (this.visible < 2) {
+                            this.visible++;
+                        } else {
+                            this.visible = -1;
+                        }
+                        this.timer = 0;
+                    }
+                    if (this.visible == -1) {
+                        this.disp = Math.floor(Math.random() * (this.startsrx - this.startx));
+                    }
+                }
+            }
+
+            var InvSpike = function (x, y) {
+                this.x = x;
+                this.y = y;
+                this.startx = x;
+                this.starty = y;
+                this.type = -99;
+                this.timer = 0;
+                this.visible = 1;
+            }
+
+            InvSpike.prototype.draw = function () {
+                context.fillStyle = "#A01050";
+                context.beginPath();
+                context.moveTo(this.x, this.y);
+                context.lineTo(this.x-10, this.y-20);
+                context.lineTo(this.x+10, this.y-20);
+                context.lineTo(this.x, this.y);
+                context.fill();
+            }
+
+            InvSpike.prototype.update = function () {
+                this.x = this.startx + scrollx;
+            }
+
+            var Cloud = function (i) {
+                this.y = Math.floor(Math.random() * canvas.height/2);
+                this.x = canvas.width + 250 * i;
+                this.r = (Math.floor(Math.random() * 3) + 2) * 10;
+                this.speed = (Math.floor(Math.random() * 3) + 1) / 10;
+            }
+
+            Cloud.prototype.draw = function () {
+                context.globalAlpha = 0.5;
+                context.fillStyle = "White";
+                context.beginPath();
+                context.moveTo(this.x, this.y);
+                context.arc(this.x, this.y, this.r,  0, 2*Math.PI);
+                context.fill();
+                context.beginPath();
+                context.arc(this.x + (2*this.r / 3), this.y - (this.r / 2), this.r/2,  0, 2*Math.PI);
+                context.fill();
+                context.beginPath();
+                context.arc(this.x + (this.r / 1.5), this.y + (this.r / 4), this.r/1.25,  0, 2*Math.PI);
+                context.fill();
+                context.globalAlpha = 1;
+                this.x -= this.speed;
+                this.x += p1.vels/3;
+                if (this.x < -100) {
+                    this.x = canvas.width + 100;
+                }
+            }
+
+            var Bounce = function (x, y, power) {
+                this.x = x;
+                this.y = y;
+                this.startx = x;
+                this.pow = power;
+            }
+
+            Bounce.prototype.draw = function () {
+                if (this.pow == 1) {
+                    context.fillStyle = "#F08080";
+                    context.fillRect(this.x, this.y, 80, 20);
+                } else {
+                    context.fillStyle = "#80F080";
+                    context.fillRect(this.x, this.y, 80, 20);
+                }
+            }
+
+            Bounce.prototype.update = function() {
+                this.x = this.startx + scrollx;
+            }
+
+            var Goal = function (x, y) {
+                this.x = x;
+                this.y = y;
+                this.startx = x;
+            }
+
+            Goal.prototype.draw = function () {
+                context.fillStyle = "#20D030";
+                context.beginPath();
+                context.moveTo(this.x, this.y + 40);
+                context.lineTo(this.x + 2, this.y + 40);
+                context.lineTo(this.x + 2, this.y + 20);
+                context.lineTo(this.x + 15, this.y + 10);
+                context.lineTo(this.x + 2, this.y);
+                context.lineTo(this.x, this.y);
+                context.lineTo(this.x, this.y + 40);
+                context.fill();
+            }
+
+            Goal.prototype.update = function () {
+                this.x = this.startx + scrollx;
+            }
+
+            var Moving = function(x, y, dirx, diry, finishx, finishy) {
+                this.x = x;
+                this.y = y;
+                this.dirx = dirx;
+                this.diry = diry;
+                this.finishx = finishx;
+                this.finishy = finishy;
+                this.startx = x;
+                this.starty = y;
+                this.beginx = x;
+                this.bfinishx = finishx;
+                this.disp = 0;
+            }
+
+            Moving.prototype.draw = function () {
+                if (level < 20) {
+                    context.fillStyle = foregroundPalette[world-1];
+                } else {
+                    context.fillStyle = foregroundPalette[world];
+                }
+                context.fillRect(this.x, this.y, 80, 20);
+            }
+
+            Moving.prototype.update = function () {
+                this.x = this.beginx + scrollx + this.disp;
+                this.startx = this.beginx + scrollx;
+                this.finishx = this.bfinishx + scrollx;
+                this.disp += this.dirx;
+                this.y += this.diry;
+                if (this.x > this.finishx || this.x < this.startx) {
+                    this.disp -= this.dirx;
+                    this.disp -= this.dirx;
+                    this.dirx *= -1;
+                }
+                if (this.y < this.finishy || this.y > this.starty) {
+                    this.diry *= -1;
+                }
+            }
+
+            var Checkpoint = function (x, y) {
+                this.x = x;
+                this.y = y;
+                this.startx = x;
+                this.active = false;
+            }
+
+            Checkpoint.prototype.draw = function () {
+                context.fillStyle = "#D0D0D0";
+                context.beginPath();
+                context.moveTo(this.x, this.y + 40);
+                context.lineTo(this.x + 2, this.y + 40);
+                context.lineTo(this.x + 2, this.y + 20);
+                context.lineTo(this.x + 15, this.y + 10);
+                context.lineTo(this.x + 2, this.y);
+                context.lineTo(this.x, this.y);
+                context.lineTo(this.x, this.y + 40);
+                context.fill();
+                if (this.active) {
+                    context.strokeStyle = "#008000";
+                    context.beginPath();
+                    context.moveTo(this.x + 3, this.y + 11);
+                    context.lineTo(this.x + 6, this.y + 14);
+                    context.lineTo(this.x + 11, this.y + 9);
+                    context.stroke();
+                } else {
+                    context.strokeStyle = "#800000";
+                    context.beginPath();
+                    context.moveTo(this.x + 3, this.y + 7);
+                    context.lineTo(this.x + 9, this.y + 13);
+                    context.stroke();
+                    context.beginPath();
+                    context.moveTo(this.x + 9, this.y + 7);
+                    context.lineTo(this.x + 3, this.y + 13);
+                    context.stroke();
+                }
+            }
+
+            Checkpoint.prototype.update = function () {
+                this.x = this.startx + scrollx;
+            }
+
+            var MapPlayer = function (x, y) {
+                this.x = x;
+                this.y = y;
+                this.stepx = 0;
+                this.stepy = 0;
+                this.counter = 0;
+                this.time = 0;
+            }
+
+            MapPlayer.prototype.draw = function () {
+                context.fillStyle = "#4AB0F0";
+                context.fillRect(this.x, this.y, 20, 20);
+            }
+
+            MapPlayer.prototype.update = function (destx, desty, time) {
+                this.time = time;
+                this.stepx = (destx - this.x) / this.time;
+                this.stepy = (desty - this.y) / this.time;
+            }
+
+            MapPlayer.prototype.updateA = function () {
+                if (this.counter < this.time) {
+                    this.x += this.stepx;
+                    this.y += this.stepy;
+                }
+                this.counter++;
+                if (this.counter == this.time) {
+                    this.counter = 0;
+                    this.stepx = 0;
+                    this.stepy = 0;
+                    this.time = 0;
+                }
+            }
+
+            var LevelTile = function (x, y, id) {
+                this.x = x;
+                this.y = y;
+                this.id = id;
+                if (this.id == 1) {
+                    this.blocked = false;
+                } else {
+                    this.blocked = true;
+                }
+            }
+
+            LevelTile.prototype.draw = function () {
+		        var w = ((select - 1) - ((select - 1) % 4)) / 4 + 1;
+                if (this.blocked) {
+                    context.fillStyle = "#808080";
+                } else {
+                    if (select < 20) {
+                        context.fillStyle = foregroundPalette[w-1];
+                    } else {
+                        context.fillStyle = foregroundPalette[w];
+                    }
+                }
+                context.fillRect(this.x, this.y, 40, 40);
+                for (var i = 0;i < 250;i += 10) {
+                    context.fillStyle = "#" + i.toString(16) + i.toString(16) + i.toString(16);
+                    context.font = "15px Century Gothic";
+		            var w = ((this.id - 1) - ((this.id - 1) % 4)) / 4 + 1;
+                    var s = (this.id - 1) % 4 + 1;
+                    context.fillText(w + "-" + s, this.x + (i / 50) + 2, this.y + (i / 50) + 15);
+                }
+            }
+
+            LevelTile.prototype.drawLine  = function(other) {
+		        var w = ((select - 1) - ((select - 1) % 4)) / 4 + 1;
+                if (other.blocked) {
+                    context.strokeStyle = "#808080";
+                } else {
+                    if (select < 20) {
+                        context.strokeStyle = foregroundPalette[w-1];
+                    } else {
+                        context.strokeStyle = foregroundPalette[w];
+                    }
+                }
+                context.lineWidth = 2;
+                context.beginPath();
+                context.moveTo(this.x + 20, this.y + 20);
+                context.lineTo(other.x + 20, other.y + 20);
+                context.stroke();
+            }
+
+            var p1 = new Player(100, canvas.height - 180);
+            var mp = new MapPlayer(30, canvas.height - 50);
+            for (var i = 0;i < 20;i++) {
+                tiles.push(new LevelTile(i % 4 * ((canvas.height - 240) / 4 + 40) + 20, canvas.height - 60 - ((i - (i % 4)) / 4) * ((canvas.height - 240) / 4 + 40), i + 1));
+            }
+            for (var i = 0;i < 10;i++) {
+                clouds.push(new Cloud(i));
+            }
+
+            function resetLevel (next) {
+                checkx = -99;
+                spikes = [];
+                floors = [];
+                bounce = [];
+                mps = [];
+                p1 = new Player(100, canvas.height - 180);
+                scrollx = 0;
+                level = next;
+                if (level == 1) {
+                    //1-1
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(520, canvas.height - 130, 300, 130));
+                    floors.push(new Floor(820, canvas.height - 50, 300, 50));
+                    floors.push(new Floor(850, canvas.height - 250, 200, 30));
+                    floors.push(new Floor(1200, canvas.height - 30, 300, 30));
+                    floors.push(new Floor(1500, canvas.height - 80, 200, 80));
+                    floors.push(new Floor(1750, canvas.height - 100, 100, 40));
+                    floors.push(new Floor(1900, canvas.height - 100, 100, 40));
+                    floors.push(new Floor(2150, canvas.height - 100, 100, 40));
+                    floors.push(new Floor(2300, canvas.height - 80, 300, 80));
+                    goal = new Goal(2500, canvas.height - 120);
+                    checkpoint = new Checkpoint(1300, canvas.height - 70);
+                } else if (level == 2) {
+                    //1-2
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(600, canvas.height - 180, 50, 50));
+                    floors.push(new Floor(700, canvas.height - 80, 100, 80));
+                    floors.push(new Floor(880, canvas.height - 80, 280, 80));
+                    floors.push(new Floor(1240, canvas.height - 80, 100, 80));
+                    floors.push(new Floor(1420, canvas.height - 80, 280, 80));
+                    floors.push(new Floor(1780, canvas.height - 110, 100, 110));
+                    floors.push(new Floor(1960, canvas.height - 140, 100, 140));
+                    floors.push(new Floor(800, canvas.height - 320, 500, 30));
+                    floors.push(new Floor(1500, canvas.height - 320, 360, 30));
+                    floors.push(new Floor(1860, canvas.height - 290, 100, 30));
+                    floors.push(new Floor(1960, canvas.height - 260, 100, 30));
+                    floors.push(new Floor(2200, canvas.height - 200, 50, 50));
+                    floors.push(new Floor(2400, canvas.height - 100, 50, 50));
+                    floors.push(new Floor(2600, canvas.height - 100, 50, 50));
+                    floors.push(new Floor(2800, canvas.height - 100, 50, 50));
+                    floors.push(new Floor(3000, canvas.height - 80, 300, 80));
+                    checkpoint = new Checkpoint(2225, canvas.height - 240);
+                    goal = new Goal(3200, canvas.height - 120);
+                } else if (level == 3) {
+                    //1-3
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(620, canvas.height - 100, 300, 20));
+                    floors.push(new Floor(1020, canvas.height - 120, 100, 20));
+                    floors.push(new Floor(1220, canvas.height - 140, 100, 20));
+                    floors.push(new Floor(1420, canvas.height - 160, 100, 20));
+                    floors.push(new Floor(1620, canvas.height - 180, 100, 20));
+                    floors.push(new Floor(1820, canvas.height - 200, 100, 20));
+                    floors.push(new Floor(2020, canvas.height - 220, 300, 220));
+                    floors.push(new Floor(2420, canvas.height - 200, 100, 20));
+                    floors.push(new Floor(2620, canvas.height - 180, 100, 20));
+                    floors.push(new Floor(2820, canvas.height - 160, 100, 20));
+                    floors.push(new Floor(3020, canvas.height - 140, 100, 20));
+                    floors.push(new Floor(3220, canvas.height - 120, 100, 20));
+                    floors.push(new Floor(3420, canvas.height - 80, 500, 80));
+                    checkpoint = new Checkpoint(2170, canvas.height - 260);
+                    goal = new Goal(3600, canvas.height - 120);
+                } else if (level == 4) {
+                    //1-4
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(520, canvas.height - 340, 200, 340));
+                    floors.push(new Floor(400, canvas.height - 130, 50, 50));
+                    floors.push(new Floor(470, canvas.height - 200, 50, 50));
+                    floors.push(new Floor(400, canvas.height - 270, 50, 50));
+                    floors.push(new Floor(850, canvas.height - 340, 200, 340));
+                    floors.push(new Floor(1120, canvas.height - 130, 50, 50));
+                    floors.push(new Floor(1050, canvas.height - 200, 50, 50));
+                    floors.push(new Floor(1120, canvas.height - 270, 50, 50));
+                    floors.push(new Floor(1550, canvas.height - 80, 300, 80));
+                    floors.push(new Floor(2070, canvas.height - 340, 200, 340));
+                    floors.push(new Floor(1950, canvas.height - 130, 50, 50));
+                    floors.push(new Floor(2020, canvas.height - 200, 50, 50));
+                    floors.push(new Floor(1950, canvas.height - 270, 50, 50));
+                    floors.push(new Floor(2400, canvas.height - 80, 300, 80));
+                    checkpoint = new Checkpoint(1145, canvas.height - 170);
+                    goal = new Goal(2600, canvas.height - 120);
+                } else if (level == 5) {
+                    //2-1
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(560, canvas.height - 130, 180, 130));
+                    floors.push(new Floor(780, canvas.height - 180, 180, 180));
+                    floors.push(new Floor(1000, canvas.height - 130, 80, 130));
+                    floors.push(new Floor(1120, canvas.height - 80, 300, 80));
+                    spikes.push(new Spike(570, canvas.height - 150, 0));
+                    spikes.push(new Spike(730, canvas.height - 150, 0));
+                    spikes.push(new Spike(790, canvas.height - 200, 0));
+                    spikes.push(new Spike(950, canvas.height - 200, 0));
+                    spikes.push(new Spike(1010, canvas.height - 150, 0));
+                    spikes.push(new Spike(1070, canvas.height - 150, 0));
+                    spikes.push(new Spike(1150, canvas.height - 100, 1));
+                    spikes.push(new Spike(1170, canvas.height - 100, 1));
+                    floors.push(new Floor(1480, canvas.height - 180, 60, 50));
+                    spikes.push(new Spike(1490, canvas.height - 200, 1));
+                    spikes.push(new Spike(1510, canvas.height - 200, 1));
+                    spikes.push(new Spike(1530, canvas.height - 200, 1));
+                    floors.push(new Floor(1600, canvas.height - 80, 500, 80));
+                    goal = new Goal(2000, canvas.height - 120);
+                    checkpoint = new Checkpoint(1220, canvas.height - 120);
+                } else if (level == 6) {
+                    //2-2
+                    spikes.push(new Spike(510, canvas.height - 100, 0));
+                    spikes.push(new Spike(860, canvas.height - 100, 0));
+                    spikes.push(new Spike(880, canvas.height - 100, 0));
+                    spikes.push(new Spike(900, canvas.height - 100, 0));
+                    spikes.push(new Spike(920, canvas.height - 100, 0));
+                    spikes.push(new Spike(940, canvas.height - 100, 0));
+                    spikes.push(new Spike(960, canvas.height - 100, 0));
+                    spikes.push(new Spike(980, canvas.height - 100, 0));
+                    spikes.push(new Spike(1000, canvas.height - 100, 0));
+                    spikes.push(new Spike(1020, canvas.height - 100, 0));
+                    spikes.push(new Spike(1040, canvas.height - 100, 0));
+                    spikes.push(new Spike(1060, canvas.height - 100, 0));
+                    spikes.push(new Spike(1080, canvas.height - 100, 0));
+                    spikes.push(new Spike(1100, canvas.height - 100, 0));
+                    spikes.push(new Spike(1120, canvas.height - 100, 0));
+                    spikes.push(new Spike(1140, canvas.height - 100, 0));
+                    spikes.push(new Spike(1710, canvas.height - 140, 0));
+                    spikes.push(new Spike(1730, canvas.height - 140, 0));
+                    spikes.push(new Spike(1750, canvas.height - 140, 0));
+                    spikes.push(new Spike(1770, canvas.height - 140, 0));
+                    spikes.push(new Spike(1790, canvas.height - 140, 0));
+                    spikes.push(new Spike(2230, canvas.height - 180, 0));
+                    spikes.push(new Spike(2250, canvas.height - 180, 0));
+                    spikes.push(new Spike(2270, canvas.height - 180, 0));
+                    spikes.push(new Spike(2290, canvas.height - 180, 0));
+                    spikes.push(new Spike(2310, canvas.height - 180, 0));
+                    spikes.push(new Spike(2530, canvas.height - 100, 0));
+                    spikes.push(new Spike(2550, canvas.height - 100, 0));
+                    spikes.push(new Spike(2570, canvas.height - 100, 0));
+                    spikes.push(new Spike(2650, canvas.height - 100, 0));
+                    spikes.push(new Spike(2670, canvas.height - 100, 0));
+                    spikes.push(new Spike(2690, canvas.height - 100, 0));
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(650, canvas.height - 200, 200, 200));
+                    floors.push(new Floor(850, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(1500, canvas.height - 120, 300, 30));
+                    floors.push(new Floor(1900, canvas.height - 160, 200, 30));
+                    floors.push(new Floor(2220, canvas.height - 160, 100, 30));
+                    floors.push(new Floor(2400, canvas.height - 80, 300, 80));
+                    goal = new Goal(2600, canvas.height - 120);
+                    checkpoint = new Checkpoint(1600, canvas.height - 160);
+                } else if (level == 7) {
+                    //2-3
+                    spikes.push(new Spike(470, canvas.height - 100, 1));
+                    spikes.push(new Spike(490, canvas.height - 100, 1));
+                    spikes.push(new Spike(510, canvas.height - 100, 1));
+                    spikes.push(new Spike(785, canvas.height - 100, 2, 1065));
+                    spikes.push(new Spike(785, canvas.height - 100, 2, 1065));
+                    spikes.push(new Spike(785, canvas.height - 100, 2, 1065));
+                    spikes.push(new Spike(1210, canvas.height - 200, 1));
+                    spikes.push(new Spike(1230, canvas.height - 200, 1));
+                    spikes.push(new Spike(1250, canvas.height - 200, 1));
+                    spikes.push(new Spike(1270, canvas.height - 200, 1));
+                    spikes.push(new Spike(1290, canvas.height - 200, 1));
+                    spikes.push(new Spike(1455, canvas.height - 100, 2, 1615));
+                    spikes.push(new Spike(1455, canvas.height - 100, 2, 1615));
+                    spikes.push(new Spike(1455, canvas.height - 100, 2, 1615));
+                    spikes.push(new Spike(2590, canvas.height - 100, 1));
+                    spikes.push(new Spike(2650, canvas.height - 100, 1));
+                    spikes.push(new Spike(2710, canvas.height - 100, 1));
+                    spikes.push(new Spike(2770, canvas.height - 100, 1));
+                    spikes.push(new Spike(2830, canvas.height - 100, 1));
+                    spikes.push(new Spike(2890, canvas.height - 100, 1));
+                    spikes.push(new Spike(2950, canvas.height - 100, 1));
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(775, canvas.height - 80, 300, 80));
+                    floors.push(new Floor(1200, canvas.height - 180, 100, 50));
+                    floors.push(new Floor(1425, canvas.height - 80, 200, 80));
+                    floors.push(new Floor(1850, canvas.height - 120, 300, 120));
+                    floors.push(new Floor(2250, canvas.height - 100, 80, 100));
+                    floors.push(new Floor(2430, canvas.height - 80, 600, 80));
+                    floors.push(new Floor(2580, 0, 380, canvas.height - 102));
+                    floors.push(new Floor(3330, canvas.height - 80, 300, 80));
+                    goal = new Goal(3530, canvas.height - 120);
+                    checkpoint = new Checkpoint(2000, canvas.height - 160);
+                } else if (level == 8) {
+                    //2-4
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(550, 0, 60, canvas.height - 240));
+                    floors.push(new Floor(640, canvas.height - 80, 300, 80));
+                    floors.push(new Floor(990, canvas.height - 120, 100, 120));
+                    floors.push(new Floor(990, 0, 60, canvas.height - 280));
+                    floors.push(new Floor(1190, canvas.height - 160, 100, 160));
+                    floors.push(new Floor(1190, 0, 60, canvas.height - 320));
+                    floors.push(new Floor(1390, canvas.height - 200, 100, 200));
+                    floors.push(new Floor(1390, 0, 60, canvas.height - 360));
+                    floors.push(new Floor(1640, canvas.height - 140, 100, 200));
+                    floors.push(new Floor(1640, 0, 40, canvas.height - 320));
+                    floors.push(new Floor(1850, canvas.height - 100, 200, 100));
+                    floors.push(new Floor(2090, canvas.height - 121, 100, 1));
+                    floors.push(new Floor(2290, canvas.height - 121, 100, 1));
+                    floors.push(new Floor(2440, canvas.height - 100, 100, 100));
+                    floors.push(new Floor(2590, canvas.height - 181, 100, 1));
+                    floors.push(new Floor(2740, canvas.height - 180, 100, 180));
+                    floors.push(new Floor(2890, canvas.height - 241, 100, 1));
+                    floors.push(new Floor(3300, canvas.height - 100, 300, 100));
+                    spikes.push(new InvSpike(560, canvas.height - 220));
+                    spikes.push(new InvSpike(580, canvas.height - 220));
+                    spikes.push(new InvSpike(600, canvas.height - 220));
+                    spikes.push(new InvSpike(1000, canvas.height - 260));
+                    spikes.push(new InvSpike(1020, canvas.height - 260));
+                    spikes.push(new InvSpike(1040, canvas.height - 260));
+                    spikes.push(new Spike(1000, canvas.height - 140, 0));
+                    spikes.push(new Spike(1020, canvas.height - 140, 0));
+                    spikes.push(new Spike(1040, canvas.height - 140, 0));
+                    spikes.push(new InvSpike(1200, canvas.height - 300));
+                    spikes.push(new InvSpike(1220, canvas.height - 300));
+                    spikes.push(new InvSpike(1240, canvas.height - 300));
+                    spikes.push(new Spike(1200, canvas.height - 180, 0));
+                    spikes.push(new Spike(1220, canvas.height - 180, 0));
+                    spikes.push(new Spike(1240, canvas.height - 180, 0));
+                    spikes.push(new InvSpike(1400, canvas.height - 340));
+                    spikes.push(new InvSpike(1420, canvas.height - 340));
+                    spikes.push(new InvSpike(1440, canvas.height - 340));
+                    spikes.push(new Spike(1400, canvas.height - 220, 0));
+                    spikes.push(new Spike(1420, canvas.height - 220, 0));
+                    spikes.push(new Spike(1440, canvas.height - 220, 0));
+                    spikes.push(new InvSpike(1650, canvas.height - 300));
+                    spikes.push(new InvSpike(1670, canvas.height - 300));
+                    spikes.push(new Spike(1650, canvas.height - 160, 0));
+                    spikes.push(new Spike(1670, canvas.height - 160, 0));
+                    spikes.push(new InvSpike(2100, canvas.height - 100));
+                    spikes.push(new InvSpike(2120, canvas.height - 100));
+                    spikes.push(new InvSpike(2140, canvas.height - 100));
+                    spikes.push(new InvSpike(2160, canvas.height - 100));
+                    spikes.push(new InvSpike(2180, canvas.height - 100));
+                    spikes.push(new InvSpike(2300, canvas.height - 100));
+                    spikes.push(new InvSpike(2320, canvas.height - 100));
+                    spikes.push(new InvSpike(2340, canvas.height - 100));
+                    spikes.push(new InvSpike(2360, canvas.height - 100));
+                    spikes.push(new InvSpike(2380, canvas.height - 100));
+                    spikes.push(new Spike(2450, canvas.height - 120, 0));
+                    spikes.push(new Spike(2470, canvas.height - 120, 0));
+                    spikes.push(new Spike(2490, canvas.height - 120, 0));
+                    spikes.push(new Spike(2510, canvas.height - 120, 0));
+                    spikes.push(new Spike(2530, canvas.height - 120, 0));
+                    spikes.push(new InvSpike(2600, canvas.height - 160));
+                    spikes.push(new InvSpike(2620, canvas.height - 160));
+                    spikes.push(new InvSpike(2640, canvas.height - 160));
+                    spikes.push(new InvSpike(2660, canvas.height - 160));
+                    spikes.push(new InvSpike(2680, canvas.height - 160));
+                    spikes.push(new Spike(2750, canvas.height - 200, 0));
+                    spikes.push(new Spike(2770, canvas.height - 200, 0));
+                    spikes.push(new Spike(2790, canvas.height - 200, 0));
+                    spikes.push(new Spike(2810, canvas.height - 200, 0));
+                    spikes.push(new Spike(2830, canvas.height - 200, 0));
+                    spikes.push(new InvSpike(2900, canvas.height - 220));
+                    spikes.push(new InvSpike(2920, canvas.height - 220));
+                    spikes.push(new InvSpike(2940, canvas.height - 220));
+                    spikes.push(new InvSpike(2960, canvas.height - 220));
+                    spikes.push(new InvSpike(2980, canvas.height - 220));
+                    checkpoint = new Checkpoint(1950, canvas.height - 140);
+                    goal = new Goal(3500, canvas.height - 140);
+                } else if (level == 9) {
+                    //3-1
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(870, canvas.height - 80, 280, 80));
+                    floors.push(new Floor(1270, canvas.height - 80, 100, 80));
+                    floors.push(new Floor(1320, canvas.height - 320, 100, 320));
+                    floors.push(new Floor(1880, canvas.height - 80, 90, 80));
+                    floors.push(new Floor(2430, canvas.height - 60, 300, 60));
+                    spikes.push(new Spike(1980, canvas.height - 20, 0));
+                    spikes.push(new Spike(2000, canvas.height - 20, 1));
+                    spikes.push(new Spike(2020, canvas.height - 20, 0));
+                    spikes.push(new Spike(2040, canvas.height - 20, 1));
+                    spikes.push(new Spike(2060, canvas.height - 20, 0));
+                    spikes.push(new Spike(2080, canvas.height - 20, 1));
+                    spikes.push(new Spike(2100, canvas.height - 20, 0));
+                    spikes.push(new Spike(2120, canvas.height - 20, 1));
+                    spikes.push(new Spike(2140, canvas.height - 20, 0));
+                    spikes.push(new Spike(2160, canvas.height - 20, 1));
+                    spikes.push(new Spike(2180, canvas.height - 20, 0));
+                    spikes.push(new Spike(2200, canvas.height - 20, 1));
+                    spikes.push(new Spike(2220, canvas.height - 20, 0));
+                    spikes.push(new Spike(2240, canvas.height - 20, 1));
+                    spikes.push(new Spike(2260, canvas.height - 20, 0));
+                    spikes.push(new Spike(2280, canvas.height - 20, 1));
+                    spikes.push(new Spike(2300, canvas.height - 20, 0));
+                    spikes.push(new Spike(2320, canvas.height - 20, 1));
+                    spikes.push(new Spike(2340, canvas.height - 20, 0));
+                    spikes.push(new Spike(2360, canvas.height - 20, 1));
+                    spikes.push(new Spike(2380, canvas.height - 20, 0));
+                    spikes.push(new Spike(2400, canvas.height - 20, 1));
+                    spikes.push(new Spike(2420, canvas.height - 20, 0));
+                    bounce.push(new Bounce(520, canvas.height - 60, 1));
+                    bounce.push(new Bounce(610, canvas.height - 60, 0));
+                    bounce.push(new Bounce(700, canvas.height - 60, 1));
+                    bounce.push(new Bounce(790, canvas.height - 60, 0));
+                    bounce.push(new Bounce(1170, canvas.height - 80, 1));
+                    bounce.push(new Bounce(1440, canvas.height - 280, 50, 30));
+                    bounce.push(new Bounce(1530, canvas.height - 240, 50, 30));
+                    bounce.push(new Bounce(1620, canvas.height - 200, 50, 30));
+                    bounce.push(new Bounce(1710, canvas.height - 160, 50, 30));
+                    bounce.push(new Bounce(1800, canvas.height - 120, 50, 30));
+                    bounce.push(new Bounce(1980, canvas.height - 80, 1));
+                    goal = new Goal(2630, canvas.height - 100);
+                    checkpoint = new Checkpoint(1900, canvas.height - 120);
+                } else if (level == 10) {
+                    //3-2
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(540, canvas.height - 280, 580, 20));
+                    floors.push(new Floor(1140, canvas.height - 320, 680, 20));
+                    floors.push(new Floor(2540, canvas.height - 120, 80, 20));
+                    floors.push(new Floor(2640, canvas.height - 120, 80, 20));
+                    floors.push(new Floor(2740, canvas.height - 120, 80, 20));
+                    floors.push(new Floor(2840, canvas.height - 120, 80, 20));
+                    floors.push(new Floor(2940, canvas.height - 120, 80, 20));
+                    floors.push(new Floor(3040, canvas.height - 120, 80, 20));
+                    floors.push(new Floor(3140, canvas.height - 320, 80, 20));
+                    floors.push(new Floor(3240, canvas.height - 360, 80, 20));
+                    floors.push(new Floor(3340, canvas.height - 320, 80, 20));
+                    floors.push(new Floor(3790, canvas.height - 80, 300, 80));
+                    floors.push(new Floor(4150, canvas.height - 120, 475, 120));
+                    floors.push(new Floor(4150, 0, 300, canvas.height - 142));
+                    floors.push(new Floor(4485, canvas.height - 380, 80, 400));
+                    floors.push(new Floor(4150, 0, 485, canvas.height - 402));
+                    floors.push(new Floor(4600, 0, 35, canvas.height - 222));
+                    floors.push(new Floor(4500, canvas.height - 200, 250, 200));
+                    floors.push(new Floor(5000, canvas.height - 80, 300, 80));
+                    bounce.push(new Bounce(540, canvas.height - 120, 1));
+                    bounce.push(new Bounce(640, canvas.height - 120, 0));
+                    bounce.push(new Bounce(740, canvas.height - 120, 1));
+                    bounce.push(new Bounce(840, canvas.height - 120, 0));
+                    bounce.push(new Bounce(940, canvas.height - 120, 1));
+                    bounce.push(new Bounce(1040, canvas.height - 120, 0));
+                    bounce.push(new Bounce(1140, canvas.height - 120, 1));
+                    bounce.push(new Bounce(1740, canvas.height - 120, 1));
+                    bounce.push(new Bounce(1840, canvas.height - 120, 0));
+                    bounce.push(new Bounce(1940, canvas.height - 120, 1));
+                    bounce.push(new Bounce(2040, canvas.height - 120, 0));
+                    bounce.push(new Bounce(2140, canvas.height - 120, 1));
+                    bounce.push(new Bounce(3140, canvas.height - 100, 0));
+                    bounce.push(new Bounce(3240, canvas.height - 80, 1));
+                    bounce.push(new Bounce(3340, canvas.height - 100, 0));
+                    bounce.push(new Bounce(4437, canvas.height - 121, 1));
+                    checkpoint = new Checkpoint(3280, canvas.height - 400);
+                    goal = new Goal(5200, canvas.height - 120);
+                } else if (level == 11) {
+                    //3-3
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(1000, canvas.height - 300, 100, 300));
+                    floors.push(new Floor(2200, canvas.height - 120, 200, 120));
+                    floors.push(new Floor(4821, canvas.height - 80, 300, 80));
+                    floors.push(new Floor(5121, canvas.height - 340, 40, 340));
+                    bounce.push(new Bounce(620, canvas.height - 120, 1));
+                    bounce.push(new Bounce(1400, canvas.height - 100, 0));
+                    bounce.push(new Bounce(1700, canvas.height - 100, 0));
+                    bounce.push(new Bounce(1900, canvas.height - 60, 0));
+                    bounce.push(new Bounce(2596, canvas.height - 100, 1));
+                    bounce.push(new Bounce(3042, canvas.height - 100, 1));
+                    bounce.push(new Bounce(3488, canvas.height - 100, 1));
+                    bounce.push(new Bounce(3934, canvas.height - 100, 1));
+                    bounce.push(new Bounce(4380, canvas.height - 100, 1));
+                    bounce.push(new Bounce(5041, canvas.height - 100, 1));
+                    checkpoint = new Checkpoint(2300, canvas.height - 160);
+                    goal = new Goal(5141, canvas.height - 380);
+                } else if (level == 12) {
+                    //3-4
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(2000, canvas.height - 80, 200, 80));
+                    floors.push(new Floor(2300, canvas.height - 200, 280, 20));
+                    floors.push(new Floor(2460, canvas.height - 80, 200, 80));
+                    spikes.push(new Spike(2310, canvas.height - 220, 0));
+                    spikes.push(new Spike(2330, canvas.height - 220, 0));
+                    spikes.push(new Spike(2350, canvas.height - 220, 0));
+                    spikes.push(new Spike(2370, canvas.height - 220, 0));
+                    spikes.push(new Spike(2390, canvas.height - 220, 0));
+                    spikes.push(new Spike(2410, canvas.height - 220, 0));
+                    spikes.push(new Spike(2430, canvas.height - 220, 0));
+                    spikes.push(new Spike(2450, canvas.height - 220, 0));
+                    spikes.push(new Spike(2470, canvas.height - 220, 0));
+                    spikes.push(new Spike(2490, canvas.height - 220, 0));
+                    spikes.push(new Spike(2510, canvas.height - 220, 0));
+                    spikes.push(new Spike(2530, canvas.height - 220, 0));
+                    spikes.push(new Spike(2550, canvas.height - 220, 0));
+                    spikes.push(new Spike(2570, canvas.height - 220, 0));
+                    bounce.push(new Bounce(540, canvas.height - 80, 1));
+                    bounce.push(new Bounce(640, canvas.height - 300, 0));
+                    bounce.push(new Bounce(940, canvas.height - 300, 0));
+                    bounce.push(new Bounce(1240, canvas.height - 300, 0));
+                    bounce.push(new Bounce(1590, canvas.height - 100, 1));
+                    bounce.push(new Bounce(2220, canvas.height - 140, 0));
+                    bounce.push(new Bounce(2120, canvas.height - 240, 1));
+                    bounce.push(new Bounce(2580, canvas.height - 220, 0));
+                    checkpoint = new Checkpoint(2100, canvas.height - 120);
+                    goal = new Goal(2500, canvas.height - 120);
+                } else if (level == 13) {
+                    //4-1
+                    spikes.push(new Spike(3210, canvas.height - 370, 1));
+                    spikes.push(new Spike(3230, canvas.height - 370, 1));
+                    spikes.push(new Spike(3250, canvas.height - 370, 1));
+                    spikes.push(new Spike(3270, canvas.height - 370, 1));
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(600, canvas.height - 100, 300, 100));
+                    floors.push(new Floor(1000, canvas.height - 80, 300, 80));
+                    floors.push(new Floor(1300, canvas.height - 300, 100, 300));
+                    floors.push(new Floor(1700, canvas.height - 40, 200, 40));
+                    floors.push(new Floor(1950, canvas.height - 80, 400, 80));
+                    floors.push(new Floor(2100, canvas.height - 250, 100, 130));
+                    floors.push(new Floor(2750, canvas.height - 180, 100, 80));
+                    floors.push(new Floor(3200, canvas.height - 350, 300, 350));
+                    mps.push(new Moving(100, canvas.height - 200, 1, 0, 800, canvas.height - 200));
+                    mps.push(new Moving(910, canvas.height - 40, 0, -1, 910, canvas.height - 100));
+                    mps.push(new Moving(1220, canvas.height - 80, 0, -1, 1220, canvas.height - 300));
+                    mps.push(new Moving(1950, canvas.height - 100, 1, 0, 2270, canvas.height - 100));
+                    mps.push(new Moving(1950, canvas.height - 120, 1, 0, 2270, canvas.height - 120));
+                    mps.push(new Moving(2500, canvas.height - 100, 1, 0, 3000, canvas.height - 100));
+                    mps.push(new Moving(3100, canvas.height - 100, 0, -1, 3100, canvas.height - 300));
+                    bounce.push(new Bounce(1400, canvas.height - 300, 0));
+                    goal = new Goal(3400, canvas.height - 390);
+                    checkpoint = new Checkpoint(1800, canvas.height - 80);
+                } else if (level == 14) {
+                    //4-2
+                    spikes.push(new Spike(1010, canvas.height - 300, 0));
+                    spikes.push(new Spike(1030, canvas.height - 300, 0));
+                    spikes.push(new Spike(1050, canvas.height - 300, 0));
+                    spikes.push(new Spike(1070, canvas.height - 300, 0));
+                    spikes.push(new Spike(1090, canvas.height - 300, 0));
+                    spikes.push(new Spike(1110, canvas.height - 300, 0));
+                    spikes.push(new Spike(1130, canvas.height - 300, 0));
+                    spikes.push(new Spike(1150, canvas.height - 300, 0));
+                    spikes.push(new Spike(1170, canvas.height - 300, 0));
+                    spikes.push(new Spike(1190, canvas.height - 300, 0));
+                    spikes.push(new Spike(1210, canvas.height - 300, 0));
+                    spikes.push(new Spike(1230, canvas.height - 300, 0));
+                    spikes.push(new Spike(1250, canvas.height - 300, 0));
+                    spikes.push(new Spike(1270, canvas.height - 300, 0));
+                    spikes.push(new Spike(1290, canvas.height - 300, 0));
+                    spikes.push(new Spike(2010, canvas.height - 300, 0));
+                    spikes.push(new Spike(2030, canvas.height - 300, 0));
+                    spikes.push(new Spike(2050, canvas.height - 300, 0));
+                    spikes.push(new Spike(2070, canvas.height - 300, 0));
+                    spikes.push(new Spike(2090, canvas.height - 300, 0));
+                    spikes.push(new Spike(2110, canvas.height - 300, 0));
+                    spikes.push(new Spike(2130, canvas.height - 300, 0));
+                    spikes.push(new Spike(2150, canvas.height - 300, 0));
+                    spikes.push(new Spike(2170, canvas.height - 300, 0));
+                    spikes.push(new Spike(2190, canvas.height - 300, 0));
+                    spikes.push(new Spike(2210, canvas.height - 300, 0));
+                    spikes.push(new Spike(2230, canvas.height - 300, 0));
+                    spikes.push(new Spike(2250, canvas.height - 300, 0));
+                    spikes.push(new Spike(2270, canvas.height - 300, 0));
+                    spikes.push(new Spike(2290, canvas.height - 300, 0));
+                    floors.push(new Floor(1000, canvas.height - 280, 300, 100));
+                    floors.push(new Floor(1600, canvas.height - 180, 100, 20));
+                    floors.push(new Floor(2000, canvas.height - 280, 300, 100));
+                    floors.push(new Floor(2600, canvas.height - 280, 300, 280));
+                    mps.push(new Moving(70, canvas.height - 180, 1, 0, 1520, canvas.height - 180));
+                    mps.push(new Moving(1700, canvas.height - 180, 1, 0, 2520, canvas.height - 180));
+                    mps.push(new Moving(900, canvas.height - 120, 1, 0, 1300, canvas.height - 120));
+                    mps.push(new Moving(1920, canvas.height - 200, 0, -1, 1920, canvas.height - 340));
+                    mps.push(new Moving(2000, canvas.height - 340, 1, 0, 2220, canvas.height - 340));
+                    mps.push(new Moving(2300, canvas.height - 200, 0, -1, 2300, canvas.height - 340));
+                    goal = new Goal(2800, canvas.height - 320);
+                    checkpoint = new Checkpoint(1650, canvas.height - 220);
+                } else if (level == 15) {
+                    //4-3
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(1180, canvas.height - 160, 100, 20));
+                    floors.push(new Floor(1500, canvas.height - 320, 200, 20));
+                    floors.push(new Floor(1550, canvas.height - 180, 100, 20));
+                    floors.push(new Floor(2080, canvas.height - 80, 200, 80));
+                    floors.push(new Floor(2660, canvas.height - 20, 500, 20));
+                    floors.push(new Floor(2860, canvas.height - 360, 300, 20));
+                    floors.push(new Floor(3300, canvas.height - 80, 300, 80));
+                    spikes.push(new Spike(1190, canvas.height - 180, 2, 1270));
+                    spikes.push(new Spike(1190, canvas.height - 180, 2, 1270));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    spikes.push(new Spike(2670, canvas.height - 40, 2, 3150));
+                    mps.push(new Moving(420, canvas.height - 160, 1, 0, 1000, canvas.height - 160));
+                    mps.push(new Moving(600, canvas.height - 20, 1, 0, 2000, canvas.height - 20));
+                    mps.push(new Moving(900, canvas.height - 300, 1, 0, 2000, canvas.height - 300));
+                    mps.push(new Moving(1700, canvas.height - 40, 0, -1, 1700, canvas.height - 280));
+                    mps.push(new Moving(2580, canvas.height - 20, 0, -1, 2580, canvas.height - 160));
+                    mps.push(new Moving(2660, canvas.height - 160, 0, -1, 2660, canvas.height - 360));
+                    goal = new Goal(3500, canvas.height - 120);
+                    checkpoint = new Checkpoint(1600, canvas.height - 360);
+                } else if (level == 16) {
+                    //4-4
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(830, 0, 80, canvas.height - 350));
+                    floors.push(new Floor(1080, canvas.height - 200, 200, 200));
+                    floors.push(new Floor(1630, canvas.height - 240, 100, 40));
+                    floors.push(new Floor(2180, canvas.height - 240, 100, 40));
+                    floors.push(new Floor(2230, canvas.height - 280, 50, 40));
+                    floors.push(new Floor(2180, canvas.height - 380, 50, 40));
+                    floors.push(new Floor(2280, canvas.height - 460, 50, 40));
+                    floors.push(new Floor(2330, canvas.height - 460, 50, 260));
+                    floors.push(new Floor(3130, canvas.height - 80, 300, 80));
+                    mps.push(new Moving(70, canvas.height - 80, 0, -1, 70, canvas.height - 200));
+                    mps.push(new Moving(0, canvas.height - 200, 1, 0, 600, canvas.height - 200));
+                    mps.push(new Moving(240, canvas.height - 350, 1, 0, 830, canvas.height - 350));
+                    mps.push(new Moving(750, canvas.height - 80, 1, 0, 1000, canvas.height - 80));
+                    mps.push(new Moving(1000, canvas.height - 20, 0, -1, 1000, canvas.height - 200));
+                    mps.push(new Moving(1280, canvas.height - 200, 1, 0, 2580, canvas.height - 200));
+                    mps.push(new Moving(2660, canvas.height - 200, 1, 0, 3000, canvas.height - 200));
+                    bounce.push(new Bounce(340, canvas.height - 100, 1));
+                    bounce.push(new Bounce(750, canvas.height - 20, 0));
+                    goal = new Goal(3330, canvas.height - 120);
+                    checkpoint = new Checkpoint(1180, canvas.height - 240);
+                } else if (level == 17) {
+                    //5-1
+                    floors.push(new Floor(20, canvas.height - 80, 300, 80));
+                    floors.push(new Floor(800, canvas.height - 80, 200, 80));
+                    floors.push(new Floor(1080, canvas.height - 280, 200, 20));
+                    floors.push(new Floor(1080, canvas.height - 260, 50, 200));
+                    floors.push(new Floor(1080, canvas.height - 80, 280, 20));
+                    floors.push(new Floor(1080, canvas.height - 260, 280, 20));
+                    floors.push(new Floor(2180, canvas.height - 80, 200, 80));
+                    floors.push(new Floor(2100, canvas.height - 60, 80, 60));
+                    floors.push(new Floor(2200, canvas.height - 300, 160, 20));
+                    floors.push(new Floor(3660, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(3800, canvas.height - 300, 360, 20));
+                    floors.push(new Floor(4300, canvas.height - 190, 300, 50));
+                    bounce.push(new Bounce(1280, canvas.height - 280, 0));
+                    bounce.push(new Bounce(2100, canvas.height - 80, 1));
+                    mps.push(new Moving(320, canvas.height - 80, 1, 0, 720, canvas.height - 80));
+                    mps.push(new Moving(1000, canvas.height - 80, 0, -1, 1000, canvas.height - 280));
+                    mps.push(new Moving(1360, canvas.height - 80, 1, 0, 1960, canvas.height - 80));
+                    mps.push(new Moving(1420, canvas.height - 80, 1, 0, 2020, canvas.height - 80));
+                    mps.push(new Moving(2380, canvas.height - 80, 0, -1, 2380, canvas.height - 300));
+                    mps.push(new Moving(2480, canvas.height - 300, 1, 0, 3580, canvas.height - 300));
+                    spikes.push(new Spike(3810, canvas.height - 99, 1));
+                    spikes.push(new Spike(3870, canvas.height - 99, 1));
+                    spikes.push(new Spike(3930, canvas.height - 99, 1));
+                    spikes.push(new Spike(3990, canvas.height - 99, 1));
+                    spikes.push(new Spike(4050, canvas.height - 99, 1));
+                    spikes.push(new Spike(4110, canvas.height - 99, 1));
+                    checkpoint = new Checkpoint(2250, canvas.height - 340);
+                    goal = new Goal(4500, canvas.height - 230);
+                } else if (level == 18) {
+                    //5-2
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(20, canvas.height - 360, 2000, 20));
+                    floors.push(new Floor(2220, canvas.height - 80, 200, 80));
+                    floors.push(new Floor(3050, canvas.height - 120, 100, 120));
+                    floors.push(new Floor(3630, canvas.height - 40, 100, 40));
+                    floors.push(new Floor(4310, canvas.height - 80, 350, 80));
+                    bounce.push(new Bounce(540, canvas.height - 60, 1));
+                    bounce.push(new Bounce(640, canvas.height - 60, 1));
+                    bounce.push(new Bounce(740, canvas.height - 60, 0));
+                    bounce.push(new Bounce(840, canvas.height - 60, 1));
+                    bounce.push(new Bounce(940, canvas.height - 60, 0));
+                    bounce.push(new Bounce(1040, canvas.height - 60, 1));
+                    bounce.push(new Bounce(1140, canvas.height - 60, 1));
+                    bounce.push(new Bounce(1240, canvas.height - 60, 0));
+                    bounce.push(new Bounce(1340, canvas.height - 60, 0));
+                    bounce.push(new Bounce(1440, canvas.height - 60, 1));
+                    bounce.push(new Bounce(1540, canvas.height - 60, 1));
+                    bounce.push(new Bounce(1640, canvas.height - 60, 0));
+                    bounce.push(new Bounce(1740, canvas.height - 60, 1));
+                    bounce.push(new Bounce(1840, canvas.height - 60, 1));
+                    bounce.push(new Bounce(1940, canvas.height - 60, 0));
+                    bounce.push(new Bounce(2620, canvas.height - 60, 1));
+                    bounce.push(new Bounce(3350, canvas.height - 60, 0));
+                    bounce.push(new Bounce(3930, canvas.height - 60, 1));
+                    spikes.push(new InvSpike(550, canvas.height - 320));
+                    spikes.push(new InvSpike(590, canvas.height - 320));
+                    spikes.push(new InvSpike(630, canvas.height - 320));
+                    spikes.push(new InvSpike(670, canvas.height - 320));
+                    spikes.push(new InvSpike(710, canvas.height - 320));
+                    spikes.push(new InvSpike(750, canvas.height - 320));
+                    spikes.push(new InvSpike(790, canvas.height - 320));
+                    spikes.push(new InvSpike(830, canvas.height - 320));
+                    spikes.push(new InvSpike(870, canvas.height - 320));
+                    spikes.push(new InvSpike(910, canvas.height - 320));
+                    spikes.push(new InvSpike(950, canvas.height - 320));
+                    spikes.push(new InvSpike(990, canvas.height - 320));
+                    spikes.push(new InvSpike(1030, canvas.height - 320));
+                    spikes.push(new InvSpike(1070, canvas.height - 320));
+                    spikes.push(new InvSpike(1110, canvas.height - 320));
+                    spikes.push(new InvSpike(1150, canvas.height - 320));
+                    spikes.push(new InvSpike(1190, canvas.height - 320));
+                    spikes.push(new InvSpike(1230, canvas.height - 320));
+                    spikes.push(new InvSpike(1270, canvas.height - 320));
+                    spikes.push(new InvSpike(1310, canvas.height - 320));
+                    spikes.push(new InvSpike(1350, canvas.height - 320));
+                    spikes.push(new InvSpike(1390, canvas.height - 320));
+                    spikes.push(new InvSpike(1430, canvas.height - 320));
+                    spikes.push(new InvSpike(1470, canvas.height - 320));
+                    spikes.push(new InvSpike(1510, canvas.height - 320));
+                    spikes.push(new InvSpike(1550, canvas.height - 320));
+                    spikes.push(new InvSpike(1590, canvas.height - 320));
+                    spikes.push(new InvSpike(1630, canvas.height - 320));
+                    spikes.push(new InvSpike(1670, canvas.height - 320));
+                    spikes.push(new InvSpike(1710, canvas.height - 320));
+                    spikes.push(new InvSpike(1750, canvas.height - 320));
+                    spikes.push(new InvSpike(1790, canvas.height - 320));
+                    spikes.push(new InvSpike(1830, canvas.height - 320));
+                    spikes.push(new InvSpike(1870, canvas.height - 320));
+                    spikes.push(new InvSpike(1910, canvas.height - 320));
+                    spikes.push(new InvSpike(1950, canvas.height - 320));
+                    spikes.push(new InvSpike(1990, canvas.height - 320));
+                    spikes.push(new Spike(2630, canvas.height - 80, 1));
+                    spikes.push(new Spike(2690, canvas.height - 80, 1));
+                    spikes.push(new Spike(3640, canvas.height - 60, 2, 3720));
+                    spikes.push(new Spike(3640, canvas.height - 60, 2, 3720));
+                    spikes.push(new Spike(3640, canvas.height - 60, 2, 3720));
+                    spikes.push(new Spike(3940, canvas.height - 80, 2, 4000));
+                    spikes.push(new Spike(3940, canvas.height - 80, 2, 4000));
+                    spikes.push(new Spike(4320, canvas.height - 100, 0));
+                    spikes.push(new Spike(4340, canvas.height - 100, 0));
+                    spikes.push(new Spike(4360, canvas.height - 100, 0));
+                    checkpoint = new Checkpoint(3100, canvas.height - 160);
+                    goal = new Goal(4560, canvas.height - 120);
+                } else if (level == 19) {
+                    //5-3
+                    floors.push(new Floor(20, canvas.height - 80, 500, 80));
+                    floors.push(new Floor(520, canvas.height - 20, 200, 20));
+                    floors.push(new Floor(520, canvas.height - 180, 20, 180));
+                    floors.push(new Floor(540, canvas.height - 180, 180, 1));
+                    floors.push(new Floor(800, 0, 20, canvas.height - 100));
+                    floors.push(new Floor(620, canvas.height - 100, 200, 1));
+                    floors.push(new Floor(980, canvas.height - 360, 100, 260));
+                    floors.push(new Floor(1260, canvas.height - 120, 20, 120));
+                    floors.push(new Floor(1080, canvas.height - 120, 200, 20));
+                    floors.push(new Floor(2000, canvas.height - 100, 80, 100));
+                    floors.push(new Floor(2080, canvas.height - 120, 200, 120));
+                    floors.push(new Floor(2580, canvas.height - 100, 40, 20));
+                    floors.push(new Floor(3300, canvas.height - 100, 100, 100));
+                    floors.push(new Floor(3680, canvas.height - 260, 60, 260));
+                    floors.push(new Floor(4500, canvas.height - 60, 80, 60));
+                    floors.push(new Floor(4580, canvas.height - 80, 300, 80));
+                    spikes.push(new InvSpike(550, canvas.height - 159));
+                    spikes.push(new InvSpike(570, canvas.height - 159));
+                    spikes.push(new InvSpike(590, canvas.height - 159));
+                    spikes.push(new InvSpike(610, canvas.height - 159));
+                    spikes.push(new InvSpike(630, canvas.height - 159));
+                    spikes.push(new InvSpike(650, canvas.height - 159));
+                    spikes.push(new InvSpike(670, canvas.height - 159));
+                    spikes.push(new InvSpike(690, canvas.height - 159));
+                    spikes.push(new InvSpike(710, canvas.height - 159));
+                    spikes.push(new InvSpike(630, canvas.height - 79));
+                    spikes.push(new InvSpike(650, canvas.height - 79));
+                    spikes.push(new InvSpike(670, canvas.height - 79));
+                    spikes.push(new InvSpike(690, canvas.height - 79));
+                    spikes.push(new InvSpike(710, canvas.height - 79));
+                    spikes.push(new InvSpike(730, canvas.height - 79));
+                    spikes.push(new InvSpike(750, canvas.height - 79));
+                    spikes.push(new InvSpike(770, canvas.height - 79));
+                    spikes.push(new InvSpike(790, canvas.height - 79));
+                    spikes.push(new InvSpike(810, canvas.height - 79));
+                    spikes.push(new Spike(1090, canvas.height - 140, 2, 1270));
+                    spikes.push(new Spike(1090, canvas.height - 140, 2, 1270));
+                    spikes.push(new Spike(1090, canvas.height - 140, 2, 1270));
+                    spikes.push(new Spike(1090, canvas.height - 140, 2, 1270));
+                    spikes.push(new Spike(1090, canvas.height - 140, 2, 1270));
+                    spikes.push(new Spike(1090, canvas.height - 140, 2, 1270));
+                    spikes.push(new Spike(1090, canvas.height - 140, 2, 1270));
+                    spikes.push(new Spike(2590, canvas.height - 120, 1));
+                    spikes.push(new Spike(2610, canvas.height - 120, 1));
+                    spikes.push(new Spike(3690, canvas.height - 280, 0));
+                    spikes.push(new Spike(3710, canvas.height - 280, 0));
+                    spikes.push(new Spike(3730, canvas.height - 280, 0));
+                    mps.push(new Moving(720, canvas.height - 20, 2, 0, 1180, canvas.height - 20));
+                    mps.push(new Moving(1280, canvas.height - 120, 2, 0, 2000, canvas.height - 120));
+                    mps.push(new Moving(3740, canvas.height - 80, 2, 0, 4500, canvas.height - 80));
+                    bounce.push(new Bounce(900, canvas.height - 120, 1));
+                    bounce.push(new Bounce(2920, canvas.height - 100, 0));
+                    bounce.push(new Bounce(3600, canvas.height - 80, 1));
+                    checkpoint = new Checkpoint(2180, canvas.height - 160);
+                    goal = new Goal(4780, canvas.height - 120);
+                } else {
+                    //5-4
+                    spikes.push(new Spike(1150, canvas.height - 40, 1));
+                    spikes.push(new Spike(1170, canvas.height - 40, 1));
+                    spikes.push(new Spike(1190, canvas.height - 40, 1));
+                    spikes.push(new Spike(1750, canvas.height - 100, 1));
+                    spikes.push(new Spike(1770, canvas.height - 100, 1));
+                    spikes.push(new Spike(1790, canvas.height - 100, 1));
+                    spikes.push(new Spike(1810, canvas.height - 100, 1));
+                    spikes.push(new Spike(2130, canvas.height - 100, 0));
+                    spikes.push(new Spike(2150, canvas.height - 100, 0));
+                    spikes.push(new Spike(2170, canvas.height - 100, 0));
+                    spikes.push(new Spike(4610, canvas.height - 180, 1));
+                    spikes.push(new Spike(4630, canvas.height - 180, 1));
+                    spikes.push(new Spike(4650, canvas.height - 180, 1));
+                    spikes.push(new Spike(4670, canvas.height - 180, 1));
+                    floors.push(new Floor(100, canvas.height - 160, 20, 20));
+                    floors.push(new Floor(220, canvas.height - 140, 80, 140));
+                    floors.push(new Floor(500, canvas.height - 100, 50, 20));
+                    floors.push(new Floor(660, canvas.height - 80, 80, 80));
+                    floors.push(new Floor(1140, canvas.height - 20, 60, 20));
+                    floors.push(new Floor(1280, canvas.height - 40, 80, 40));
+                    floors.push(new Floor(1560, canvas.height - 100, 100, 20));
+                    floors.push(new Floor(1740, canvas.height - 60, 80, 60));
+                    floors.push(new Floor(2120, canvas.height - 80, 100, 80));
+                    floors.push(new Floor(2320, canvas.height - 80, 80, 80));
+                    floors.push(new Floor(3100, canvas.height - 80, 80, 80));
+                    floors.push(new Floor(3480, canvas.height - 140, 100, 20));
+                    floors.push(new Floor(4600, canvas.height - 140, 80, 140));
+                    floors.push(new Floor(4880, canvas.height - 200, 500, 200));
+                    bounce.push(new Bounce(220, canvas.height - 160, 0));
+                    bounce.push(new Bounce(660, canvas.height - 100, 1));
+                    bounce.push(new Bounce(1280, canvas.height - 60, 0));
+                    bounce.push(new Bounce(1740, canvas.height - 80, 1));
+                    bounce.push(new Bounce(2320, canvas.height - 100, 0));
+                    bounce.push(new Bounce(3100, canvas.height - 100, 1));
+                    bounce.push(new Bounce(4600, canvas.height - 160, 0));
+                    mps.push(new Moving(2560, canvas.height - 60, 1, 0, 2860, canvas.height - 60));
+                    mps.push(new Moving(3700, canvas.height - 40, 0, -1, 3700, canvas.height - 200));
+                    mps.push(new Moving(4000, canvas.height - 70, 0, -1, 4000, canvas.height - 250));
+                    mps.push(new Moving(4300, canvas.height - 100, 0, -1, 4300, canvas.height - 300));
+                    goal = new Goal(5200, canvas.height - 240);
+                    checkpoint = new Checkpoint(1600, canvas.height - 140);
+                }
+            }
+
+            resetLevel(level);
+            var timer = 0;
+            var flash = 0;
+            title();
+
+            function title () {
+		        world = ((level - 1) - ((level - 1) % 4)) / 4 + 1;
+		        stage = (level - 1) % 4 + 1;
+                demo = true;
+                context.fillStyle = backgroundPalette[world-1];
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                for (var i = 0;i < clouds.length;i++) {
+                    clouds[i].draw();
+                }
+                p1.draw();
+                p1.update();
+                for (var i = 0;i < mps.length;i++) {
+                    if (mps[i].x <= canvas.width && mps[i].x + 80 >= 0) {
+                        if (!ded) {
+                            p1.move(mps[i]);
+                        }
+                        mps[i].draw();
+                    }
+                    mps[i].update();
+                }
+                for (var i = 0;i < floors.length;i++) {
+                    if (floors[i].x <= canvas.width && floors[i].x + floors[i].sizex >= 0) {
+                        if (!ded) {
+                            p1.collide(floors[i]);
+                        }
+                        floors[i].draw();
+                    }
+                    floors[i].update();
+                }
+                for (var i = 0;i < spikes.length;i++) {
+                    if (spikes[i].x - 10 <= canvas.width && spikes[i].x + 10 >= 0) {
+                        if (!ded) {
+                            p1.spikes(spikes[i]);
+                        }
+                        spikes[i].draw();
+                    }
+                    spikes[i].update();
+                }
+                for (var i = 0;i < bounce.length;i++) {
+                    if (bounce[i].x <= canvas.width && bounce[i].x + 80 >= 0) {
+                        if (!ded) {
+                            p1.bounce(bounce[i]);
+                        }
+                        bounce[i].draw();
+                    }
+                    bounce[i].update();
+                }
+                if (ded || p1.y > canvas.height) {
+                    daed();
+                }
+                if (goal.x <= canvas.width && goal.x + 20 >= 0) {
+                    p1.checkGoal(goal);
+                    goal.draw();
+                }
+                goal.update();
+                if (checkpoint.x <= canvas.width && checkpoint.x + 20 >= 0) {
+                    p1.checkCheck(checkpoint);
+                    checkpoint.draw();
+                }
+                checkpoint.update();
+                context.fillStyle = "#F7DF1E";
+                context.fillRect(canvas.width / 2 - 195, canvas.height / 3 - 170, 180, 180);
+                context.fillStyle = "Black";
+                context.font = "125px Century Gothic";
+                context.fillText("JSGra", canvas.width / 2 - 135, canvas.height / 3);
+                context.fillStyle = "Black";
+                context.font = "25px Century Gothic";
+                if (lang == 0) {
+                    context.fillText("Wciśnij Spację aby rozpocząć.", canvas.width / 2 - 195, canvas.height / 3 + 50);
+                } else {
+                    context.fillText("Press Space to start.", canvas.width / 2 - 195, canvas.height / 3 + 50);
+                }
+                if (flash) {
+                    context.fillStyle = "Red";
+                    context.font = "25px Century Gothic";
+                    context.fillText("DEMO", canvas.width - 150, canvas.height - 50);
+                }
+                if (nextLevel == true) {
+                    resetLevel(level);
+                    nextLevel = false;
+                }
+                if (level == demoLevels[0]) {
+                    if ((timer > 265 && timer < 385) || (timer > 425 && timer < 525) || (timer > 555 && timer < 765) || (timer > 865 && timer < 985) || (timer > 1040)) {
+                        p1.dir = 1;
+                    } else {
+                        p1.dir = 0;
+                    }
+                    if (timer == 415 || timer == 550 || timer == 645 || timer == 905 || timer == 1015) {
+                        p1.vely = -5;
+                    }
+                    if (timer > 795 && timer < 835) {
+                        p1.dir = 2;
+                    }
+                } else if (level == demoLevels[1]) {
+                    if ((timer > 265 && timer < 375) || (timer > 425 && timer < 500) || (timer > 575 && timer < 675) || (timer > 710 && timer < 850) || (timer > 1140)) {
+                        p1.dir = 1;
+                    } else {
+                        p1.dir = 0;
+                    }
+                    if (timer == 400 || timer == 550 || timer == 700 || timer == 900 || timer == 1090) {
+                        p1.vely = -5;
+                    }
+                } else if (level == demoLevels[2]) {
+                    if ((timer > 265 && timer < 375) || (timer > 475 && timer < 550) || (timer > 600 && timer < 900)) {
+                        p1.dir = 1;
+                    } else {
+                        p1.dir = 0;
+                    }
+                    if (timer == 450 || timer == 1000 || timer == 1100) {
+                        p1.vely = -5;
+                    }
+                } else if (level == demoLevels[3]) {
+                    if ((timer > 265 && timer < 600) || (timer > 725 && timer < 800) || (timer > 1100 && timer < 1200)) {
+                        p1.dir = 1;
+                    } else {
+                        p1.dir = 0;
+                    }
+                    if (timer == 375 || timer == 700 || timer == 1050) {
+                        p1.vely = -5;
+                    }
+                }
+                if (timer > 1199) {
+                    timer = 0;
+                    level = demoLevels[Math.floor(Math.random() * 4)];
+                    resetLevel(level);
+                }
+                if (timer % 100 == 0) {
+                    if (flash == 0) {
+                        flash = 1;
+                    } else {
+                        flash = 0;
+                    }
+                }
+                timer++;
+            }
+
+            function game () {
+                if (!pause) {
+                    world = ((level - 1) - ((level - 1) % 4)) / 4 + 1;
+                    stage = (level - 1) % 4 + 1;
+                    if (level < 20) {
+                        context.fillStyle = backgroundPalette[world-1];
+                    } else {
+                        context.fillStyle = backgroundPalette[world];
+                    }
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    for (var i = 0;i < clouds.length;i++) {
+                        clouds[i].draw();
+                    }
+                    p1.draw();
+                    p1.atj4 = false;
+                    p1.update();
+                    for (var i = 0;i < mps.length;i++) {
+                        if (mps[i].x <= canvas.width && mps[i].x + 80 >= 0) {
+                            if (!ded) {
+                                p1.move(mps[i]);
+                            }
+                            mps[i].draw();
+                        }
+                        mps[i].update();
+                    }
+                    for (var i = 0;i < floors.length;i++) {
+                        if (floors[i].x <= canvas.width && floors[i].x + floors[i].sizex >= 0) {
+                            if (!ded) {
+                                p1.collide(floors[i]);
+                            }
+                            floors[i].draw();
+                        }
+                        floors[i].update();
+                    }
+                    for (var i = 0;i < spikes.length;i++) {
+                        if (spikes[i].x - 10 <= canvas.width && spikes[i].x + 10 >= 0) {
+                            if (!ded) {
+                                p1.spikes(spikes[i]);
+                            }
+                            spikes[i].draw();
+                        }
+                        spikes[i].update();
+                    }
+                    for (var i = 0;i < bounce.length;i++) {
+                        if (bounce[i].x <= canvas.width && bounce[i].x + 80 >= 0) {
+                            if (!ded) {
+                                p1.bounce(bounce[i]);
+                            }
+                            bounce[i].draw();
+                        }
+                        bounce[i].update();
+                    }
+                    for (var i = 0;i < 250;i += 10) {
+                        context.fillStyle = "#" + i.toString(16) + i.toString(16) + i.toString(16);
+                        context.font = "25px Century Gothic";
+                        if (lang == 0) {
+                            context.fillText("Poziom " + world + "-" + stage, 45 + (i / 50), 45 + (i / 50));
+                        } else {
+                            context.fillText("Level " + world + "-" + stage, 45 + (i / 50), 45 + (i / 50));
+                        }
+                        if (lang == 0) {
+                            context.fillText("Czas: " + currentTime/100, canvas.width - 145 + (i / 50), 45 + (i / 50));
+                        } else {
+                            context.fillText("Time: " + currentTime/100, canvas.width - 145 + (i / 50), 45 + (i / 50));
+                        }
+                    }
+                    if (ded || p1.y > canvas.height) {
+                        daed();
+                    }
+                    if (goal.x <= canvas.width && goal.x + 20 >= 0) {
+                        p1.checkGoal(goal);
+                        goal.draw();
+                    }
+                    goal.update();
+                    if (checkpoint.x <= canvas.width && checkpoint.x + 20 >= 0) {
+                        p1.checkCheck(checkpoint);
+                        checkpoint.draw();
+                    }
+                    checkpoint.update();
+                    if (nextLevel == true) {
+                        if (currentTime/100 < times[level-1] || times[level-1] == 0) {
+                            recorded = false;
+                            record = true;
+                        }
+                        map = true;
+                        if (last < 20 && last == level) {
+                            last++;
+                            for (var i = 0;i < last;i++) {
+                                tiles[i].blocked = false;
+                            }
+                        }
+                        clearInterval(inter);
+                        if (level == 20) {
+                            endTimer = -100;
+                            inter = setInterval(ending, 10);
+                        } else {
+                            inter = setInterval(dispMap, 10);
+                        }
+                        nextLevel = false;
+                    }
+                    currentTime++;
+                } else {
+                    context.fillStyle = "Black";
+                    context.font = "75px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Pauza", canvas.width / 2 - 115, canvas.height / 3);
+                    } else {
+                        context.fillText("Pause", canvas.width / 2 - 115, canvas.height / 3);
+                    }
+                    context.strokeStyle = "White";
+                    context.lineWidth = 1;
+                    context.font = "75px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Pauza", canvas.width / 2 - 115, canvas.height / 3);
+                    } else {
+                        context.strokeText("Pause", canvas.width / 2 - 115, canvas.height / 3);
+                    }
+                    
+                    context.fillStyle = 0 == pSelect ? "White" : "Black";
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Wznów", canvas.width / 2 - 225, canvas.height / 3 + 100);
+                    } else {
+                        context.fillText("Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
+                    }
+                    context.strokeStyle = 1 == pSelect ? "White" : "Black";
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Wznów", canvas.width / 2 - 225, canvas.height / 3 + 100);
+                    } else {
+                        context.strokeText("Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
+                    }
+                    if (times[level-1] == 0) {
+                        context.fillStyle = "#808080";
+                    } else {
+                        context.fillStyle = 1 == pSelect ? "White" : "Black";
+                    }
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Wyjście do mapy", canvas.width / 2 - 50, canvas.height / 3 + 100);
+                    } else {
+                        context.fillText("Exit to map", canvas.width / 2 - 50, canvas.height / 3 + 100);
+                    }
+                    if (times[level-1] == 0) {
+                        context.strokeStyle = "#808080";
+                    } else {
+                        context.strokeStyle = 0 == pSelect ? "White" : "Black";
+                    }
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Wyjście do mapy", canvas.width / 2 - 50, canvas.height / 3 + 100);
+                    } else {
+                        context.strokeText("Exit to map", canvas.width / 2 - 50, canvas.height / 3 + 100);
+                    }
+                }
+            }
+
+            function dispMap () {
+                if (!recorded) {
+                    times[level-1] = currentTime / 100;
+                    recorded = true;
+                }
+                currentTime = 0;
+		        var w = ((select - 1) - ((select - 1) % 4)) / 4 + 1;
+                var s = (select - 1) % 4 + 1;
+                if (select < 20) {
+                    context.fillStyle = backgroundPalette[w-1];
+                } else {
+                    context.fillStyle = backgroundPalette[w];
+                }
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                if (select < 20) {
+                    context.fillStyle = foregroundPalette[w-1];
+                } else {
+                    context.fillStyle = foregroundPalette[w];
+                }
+                for (var i = 0;i < tiles.length;i++) {
+                    if (i < tiles.length - 1) {
+                        tiles[i].drawLine(tiles[i+1]);
+                    }
+                    tiles[i].draw();
+                }
+                mp.draw();
+                mp.updateA();
+                for (var i = 0;i < 250;i += 10) {
+                    context.fillStyle = "#" + i.toString(16) + i.toString(16) + i.toString(16);
+                    context.font = "25px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Poziom " + w + "-" + s, 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 40 + (i / 50));
+                    } else {
+                        context.fillText("Level " + w + "-" + s, 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 40 + (i / 50));
+                    }
+                    context.fillText(names[(select-1) + lang * 20], 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 80 + (i / 50));
+                    if (times[(select-1)] != 0) {
+                        if (lang == 0) {
+                            context.fillText("Rekord: " + times[(select-1)], 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
+                        } else {
+                            context.fillText("Record: " + times[(select-1)], 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
+                        }
+                    } else {
+                        if (lang == 0) {
+                            context.fillText("Brak rekordu", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
+                        } else {
+                            context.fillText("No record", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
+                        }
+                    }
+                    if (record) {
+                        context.strokeStyle = "#FFEE00";
+                        context.lineWidth = 2;
+                        context.strokeRect(3 * ((canvas.height - 240) / 4 + 40) + 75, 135, 175, 40);
+                        if (lang == 0) {
+                            context.fillText("Nowy rekord!", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 160 + (i / 50));
+                        } else {
+                            context.fillText("New record!", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 160 + (i / 50));
+                        }
+                    }
+                }
+            }
+
+            function dispMenu () {
+                world = ((level - 1) - ((level - 1) % 4)) / 4 + 1;
+		        stage = (level - 1) % 4 + 1;
+                context.fillStyle = backgroundPalette[world-1];
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                p1.draw();
+                for (var i = 0;i < mps.length;i++) {
+                    if (mps[i].x <= canvas.width && mps[i].x + 80 >= 0) {
+                        mps[i].draw();
+                    }
+                }
+                for (var i = 0;i < floors.length;i++) {
+                    if (floors[i].x <= canvas.width && floors[i].x + floors[i].sizex >= 0) {
+                        floors[i].draw();
+                    }
+                }
+                for (var i = 0;i < spikes.length;i++) {
+                    if (spikes[i].x - 10 <= canvas.width && spikes[i].x + 10 >= 0) {
+                        spikes[i].draw();
+                    }
+                }
+                for (var i = 0;i < bounce.length;i++) {
+                    if (bounce[i].x <= canvas.width && bounce[i].x + 80 >= 0) {
+                        bounce[i].draw();
+                    }
+                }
+                if (goal.x <= canvas.width && goal.x + 20 >= 0) {
+                    goal.draw();
+                }
+                if (checkpoint.x <= canvas.width && checkpoint.x + 20 >= 0) {
+                    checkpoint.draw();
+                }
+                if (menunr == 1) {
+                    if (select == 1) {
+                        context.fillStyle = "White";
+                    } else {
+                        context.fillStyle = "Black";
+                    }
+                    context.font = "75px Century Gothic";
+                    context.fillText("Start", 135, canvas.height / 3 + 100);
+                    if (select == 1) {
+                        context.strokeStyle = "Black";
+                    } else {
+                        context.strokeStyle = "White";
+                    }
+                    context.lineWidth = 1;
+                    context.font = "75px Century Gothic";
+                    context.strokeText("Start", 135, canvas.height / 3 + 100);
+                    if (select == 2) {
+                        context.fillStyle = "White";
+                    } else {
+                        context.fillStyle = "Black";
+                    }
+                    context.font = "75px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Ustawienia", 135, canvas.height / 3 + 200);
+                    } else {
+                        context.fillText("Settings", 135, canvas.height / 3 + 200);
+                    }
+                    if (select == 2) {
+                        context.strokeStyle = "Black";
+                    } else {
+                        context.strokeStyle = "White";
+                    }
+                    context.lineWidth = 1;
+                    context.font = "75px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Ustawienia", 135, canvas.height / 3 + 200);
+                    } else {
+                        context.strokeText("Settings", 135, canvas.height / 3 + 200);
+                    }
+                    if (select == 3) {
+                        context.fillStyle = "White";
+                    } else {
+                        context.fillStyle = "Black";
+                    }
+                    context.font = "75px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Samouczek", 135, canvas.height / 3 + 300);
+                    } else {
+                        context.fillText("Tutorial", 135, canvas.height / 3 + 300);
+                    }
+                    if (select == 3) {
+                        context.strokeStyle = "Black";
+                    } else {
+                        context.strokeStyle = "White";
+                    }
+                    context.lineWidth = 1;
+                    context.font = "75px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Samouczek", 135, canvas.height / 3 + 300);
+                    } else {
+                        context.strokeText("Tutorial", 135, canvas.height / 3 + 300);
+                    }
+                } else if (menunr == 2) {
+                    if (select == 1) {
+                        context.fillStyle = "White";
+                    } else {
+                        context.fillStyle = "Black";
+                    }
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        if (wh == 0) {
+                            context.fillText("Rozdzielczość: Dopasuj", 135, canvas.height / 3 + 50);
+                        } else {
+                            context.fillText("Rozdzielczość: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
+                        }
+                    } else {
+                        if (wh == 0) {
+                            context.fillText("Resolution: Fit", 135, canvas.height / 3 + 50);
+                        } else {
+                            context.fillText("Resolution: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
+                        }
+                    }
+                    if (select == 1) {
+                        context.strokeStyle = "Black";
+                    } else {
+                        context.strokeStyle = "White";
+                    }
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        if (wh == 0) {
+                            context.strokeText("Rozdzielczość: Dopasuj", 135, canvas.height / 3 + 50);
+                        } else {
+                            context.strokeText("Rozdzielczość: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
+                        }
+                    } else {
+                        if (wh == 0) {
+                            context.strokeText("Resolution: Fit", 135, canvas.height / 3 + 50);
+                        } else {
+                            context.strokeText("Resolution: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
+                        }
+                    }
+                    if (select == 2) {
+                        context.fillStyle = "White";
+                    } else {
+                        context.fillStyle = "Black";
+                    }
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Język: Polski", 135, canvas.height / 3 + 100);
+                    } else {
+                        context.fillText("Language: English", 135, canvas.height / 3 + 100);
+                    }
+                    if (select == 2) {
+                        context.strokeStyle = "Black";
+                    } else {
+                        context.strokeStyle = "White";
+                    }
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Język: Polski", 135, canvas.height / 3 + 100);
+                    } else {
+                        context.strokeText("Language: English", 135, canvas.height / 3 + 100);
+                    }
+                    if (select == 3) {
+                        context.fillStyle = "White";
+                    } else {
+                        context.fillStyle = "Black";
+                    }
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Wyjście", 135, canvas.height / 3 + 150);
+                    } else {
+                        context.fillText("Exit", 135, canvas.height / 3 + 150);
+                    }
+                    if (select == 3) {
+                        context.strokeStyle = "Black";
+                    } else {
+                        context.strokeStyle = "White";
+                    }
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Wyjście", 135, canvas.height / 3 + 150);
+                    } else {
+                        context.strokeText("Exit", 135, canvas.height / 3 + 150);
+                    }
+                } else {
+                    var showGoal = new Goal(135, canvas.height / 3 + 70);
+                    var showCp = new Checkpoint(135, canvas.height / 3 + 120);
+                    showGoal.draw();
+                    showCp.draw();
+                    showCp.active = true;
+                    showCp.x += 60;
+                    showCp.draw();
+                    context.fillStyle = "Black";
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Spacja      -  zatwierdzenie", 135, canvas.height / 3 - 100);
+                        context.fillText("Esc            -  pauza", 135, canvas.height / 3 - 50);
+                        context.fillText("← →/A D  -  poruszanie się", 135, canvas.height / 3);
+                        context.fillText("↑      /W     -  skakanie", 135, canvas.height / 3 + 50);
+                        context.fillText("                  -  cel", 135, canvas.height / 3 + 100);
+                        context.fillText("   /             -  punkt kontrolny", 135, canvas.height / 3 + 150);
+                    } else {
+                        context.fillText("Space       -  confirm", 135, canvas.height / 3 - 100);
+                        context.fillText("Esc            -  pause", 135, canvas.height / 3 - 50);
+                        context.fillText("← →/A D  -  move", 135, canvas.height / 3);
+                        context.fillText("↑      /W     -  jump", 135, canvas.height / 3 + 50);
+                        context.fillText("                  -  goal", 135, canvas.height / 3 + 100);
+                        context.fillText("   /             -  checkpoint", 135, canvas.height / 3 + 150);
+                    }
+                    context.strokeStyle = "White";
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Spacja      -  zatwierdzenie", 135, canvas.height / 3 - 100);
+                        context.strokeText("Esc            -  pauza", 135, canvas.height / 3 - 50);
+                        context.strokeText("← →/A D  -  poruszanie się", 135, canvas.height / 3);
+                        context.strokeText("↑      /W     -  skakanie", 135, canvas.height / 3 + 50);
+                        context.strokeText("                  -  cel", 135, canvas.height / 3 + 100);
+                        context.strokeText("   /             -  punkt kontrolny", 135, canvas.height / 3 + 150);
+                    } else {
+                        context.strokeText("Space       -  confirm", 135, canvas.height / 3 - 100);
+                        context.strokeText("Esc            -  pause", 135, canvas.height / 3 - 50);
+                        context.strokeText("← →/A D  -  move", 135, canvas.height / 3);
+                        context.strokeText("↑      /W     -  jump", 135, canvas.height / 3 + 50);
+                        context.strokeText("                  -  goal", 135, canvas.height / 3 + 100);
+                        context.strokeText("   /             -  checkpoint", 135, canvas.height / 3 + 150);
+                    }
+                    context.fillStyle = "White";
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.fillText("Wyjście", 135, canvas.height - 50);
+                    } else {
+                        context.fillText("Exit", 135, canvas.height - 50);
+                    }
+                    context.strokeStyle = "Black";
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    if (lang == 0) {
+                        context.strokeText("Wyjście", 135, canvas.height - 50);
+                    } else {
+                        context.strokeText("Exit", 135, canvas.height - 50);
+                    }
+                }
+            }
+
+            function ending () {
+                if (endTimer >= 0) {
+                    context.fillStyle = "Black";
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    context.globalAlpha = (endTimer % 200) < 100 ? ((endTimer % 100) / 100.0) : (1 - ((endTimer % 100) / 100.0));
+                    context.fillStyle = "White";
+                    context.font = "35px Century Gothic";
+                    context.fillText(credits[((endTimer - (endTimer % 200)) / 200) + lang * (credits.length / 2)], canvas.width / 2 - 200 + (endTimer % 200), canvas.height / 2);
+                    context.font = "15px Century Gothic";
+                    context.fillText(smolCredits[((endTimer - (endTimer % 200))/200) + lang * (smolCredits.length / 2)], canvas.width / 2 + 200 - (endTimer % 200), canvas.height / 2 - 30);
+                    context.globalAlpha = 1;
+                    if (endTimer == 200 * credits.length / 2) {
+                        clearInterval(inter);
+                        inter = setInterval(dispMap, 10);
+                    }
+                } else {
+                    context.globalAlpha = (endTimer + 100) / 200.0;
+                    context.fillStyle = "Black";
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                endTimer += 0.5;
+            }
+            
+            html.addEventListener("keydown", function(event) {
+                if (demo) {
+                    if (event.keyCode == 32) {
+                        clearInterval(tinter);
+                        demo = false;
+                        inter = setInterval(dispMenu, 10);
+                        menu = true;
+                    }
+                } else if (menu) {
+                    if (menunr == 1) {
+                        switch(event.keyCode) {
+                            case 40:
+                                if (select < 3) {
+                                    select++;
+                                }
+                                break;
+                            case 83:
+                                if (select < 3) {
+                                    select++;
+                                }
+                                break;
+                            case 38:
+                                if (select > 1) {
+                                    select--;
+                                }
+                                break;
+                            case 87:
+                                if (select > 1) {
+                                    select--;
+                                }
+                                break;
+                            case 32:
+                                if (select == 1) {
+                                    //select = 20;
+                                    clearInterval(inter);
+                                    menu = false;
+                                    map = true;
+                                    level = 1;
+                                    inter = setInterval(dispMap, 10);
+                                } else if (select == 2) {
+                                    select = 1;
+                                    menunr = 2;
+                                } else {
+                                    select = 1;
+                                    menunr = 3;
+                                }
+                        }
+                    } else if (menunr == 2) {
+                        switch(event.keyCode) {
+                        case 40:
+                            if (select < 3) {
+                                select++;
+                            }
+                            break;
+                        case 83:
+                            if (select < 3) {
+                                select++;
+                            }
+                            break;
+                        case 38:
+                            if (select > 1) {
+                                select--;
+                            }
+                            break;
+                        case 87:
+                            if (select > 1) {
+                                select--;
+                            }
+                            break; 
+                        case 32:
+                            if (select == 1) {
+                                wh++;
+                                wh = wh % 4;
+                                hh++;
+                                hh = hh % 4;
+                                if (wh == 0) {
+                                    canvas.width = window.screen.width;
+                                    canvas.height = window.screen.height;
+                                } else {
+                                    canvas.width = ws[wh];
+                                    canvas.height = hs[hh];
+                                }
+                                resetLevel(level);
+                                tiles = [];
+                                clouds = [];
+                                mp = new MapPlayer(30, canvas.height - 50);
+                                for (var i = 0;i < 20;i++) {
+                                    tiles.push(new LevelTile(i % 4 * ((canvas.height - 240) / 4 + 40) + 20, canvas.height - 60 - ((i - (i % 4)) / 4) * ((canvas.height - 240) / 4 + 40), i + 1));
+                                }
+                                for (var i = 0;i < 10;i++) {
+                                    clouds.push(new Cloud(i));
+                                }
+                            } else if (select == 2) {
+                                lang++;
+                                lang = lang % 2;
+                            } else {
+                                select = 1;
+                                menunr = 1;
+                            }
+                        }
+                    } else {
+                        switch(event.keyCode) {
+                            case 32:
+                                menunr = 1;
+                                break;
+                        }
+                    }
+                } else if (map) {
+                    switch (event.keyCode) {
+                        case 39:
+                            if (select < last && mp.time == 0 && select % 4 != 0) {
+                                record = false;
+                                select++;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            }
+                            break;
+                        case 68:
+                            if (select < last && mp.time == 0 && select % 4 != 0) {
+                                record = false;
+                                select++;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            }
+                            break;
+                        case 37:
+                            if (select > 1 && mp.time == 0 && select % 4 != 1) {
+                                record = false;
+                                select--;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            }
+                            break;
+                        case 65:
+                            if (select > 1 && mp.time == 0 && select % 4 != 1) {
+                                record = false;
+                                select--;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            }
+                            break;
+                        case 32:
+                            record = false;
+                            clearInterval(inter);
+                            inter = setInterval(game, 10);
+                            resetLevel(select);
+                            map = false;
+                            break;
+                        case 38:
+                            if (select < last && mp.time == 0 && select % 4 == 0) {
+                                record = false;
+                                select++;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 40);
+                            }
+                            break;
+                        case 87:
+                            if (select < last && mp.time == 0 && select % 4 == 0) {
+                                record = false;
+                                select++;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 40);
+                            }
+                            break;
+                        case 40:
+                            if (select > 1 && mp.time == 0 && select % 4 == 1) {
+                                record = false;
+                                select--;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 40);
+                            }
+                            break;
+                        case 83:
+                            if (select > 1 && mp.time == 0 && select % 4 == 1) {
+                                record = false;
+                                select--;
+                                mp.counter = 0;
+                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 40);
+                            }
+                            break;
+                    }
+                } else {
+                    switch (event.keyCode) {
+                        case 39:
+                            if (!pause) {
+                                p1.dir = 1;
+                            } else {
+                                if (times[level-1] != 0) {
+                                    pSelect = !pSelect;
+                                }
+                            }
+                            break;
+                        case 68:
+                            if (!pause) {
+                                p1.dir = 1;
+                            } else {
+                                if (times[level-1] != 0) {
+                                    pSelect = !pSelect;
+                                }
+                            }
+                            break;
+                        case 37:
+                            if (!pause) {
+                                p1.dir = 2;
+                            } else {
+                                if (times[level-1] != 0) {
+                                    pSelect = !pSelect;
+                                }
+                            }
+                            break;
+                        case 65:
+                            if (!pause) {
+                                p1.dir = 2;
+                            } else {
+                                if (times[level-1] != 0) {
+                                    pSelect = !pSelect;
+                                }
+                            }
+                            break;
+                        case 38:
+                            if (p1.atj || p1.atj2 || p1.atj3 || p1.atj4) {
+                                p1.vely = -5;
+                                p1.atj = false;
+                            }
+                            break;
+                        case 87:
+                            if (p1.atj || p1.atj2 || p1.atj3 || p1.atj4) {
+                                p1.vely = -5;
+                                p1.atj = false;
+                            }
+                            break;
+                        case 27:
+                            pause = !pause;
+                            pSelect = false;
+                            break;
+                        case 32:
+                            if (pause) {
+                                if (pSelect) {
+                                    pause = false;
+                                    pSelect = false;
+                                    map = true;
+                                    clearInterval(inter);
+                                    inter = setInterval(dispMap, 10);
+                                    nextLevel = false;
+                                } else {
+                                    pause = false;
+                                    pSelect = false;
+                                }
+                            }
+                    }
+                }
+            })
+
+            html.addEventListener("keyup", function(event) {
+                if (event.keyCode == 39) {
+                    p1.dir = 0;
+                }
+                if (event.keyCode == 68) {
+                    p1.dir = 0;
+                }
+                if (event.keyCode == 37) {
+                    p1.dir = 0;
+                }
+                if (event.keyCode == 65) {
+                    p1.dir = 0;
+                }
+            })
+
+            var tinter = setInterval(title, 10);
+        </script>
+    </body>
+</html>
