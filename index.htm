@@ -96,25 +96,36 @@
                          "Test cierpliwości", 
                          "Ostrożnie, kolce!", 
                          "Jeszcze nie ma", 
-                         "Ostatnie wyzwanie"];*/
+                         "Ostatnie wyzwanie"];
             var names = [];
             for (var i = 0;i < 20;i++) {
                 names.push("Czekam na propozycje");
             }
             for (var i = 20;i < 40;i++) {
                 names.push("Waiting for ideas");
+            }*/
+            var names = [];
+            for (var i = 0;i < 40;i++) {
+                names.push("");
             }
+            //JSkill JSoftware JStory JSystem
             var credits = ["JSGra - twórcy", "Krzysztof Żałobka", "Krzysztof Żałobka", "KŻ", "JSGra - credits", "Krzysztof Zalobka", "Krzysztof Zalobka", "KZ"];
-            var smolCredits = ["", "Programowanie:", "Projektowanie: ", "2020", "", "Programming:", "Design: ", "2020"];
+            var smolCredits = ["", "Programowanie:", "Projektowanie: ", "2020", "", "Programming:", "Design: ", "2020", ""];
             var times = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             var currentTime = 0;
             var endTimer = 0;
+            var goTimer = 0;
+            var lives = 5;
+            var diff = 0;
 
-            function daed() {
-                var replay = true;
+            function daed(override) {
+                if (diff > 0) {
+                    lives--;
+                }
+                var replay = lives >= 0;
                 //replay = confirm("Przegrałeś. Czy chcesz spróbować ponownie?");
                 ded = false;
-                if (replay) {
+                if (replay && !override) {
                     if (checkx != -99) {
                         scrollx -= 240;
                         scrollx += checkx;
@@ -151,8 +162,29 @@
                         scrollx = 0;
                     }
                 } else {
-                    clearInterval(inter);
-                    p1.y = 0;
+                    tiles = [];
+	                demoLevels = [1, 5, 9, 13];
+                    scrollx = 0;
+                    checkx = -99;
+                    level = 1;
+                    ded = false;
+                    nextLevel = false;
+                    demo = true;
+                    map = false;
+                    menu = false;
+                    select = 1;
+                    last = 1;
+                    lives = 5;
+                    mp = new MapPlayer(30, canvas.height - 50);
+                    for (var i = 0;i < 20;i++) {
+                        tiles.push(new LevelTile(i % 4 * ((canvas.height - 240) / 4 + 40) + 20, canvas.height - 60 - ((i - (i % 4)) / 4) * ((canvas.height - 240) / 4 + 40), i + 1));
+                    }
+                    clearInterval(inter);            
+                    resetLevel(1);
+                    timer = 0;
+                    flash = 0;
+                    goTimer = 0;
+                    tinter = setInterval(go, 10);
                 }
             }
 
@@ -1577,7 +1609,7 @@
                     bounce[i].update();
                 }
                 if (ded || p1.y > canvas.height) {
-                    daed();
+                    daed(0);
                 }
                 if (goal.x <= canvas.width && goal.x + 20 >= 0) {
                     p1.checkGoal(goal);
@@ -1596,11 +1628,7 @@
                 context.fillText("JSGra", canvas.width / 2 - 135, canvas.height / 3);
                 context.fillStyle = "Black";
                 context.font = "25px Century Gothic";
-                if (lang == 0) {
-                    context.fillText("Wciśnij Spację aby rozpocząć.", canvas.width / 2 - 195, canvas.height / 3 + 50);
-                } else {
-                    context.fillText("Press Space to start.", canvas.width / 2 - 195, canvas.height / 3 + 50);
-                }
+                context.fillText(lang == 0 ? "Wciśnij Spację aby rozpocząć." : "Press Space to start.", canvas.width / 2 - 195, canvas.height / 3 + 50);
                 if (flash) {
                     context.fillStyle = "Red";
                     context.font = "25px Century Gothic";
@@ -1720,19 +1748,14 @@
                     for (var i = 0;i < 250;i += 10) {
                         context.fillStyle = "#" + i.toString(16) + i.toString(16) + i.toString(16);
                         context.font = "25px Century Gothic";
-                        if (lang == 0) {
-                            context.fillText("Poziom " + world + "-" + stage, 45 + (i / 50), 45 + (i / 50));
-                        } else {
-                            context.fillText("Level " + world + "-" + stage, 45 + (i / 50), 45 + (i / 50));
-                        }
-                        if (lang == 0) {
-                            context.fillText("Czas: " + currentTime/100, canvas.width - 145 + (i / 50), 45 + (i / 50));
-                        } else {
-                            context.fillText("Time: " + currentTime/100, canvas.width - 145 + (i / 50), 45 + (i / 50));
-                        }
+                        context.fillText(lang == 0 ? "Poziom " + world + "-" + stage : "Level " + world + "-" + stage, 45 + (i / 50), 45 + (i / 50));
+                        context.fillText(lang == 0 ? "Czas: " + currentTime/100 : "Time: " + currentTime/100, canvas.width - 145 + (i / 50), 45 + (i / 50));
+                        context.fillText(" x " + (diff == 0 ? "∞" : lives), 65 + (i / 50), 75 + (i / 50));
+                        context.fillStyle = "#4AB0F0";
+                        context.fillRect(45, 58, 20, 20);
                     }
                     if (ded || p1.y > canvas.height) {
-                        daed();
+                        daed(0);
                     }
                     if (goal.x <= canvas.width && goal.x + 20 >= 0) {
                         p1.checkGoal(goal);
@@ -1751,6 +1774,9 @@
                         }
                         map = true;
                         if (last < 20 && last == level) {
+                            if (diff == 1) {
+                                lives++;
+                            }
                             last++;
                             for (var i = 0;i < last;i++) {
                                 tiles[i].blocked = false;
@@ -1769,46 +1795,22 @@
                 } else {
                     context.fillStyle = "Black";
                     context.font = "75px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Pauza", canvas.width / 2 - 115, canvas.height / 3);
-                    } else {
-                        context.fillText("Pause", canvas.width / 2 - 115, canvas.height / 3);
-                    }
+                    context.fillText(lang == 0 ? "Pauza" : "Pause", canvas.width / 2 - 115, canvas.height / 3);
                     context.strokeStyle = "White";
                     context.lineWidth = 1;
-                    context.font = "75px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Pauza", canvas.width / 2 - 115, canvas.height / 3);
-                    } else {
-                        context.strokeText("Pause", canvas.width / 2 - 115, canvas.height / 3);
-                    }
-                    
+                    context.strokeText(lang == 0 ? "Pauza" : "Pause", canvas.width / 2 - 115, canvas.height / 3);
                     context.fillStyle = 0 == pSelect ? "White" : "Black";
                     context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Wznów", canvas.width / 2 - 225, canvas.height / 3 + 100);
-                    } else {
-                        context.fillText("Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
-                    }
+                    context.fillText(lang == 0 ? "Wznów" : "Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
                     context.strokeStyle = 1 == pSelect ? "White" : "Black";
-                    context.lineWidth = 1;
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Wznów", canvas.width / 2 - 225, canvas.height / 3 + 100);
-                    } else {
-                        context.strokeText("Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
-                    }
+                    context.strokeText(lang == 0 ? "Wznów" : "Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
                     if (times[level-1] == 0) {
                         context.fillStyle = "#808080";
                     } else {
                         context.fillStyle = 1 == pSelect ? "White" : "Black";
                     }
                     context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Wyjście do mapy", canvas.width / 2 - 50, canvas.height / 3 + 100);
-                    } else {
-                        context.fillText("Exit to map", canvas.width / 2 - 50, canvas.height / 3 + 100);
-                    }
+                    context.fillText(lang == 0 ? "Wyjście do mapy" : "Exit to map", canvas.width / 2 - 50, canvas.height / 3 + 100);
                     if (times[level-1] == 0) {
                         context.strokeStyle = "#808080";
                     } else {
@@ -1816,73 +1818,62 @@
                     }
                     context.lineWidth = 1;
                     context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Wyjście do mapy", canvas.width / 2 - 50, canvas.height / 3 + 100);
-                    } else {
-                        context.strokeText("Exit to map", canvas.width / 2 - 50, canvas.height / 3 + 100);
-                    }
+                    context.strokeText(lang == 0 ? "Wyjście do mapy" : "Exit to map", canvas.width / 2 - 50, canvas.height / 3 + 100);
                 }
             }
 
             function dispMap () {
-                if (!recorded) {
-                    times[level-1] = currentTime / 100;
-                    recorded = true;
-                }
-                currentTime = 0;
-		        var w = ((select - 1) - ((select - 1) % 4)) / 4 + 1;
-                var s = (select - 1) % 4 + 1;
-                if (select < 20) {
-                    context.fillStyle = backgroundPalette[w-1];
+                if (!pause) {
+                    if (!recorded) {
+                        times[level-1] = currentTime / 100;
+                        recorded = true;
+                    }
+                    currentTime = 0;
+                    var w = ((select - 1) - ((select - 1) % 4)) / 4 + 1;
+                    var s = (select - 1) % 4 + 1;
+                    context.fillStyle = select < 20 ? backgroundPalette[w-1] : backgroundPalette[w];
+                    context.fillRect(0, 0, canvas.width, canvas.height);
+                    context.fillStyle = select < 20 ? foregroundPalette[w-1] : foregroundPalette[w];
+                    for (var i = 0;i < tiles.length;i++) {
+                        if (i < tiles.length - 1) {
+                            tiles[i].drawLine(tiles[i+1]);
+                        }
+                        tiles[i].draw();
+                    }
+                    mp.draw();
+                    mp.updateA();
+                    for (var i = 0;i < 250;i += 10) {
+                        context.fillStyle = "#" + i.toString(16) + i.toString(16) + i.toString(16);
+                        context.font = "25px Century Gothic";
+                        context.fillText(lang == 0 ? "Poziom " + w + "-" + s : "Level " + w + "-" + s, 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 40 + (i / 50));
+                        context.fillText(names[(select-1) + lang * 20], 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 80 + (i / 50));
+                        context.fillText(times[(select-1)] != 0 ? (lang == 0 ? "Rekord: " + times[(select-1)] : "Record: " + times[(select-1)]) : (lang == 0 ? "Brak rekordu" : "No record"), 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
+                        if (record) {
+                            context.strokeStyle = "#FFEE00";
+                            context.lineWidth = 2;
+                            context.strokeRect(3 * ((canvas.height - 240) / 4 + 40) + 75, 135, 175, 40);
+                            context.fillText(lang == 0 ? "Nowy rekord!" : "New record!", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 160 + (i / 50));
+                        }
+                    }
                 } else {
-                    context.fillStyle = backgroundPalette[w];
-                }
-                context.fillRect(0, 0, canvas.width, canvas.height);
-                if (select < 20) {
-                    context.fillStyle = foregroundPalette[w-1];
-                } else {
-                    context.fillStyle = foregroundPalette[w];
-                }
-                for (var i = 0;i < tiles.length;i++) {
-                    if (i < tiles.length - 1) {
-                        tiles[i].drawLine(tiles[i+1]);
-                    }
-                    tiles[i].draw();
-                }
-                mp.draw();
-                mp.updateA();
-                for (var i = 0;i < 250;i += 10) {
-                    context.fillStyle = "#" + i.toString(16) + i.toString(16) + i.toString(16);
-                    context.font = "25px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Poziom " + w + "-" + s, 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 40 + (i / 50));
-                    } else {
-                        context.fillText("Level " + w + "-" + s, 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 40 + (i / 50));
-                    }
-                    context.fillText(names[(select-1) + lang * 20], 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 80 + (i / 50));
-                    if (times[(select-1)] != 0) {
-                        if (lang == 0) {
-                            context.fillText("Rekord: " + times[(select-1)], 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
-                        } else {
-                            context.fillText("Record: " + times[(select-1)], 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
-                        }
-                    } else {
-                        if (lang == 0) {
-                            context.fillText("Brak rekordu", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
-                        } else {
-                            context.fillText("No record", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 120 + (i / 50));
-                        }
-                    }
-                    if (record) {
-                        context.strokeStyle = "#FFEE00";
-                        context.lineWidth = 2;
-                        context.strokeRect(3 * ((canvas.height - 240) / 4 + 40) + 75, 135, 175, 40);
-                        if (lang == 0) {
-                            context.fillText("Nowy rekord!", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 160 + (i / 50));
-                        } else {
-                            context.fillText("New record!", 3 * ((canvas.height - 240) / 4 + 40) + 80 + (i / 50), 160 + (i / 50));
-                        }
-                    }
+                    context.fillStyle = "Black";
+                    context.font = "75px Century Gothic";
+                    context.fillText(lang == 0 ? "Pauza" : "Pause", canvas.width / 2 - 115, canvas.height / 3);
+                    context.strokeStyle = "White";
+                    context.lineWidth = 1;
+                    context.strokeText(lang == 0 ? "Pauza" : "Pause", canvas.width / 2 - 115, canvas.height / 3);
+                    context.fillStyle = 0 == pSelect ? "White" : "Black";
+                    context.font = "35px Century Gothic";
+                    context.fillText(lang == 0 ? "Wznów" : "Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
+                    context.strokeStyle = 1 == pSelect ? "White" : "Black";
+                    context.strokeText(lang == 0 ? "Wznów" : "Resume", canvas.width / 2 - 225, canvas.height / 3 + 100);
+                    context.fillStyle = 1 == pSelect ? "White" : "Black";
+                    context.font = "35px Century Gothic";
+                    context.fillText(lang == 0 ? "Wyjście do ekranu tytułowego" : "Exit to title screen", canvas.width / 2 - 50, canvas.height / 3 + 100);
+                    context.strokeStyle = 0 == pSelect ? "White" : "Black";
+                    context.lineWidth = 1;
+                    context.font = "35px Century Gothic";
+                    context.strokeText(lang == 0 ? "Wyjście do ekranu tytułowego" : "Exit to title screen", canvas.width / 2 - 50, canvas.height / 3 + 100);
                 }
             }
 
@@ -1919,153 +1910,44 @@
                     checkpoint.draw();
                 }
                 if (menunr == 1) {
-                    if (select == 1) {
-                        context.fillStyle = "White";
-                    } else {
-                        context.fillStyle = "Black";
-                    }
+                    context.fillStyle = select == 1 ? "White" : "Black";
                     context.font = "75px Century Gothic";
                     context.fillText("Start", 135, canvas.height / 3 + 100);
-                    if (select == 1) {
-                        context.strokeStyle = "Black";
-                    } else {
-                        context.strokeStyle = "White";
-                    }
+                    context.strokeStyle = select == 1 ? "Black" : "White";
                     context.lineWidth = 1;
-                    context.font = "75px Century Gothic";
                     context.strokeText("Start", 135, canvas.height / 3 + 100);
-                    if (select == 2) {
-                        context.fillStyle = "White";
-                    } else {
-                        context.fillStyle = "Black";
-                    }
-                    context.font = "75px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Ustawienia", 135, canvas.height / 3 + 200);
-                    } else {
-                        context.fillText("Settings", 135, canvas.height / 3 + 200);
-                    }
-                    if (select == 2) {
-                        context.strokeStyle = "Black";
-                    } else {
-                        context.strokeStyle = "White";
-                    }
-                    context.lineWidth = 1;
-                    context.font = "75px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Ustawienia", 135, canvas.height / 3 + 200);
-                    } else {
-                        context.strokeText("Settings", 135, canvas.height / 3 + 200);
-                    }
-                    if (select == 3) {
-                        context.fillStyle = "White";
-                    } else {
-                        context.fillStyle = "Black";
-                    }
-                    context.font = "75px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Samouczek", 135, canvas.height / 3 + 300);
-                    } else {
-                        context.fillText("Tutorial", 135, canvas.height / 3 + 300);
-                    }
-                    if (select == 3) {
-                        context.strokeStyle = "Black";
-                    } else {
-                        context.strokeStyle = "White";
-                    }
-                    context.lineWidth = 1;
-                    context.font = "75px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Samouczek", 135, canvas.height / 3 + 300);
-                    } else {
-                        context.strokeText("Tutorial", 135, canvas.height / 3 + 300);
-                    }
+                    context.fillStyle = select == 2 ? "White" : "Black";
+                    context.fillText(lang == 0 ? "Ustawienia" : "Settings", 135, canvas.height / 3 + 200);
+                    context.strokeStyle = select == 2 ? "Black" : "White";
+                    context.strokeText(lang == 0 ? "Ustawienia" : "Settings", 135, canvas.height / 3 + 200);
+                    context.fillStyle = select == 3 ? "White" : "Black";
+                    context.fillText(lang == 0 ? "Samouczek" : "Tutorial", 135, canvas.height / 3 + 300);
+                    context.strokeStyle = select == 3 ? "Black" : "White";
+                    context.strokeText(lang == 0 ? "Samouczek" : "Tutorial", 135, canvas.height / 3 + 300);
                 } else if (menunr == 2) {
-                    if (select == 1) {
-                        context.fillStyle = "White";
-                    } else {
-                        context.fillStyle = "Black";
-                    }
+                    context.fillStyle = select == 1 ? "White" : "Black";
                     context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        if (wh == 0) {
-                            context.fillText("Rozdzielczość: Dopasuj", 135, canvas.height / 3 + 50);
-                        } else {
-                            context.fillText("Rozdzielczość: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
-                        }
-                    } else {
-                        if (wh == 0) {
-                            context.fillText("Resolution: Fit", 135, canvas.height / 3 + 50);
-                        } else {
-                            context.fillText("Resolution: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
-                        }
-                    }
-                    if (select == 1) {
-                        context.strokeStyle = "Black";
-                    } else {
-                        context.strokeStyle = "White";
-                    }
+                    context.fillText(lang == 0 ? (wh == 0 ? "Rozdzielczość: Dopasuj" : "Rozdzielczość: " + ws[wh] + "x" + hs[hh]) : (wh == 0 ? "Resolution: Fit" : "Resolution: " + ws[wh] + "x" + hs[hh]), 135, canvas.height / 3 + 50);
+                    context.strokeStyle = select == 1 ? "Black" : "White";
                     context.lineWidth = 1;
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        if (wh == 0) {
-                            context.strokeText("Rozdzielczość: Dopasuj", 135, canvas.height / 3 + 50);
-                        } else {
-                            context.strokeText("Rozdzielczość: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
-                        }
-                    } else {
-                        if (wh == 0) {
-                            context.strokeText("Resolution: Fit", 135, canvas.height / 3 + 50);
-                        } else {
-                            context.strokeText("Resolution: " + ws[wh] + "x" + hs[hh], 135, canvas.height / 3 + 50);
-                        }
-                    }
-                    if (select == 2) {
-                        context.fillStyle = "White";
-                    } else {
-                        context.fillStyle = "Black";
-                    }
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Język: Polski", 135, canvas.height / 3 + 100);
-                    } else {
-                        context.fillText("Language: English", 135, canvas.height / 3 + 100);
-                    }
-                    if (select == 2) {
-                        context.strokeStyle = "Black";
-                    } else {
-                        context.strokeStyle = "White";
-                    }
-                    context.lineWidth = 1;
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Język: Polski", 135, canvas.height / 3 + 100);
-                    } else {
-                        context.strokeText("Language: English", 135, canvas.height / 3 + 100);
-                    }
-                    if (select == 3) {
-                        context.fillStyle = "White";
-                    } else {
-                        context.fillStyle = "Black";
-                    }
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Wyjście", 135, canvas.height / 3 + 150);
-                    } else {
-                        context.fillText("Exit", 135, canvas.height / 3 + 150);
-                    }
-                    if (select == 3) {
-                        context.strokeStyle = "Black";
-                    } else {
-                        context.strokeStyle = "White";
-                    }
-                    context.lineWidth = 1;
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Wyjście", 135, canvas.height / 3 + 150);
-                    } else {
-                        context.strokeText("Exit", 135, canvas.height / 3 + 150);
-                    }
+                    context.strokeText(lang == 0 ? (wh == 0 ? "Rozdzielczość: Dopasuj" : "Rozdzielczość: " + ws[wh] + "x" + hs[hh]) : (wh == 0 ? "Resolution: Fit" : "Resolution: " + ws[wh] + "x" + hs[hh]), 135, canvas.height / 3 + 50);
+                    context.fillStyle = select == 2 ? "White" : "Black";
+                    context.fillText(lang == 0 ? "Język: Polski" : "Language: English", 135, canvas.height / 3 + 100);
+                    context.strokeStyle = select == 2 ? "Black" : "White";
+                    context.strokeText(lang == 0 ? "Język: Polski" : "Language: English", 135, canvas.height / 3 + 100);
+                    context.fillStyle = select == 3 ? "White" : "Black";
+                    context.fillText(lang == 0 ? "Poziom trudności: " + (diff == 0 ? "Łatwy" : diff == 1 ? "Średni" : "Trudny") : "Difficulty: " + (diff == 0 ? "Easy" : diff == 1 ? "Medium" : "Hard"), 135, canvas.height / 3 + 150);
+                    context.strokeStyle = select == 3 ? "Black" : "White";
+                    context.strokeText(lang == 0 ? "Poziom trudności: " + (diff == 0 ? "Łatwy" : diff == 1 ? "Średni" : "Trudny") : "Difficulty: " + (diff == 0 ? "Easy" : diff == 1 ? "Medium" : "Hard"), 135, canvas.height / 3 + 150);
+                    context.fillStyle = select == 4 ? "White" : "Black";
+                    context.fillText(lang == 0 ? "Wyjście" : "Exit", 135, canvas.height / 3 + 200);
+                    context.strokeStyle = select == 4 ? "Black" : "White";
+                    context.strokeText(lang == 0 ? "Wyjście" : "Exit", 135, canvas.height / 3 + 200);
+                    context.font = "20px Century Gothic";
+                    context.fillStyle = "Black";
+                    context.fillText(lang == 0 ? (diff == 0 ? "Nieskończone życia" : diff == 1 ? "Dodatkowe życie za koniec nowego poziomu" : "Brak dodatkowych żyć") : (diff == 0 ? "Infinite lives" : diff == 1 ? "Extra life for every new finished level" : "No extra lives"), 135, canvas.height - 50);
+                    context.strokeStyle = "White";
+                    context.strokeText(lang == 0 ? (diff == 0 ? "Nieskończone życia" : diff == 1 ? "Dodatkowe życie za koniec nowego poziomu" : "Brak dodatkowych żyć") : (diff == 0 ? "Infinite lives" : diff == 1 ? "Extra life for every new finished level" : "No extra lives"), 135, canvas.height - 50);
                 } else {
                     var showGoal = new Goal(135, canvas.height / 3 + 70);
                     var showCp = new Checkpoint(135, canvas.height / 3 + 120);
@@ -2093,7 +1975,6 @@
                     }
                     context.strokeStyle = "White";
                     context.lineWidth = 1;
-                    context.font = "35px Century Gothic";
                     if (lang == 0) {
                         context.strokeText("Spacja      -  zatwierdzenie", 135, canvas.height / 3 - 100);
                         context.strokeText("Esc            -  pauza", 135, canvas.height / 3 - 50);
@@ -2110,20 +1991,9 @@
                         context.strokeText("   /             -  checkpoint", 135, canvas.height / 3 + 150);
                     }
                     context.fillStyle = "White";
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.fillText("Wyjście", 135, canvas.height - 50);
-                    } else {
-                        context.fillText("Exit", 135, canvas.height - 50);
-                    }
+                    context.fillText(lang == 0 ? "Wyjście" : "Exit", 135, canvas.height - 50);
                     context.strokeStyle = "Black";
-                    context.lineWidth = 1;
-                    context.font = "35px Century Gothic";
-                    if (lang == 0) {
-                        context.strokeText("Wyjście", 135, canvas.height - 50);
-                    } else {
-                        context.strokeText("Exit", 135, canvas.height - 50);
-                    }
+                    context.strokeText(lang == 0 ? "Wyjście" : "Exit", 135, canvas.height - 50);
                 }
             }
 
@@ -2134,11 +2004,11 @@
                     context.globalAlpha = (endTimer % 200) < 100 ? ((endTimer % 100) / 100.0) : (1 - ((endTimer % 100) / 100.0));
                     context.fillStyle = "White";
                     context.font = "35px Century Gothic";
-                    context.fillText(credits[((endTimer - (endTimer % 200)) / 200) + lang * (credits.length / 2)], canvas.width / 2 - 200 + (endTimer % 200), canvas.height / 2);
+                    context.fillText((((endTimer - (endTimer % 200)) / 200) < credits.length / 2) ? credits[((endTimer - (endTimer % 200)) / 200) + lang * (credits.length / 2)] : (diff == 0 ? (lang == 0 ? "średniego" : "medium") : (diff == 1 ? (lang == 0 ? "trudnego" : "hard") : (lang == 0 ? "Gratulacje!" : "Congratulations!"))), canvas.width / 2 - 200 + (endTimer % 200), canvas.height / 2);
                     context.font = "15px Century Gothic";
-                    context.fillText(smolCredits[((endTimer - (endTimer % 200))/200) + lang * (smolCredits.length / 2)], canvas.width / 2 + 200 - (endTimer % 200), canvas.height / 2 - 30);
+                    context.fillText((((endTimer - (endTimer % 200)) / 200) < credits.length / 2) ? smolCredits[((endTimer - (endTimer % 200))/200) + lang * (smolCredits.length / 2)] : (diff <= 1 ? (lang == 0 ? "Spróbuj poziomu" : "Try level") : (lang == 0 ? "" : "")), canvas.width / 2 + 200 - (endTimer % 200), canvas.height / 2 - 30);
                     context.globalAlpha = 1;
-                    if (endTimer == 200 * credits.length / 2) {
+                    if (endTimer == 200 * ((credits.length / 2) + 1)) {
                         clearInterval(inter);
                         inter = setInterval(dispMap, 10);
                     }
@@ -2148,6 +2018,21 @@
                     context.fillRect(0, 0, canvas.width, canvas.height);
                 }
                 endTimer += 0.5;
+            }
+
+            function go () {
+                context.strokeStyle = "Black";
+                context.lineWidth = goTimer * goTimer;
+                context.font = "75px Century Gothic";
+                context.strokeText(lang == 0 ? "Koniec gry" : "Game over", canvas.width / 2 - 210, canvas.height / 2);
+                context.fillStyle = "White";
+                context.fillText(lang == 0 ? "Koniec gry" : "Game over", canvas.width / 2 - 210, canvas.height / 2);
+                if (goTimer >= 80) {
+                    clearInterval(tinter);
+                    tinter = setInterval(title, 10);
+                    context.lineWidth = 1;
+                }
+                goTimer += 0.1;
             }
             
             html.addEventListener("keydown", function(event) {
@@ -2200,12 +2085,12 @@
                     } else if (menunr == 2) {
                         switch(event.keyCode) {
                         case 40:
-                            if (select < 3) {
+                            if (select < 4) {
                                 select++;
                             }
                             break;
                         case 83:
-                            if (select < 3) {
+                            if (select < 4) {
                                 select++;
                             }
                             break;
@@ -2245,6 +2130,9 @@
                             } else if (select == 2) {
                                 lang++;
                                 lang = lang % 2;
+                            } else if (select == 3) {
+                                diff++;
+                                diff %= 3;
                             } else {
                                 select = 1;
                                 menunr = 1;
@@ -2260,43 +2148,70 @@
                 } else if (map) {
                     switch (event.keyCode) {
                         case 39:
-                            if (select < last && mp.time == 0 && select % 4 != 0) {
-                                record = false;
-                                select++;
-                                mp.counter = 0;
-                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            if (!pause) {
+                                if (select < last && mp.time == 0 && select % 4 != 0) {
+                                    record = false;
+                                    select++;
+                                    mp.counter = 0;
+                                    mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                                }
+                            } else {
+                                pSelect = !pSelect;
                             }
                             break;
                         case 68:
-                            if (select < last && mp.time == 0 && select % 4 != 0) {
-                                record = false;
-                                select++;
-                                mp.counter = 0;
-                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            if (!pause) {
+                                if (select < last && mp.time == 0 && select % 4 != 0) {
+                                    record = false;
+                                    select++;
+                                    mp.counter = 0;
+                                    mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                                }
+                            } else {
+                                pSelect = !pSelect;
                             }
                             break;
                         case 37:
-                            if (select > 1 && mp.time == 0 && select % 4 != 1) {
-                                record = false;
-                                select--;
-                                mp.counter = 0;
-                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            if (!pause) {
+                                if (select > 1 && mp.time == 0 && select % 4 != 1) {
+                                    record = false;
+                                    select--;
+                                    mp.counter = 0;
+                                    mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                                }
+                            } else {
+                                pSelect = !pSelect;
                             }
                             break;
                         case 65:
-                            if (select > 1 && mp.time == 0 && select % 4 != 1) {
-                                record = false;
-                                select--;
-                                mp.counter = 0;
-                                mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                            if (!pause) {
+                                if (select > 1 && mp.time == 0 && select % 4 != 1) {
+                                    record = false;
+                                    select--;
+                                    mp.counter = 0;
+                                    mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 20);
+                                }
+                            } else {
+                                pSelect = !pSelect;
                             }
                             break;
                         case 32:
-                            record = false;
-                            clearInterval(inter);
-                            inter = setInterval(game, 10);
-                            resetLevel(select);
-                            map = false;
+                            if (!pause) {
+                                record = false;
+                                clearInterval(inter);
+                                inter = setInterval(game, 10);
+                                resetLevel(select);
+                                map = false;
+                            } else {
+                                if (!pSelect) {
+                                    pause = false;
+                                    pSelect = false;
+                                } else {
+                                    pause = false;
+                                    pSelect = false;
+                                    daed(1);
+                                }
+                            }
                             break;
                         case 38:
                             if (select < last && mp.time == 0 && select % 4 == 0) {
@@ -2329,6 +2244,10 @@
                                 mp.counter = 0;
                                 mp.update(tiles[select-1].x + 10, tiles[select-1].y + 10, 40);
                             }
+                            break;
+                        case 27:
+                            pause = !pause;
+                            pSelect = false;
                             break;
                     }
                 } else {
