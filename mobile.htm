@@ -8,12 +8,16 @@
                 top: 0px;
                 left: 0px;
             }
+	    input {
+		position: absolute;
+		top: 500px;
+		left: 20px;
+	    }
         </style>
     </head>
     <body>
         <canvas id="tabulaRasa" width=640 height=480></canvas>
-	    <p></p>
-	<input></input>
+	<input id="controls"></input>
         <script>
             var canvas = document.getElementById("tabulaRasa");
             var context = canvas.getContext("2d");
