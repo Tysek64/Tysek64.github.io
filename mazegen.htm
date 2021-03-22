@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html id="html">
+<head>
+    <title>Generator Labiryntów</title>
+    <style>
+        canvas {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+        }
+        body {
+            font-family: "Segoe UI";
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td><button id="startButton" onclick="start()">START</button></td>
+        </tr>
+        <tr>
+            <td><input type="range" id="difficulty" min=1 max=3></input></td>
+            <td>Rozmiar kratki</td>
+        </tr>
+    </table>
+    <canvas id="tabulaRasa" width=300 height=300></canvas>
+    <script>
+        var canvas = document.getElementById("tabulaRasa");
+        var context = canvas.getContext("2d");
+        canvas.style.display = "none";
+
+        var fieldSize = undefined;
+        var mazeWidth = undefined;
+        var mazeHeight = undefined;
+        var mazeArray = [];
+        var mazeRow = [];
+        var finished = false;
+        var timer = 0;
+
+        function initializeCanvas () {
+            for (var i = 0;i < mazeWidth;i++) {
+                for (var j = 0;j < mazeHeight;j++) {
+                    var r = "00";
+                    var g = "00";
+                    var b = "00";
+                    r = Math.floor(128 + 128 * (i / mazeWidth) * (j / mazeHeight)).toString(16)
+                    g = Math.floor(128 + 128 * (i / mazeWidth)).toString(16);
+                    b = Math.floor(128 + 128 * (j / mazeHeight)).toString(16);
+                    if (r.length == 1) {
+                        r = "0" + r;
+                    }
+                    if (g.length == 1) {
+                        g = "0" + g;
+                    }
+                    if (b.length == 1) {
+                        b = "0" + b;
+                    }
+                    if (mazeArray[i][j].visited) {
+                        context.fillStyle = "#" + r + g + b;
+                        context.fillRect(i * fieldSize, j * fieldSize, fieldSize, fieldSize);
+                    }
+                }
+            }
+        }
+
+        var Cell = function (x, y) {
+            this.x = x;
+            this.y = y;
+            this.walls = [false, false, false, false];
+            this.visited = false;
+        }
+
+        Cell.prototype.draw = function () {
+            context.strokeStyle = "Black";
+            context.lineWidth = "2px";
+            if (!this.walls[0]) {
+                context.strokeRect(this.x * fieldSize, this.y * fieldSize, fieldSize, 0);
+            }
+            if (!this.walls[1]) {
+                context.strokeRect(this.x * fieldSize, (this.y + 1) * fieldSize, fieldSize, 0);
+            }
+            if (!this.walls[2]) {
+                context.strokeRect((this.x + 1) * fieldSize, this.y * fieldSize, 0, fieldSize);
+            }
+            if (!this.walls[3]) {
+                context.strokeRect(this.x * fieldSize, this.y * fieldSize, 0, fieldSize);
+            }
+        }
+
+        var Generator = function (x, y) {
+            this.x = x;
+            this.y = y;
+            this.positions = [];
+        }
+
+        Generator.prototype.draw = function () {
+            context.fillStyle = "#FF0040";
+            context.fillRect((this.x * fieldSize) + (fieldSize / 4), (this.y * fieldSize) + (fieldSize / 4), (fieldSize / 2), (fieldSize / 2));
+        }
+
+        Generator.prototype.update = function () {
+            mazeArray[this.x][this.y].visited = true;
+            var left, right, up, down = undefined;
+            if (this.x == 0) {
+                left = true;
+            } else {
+                left = mazeArray[this.x - 1][this.y].visited;
+            }
+            if (this.x == mazeWidth - 1) {
+                right = true;
+            } else {
+                right = mazeArray[this.x + 1][this.y].visited;
+            }
+            if (this.y == 0) {
+                up = true;
+            } else {
+                up = mazeArray[this.x][this.y - 1].visited;
+            }
+            if (this.y == mazeHeight - 1) {
+                down = true;
+            } else {
+                down = mazeArray[this.x][this.y + 1].visited;
+            }
+            var available = [down, up, right, left];
+            var next = [];
+            if (!down) {
+                next.push(0);
+            }
+            if (!up) {
+                next.push(1);
+            }
+            if (!right) {
+                next.push(2);
+            }
+            if (!left) {
+                next.push(3);
+            }
+            if (next.length == 0) {
+                if (this.positions.length == 0) {
+                    finished = true;
+                    stop();
+                } else {
+                    var last = this.positions.pop();
+                    this.x = last[0];
+                    this.y = last[1];
+                }
+            } else {
+                this.positions.push([this.x, this.y]);
+                var dir = next[Math.floor(Math.random() * next.length)];
+                switch (dir) {
+                    case 0:
+                        mazeArray[this.x][this.y].walls[1] = true;
+                        this.y++;
+                        mazeArray[this.x][this.y].walls[0] = true;
+                        break;
+                    case 1:
+                        mazeArray[this.x][this.y].walls[0] = true;
+                        this.y--;
+                        mazeArray[this.x][this.y].walls[1] = true;
+                        break;
+                    case 2:
+                        mazeArray[this.x][this.y].walls[2] = true;
+                        this.x++;
+                        mazeArray[this.x][this.y].walls[3] = true;
+                        break;
+                    case 3:
+                        mazeArray[this.x][this.y].walls[3] = true;
+                        this.x--;
+                        mazeArray[this.x][this.y].walls[2] = true;
+                        break;
+                }
+            }
+        }
+
+        var Player = function (x, y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        Player.prototype.draw = function () {
+            context.fillStyle = "#40FF00";
+            context.fillRect((this.x * fieldSize) + (fieldSize / 4), (this.y * fieldSize) + (fieldSize / 4), (fieldSize / 2), (fieldSize / 2));
+        }
+
+        Player.prototype.control = function (dir) {
+            if (mazeArray[this.x][this.y].walls[dir]) {
+                switch (dir) {
+                    case 0:
+                        this.y--;
+                        break;
+                    case 1:
+                        this.y++;
+                        break;
+                    case 2:
+                        this.x++;
+                        break;
+                    case 3:
+                        this.x--;
+                        break;
+                }
+            }
+        }
+
+        mainPlayer = undefined;
+        
+        function update () {
+            context.fillStyle = "White";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            mainGenerator.update();
+            initializeCanvas();
+            for (var i = 0;i < mazeWidth;i++) {
+                for (var j = 0;j < mazeHeight;j++) {
+                    mazeArray[i][j].draw();
+                }
+            }
+            if (!finished) {
+                mainGenerator.draw();
+            }
+        }
+
+        function play () {
+            context.fillStyle = "White";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            initializeCanvas();
+            for (var i = 0;i < mazeWidth;i++) {
+                for (var j = 0;j < mazeHeight;j++) {
+                    mazeArray[i][j].draw();
+                }
+            }
+            mainPlayer.draw();
+            if (mainPlayer.x == mazeWidth - 1 && mainPlayer.y == mazeHeight - 1) {
+                alert("Wygrana!");
+                clearInterval(inter);
+            }
+            if (timer < 10) {
+                context.fillStyle = "#4000FF";
+                context.fillRect(((mazeWidth - 1) * fieldSize) + (fieldSize / 4), ((mazeHeight - 1) * fieldSize) + (fieldSize / 4), (fieldSize / 2), (fieldSize / 2));
+            } else {
+                context.fillStyle = "#B0FF00";
+                context.fillRect(((mazeWidth - 1) * fieldSize) + (fieldSize / 4), ((mazeHeight - 1) * fieldSize) + (fieldSize / 4), (fieldSize / 2), (fieldSize / 2));
+            }
+            timer++;
+            if (timer == 20) {
+                timer = 0;
+            }
+        }
+
+        initializeCanvas();
+        for (var i = 0;i < mazeWidth;i++) {
+            for (var j = 0;j < mazeHeight;j++) {
+                mazeArray[i][j].draw();
+            }
+        }
+
+        var inter = undefined;
+
+        function start () {
+            fieldSize = 10 * Math.pow(2, document.getElementById("difficulty").value - 1);
+            canvas.width = window.screen.width - (window.screen.width % fieldSize);
+            canvas.height = window.screen.height - (window.screen.height % fieldSize);
+            mazeWidth = canvas.width / fieldSize;
+            mazeHeight = canvas.height / fieldSize;
+            for (var i = 0;i < mazeWidth;i++) {
+                for (var j = 0;j < mazeHeight;j++) {
+                    mazeRow.push(new Cell(i, j));
+                }
+                mazeArray.push(mazeRow);
+                mazeRow = [];
+            }
+            mainGenerator = new Generator(Math.floor(Math.random() * mazeWidth), Math.floor(Math.random() * mazeHeight));
+            mainGenerator.draw();
+            canvas.style.display = "block";
+            document.getElementById("startButton").style.display = "none";
+            document.getElementById("difficulty").style.display = "none";
+            inter = setInterval(update, 50);
+        }
+
+        function stop () {
+            clearInterval(inter);
+            if (confirm("Czy chcesz zagrać w grę?")) {
+                mainPlayer = new Player(0, 0);
+                inter = setInterval(play, 50);
+            }
+        }
+
+        html.addEventListener("keydown", function(event) {
+            switch (event.keyCode) {
+                case 38:
+                    mainPlayer.control(0);
+                    break;
+                case 40:
+                    mainPlayer.control(1);
+                    break;
+                case 39:
+                    mainPlayer.control(2);
+                    break;
+                case 37:
+                    mainPlayer.control(3);
+                    break;
+            }
+        })
+    </script>
+</body>
+</html>
