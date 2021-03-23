@@ -5,8 +5,7 @@
 	<style>
 		#body {
 			font-family: 'Segoe UI';
-			background-image: linear-gradient(#ffc3c3, #cbcfff);
-			background-repeat: no-repeat;
+			background-image: linear-gradient(#ffc3c3, #cbcfff 50%, #ffc3c3);
 			background-size: auto;
 		}
 		a {
@@ -60,7 +59,7 @@
 	</table>
 	<p>2021, Tysek64</p>
 	<script>
-		document.getElementById("body").style.backgroundSize = (1.2 * window.screen.width).toString() + "px " + (1.2 * window.screen.height).toString() + "px";
+		document.getElementById("body").style.backgroundSize = (2 * window.screen.width).toString() + "px " + (2 * window.screen.height).toString() + "px";
 		
 		if (Math.floor(Math.random() * 100) == 0) {
 			for (var i = 0;i < 10;i++) {
@@ -97,10 +96,8 @@
 		function changeBackground () {
 			this1 = [this1[0] + step1[0], this1[1] + step1[1], this1[2] + step1[2]];
 			this2 = [this2[0] + step2[0], this2[1] + step2[1], this2[2] + step2[2]];
-			//console.log("linear-gradient(" + getRandomColor(this1) + ", " + getRandomColor(this2) + ")");
-			//console.log(timer);
-			document.getElementById("body").style.background = "linear-gradient(" + getRandomColor(this1) + ", " + getRandomColor(this2) + ")";
-			document.getElementById("body").style.backgroundSize = (1.2 * window.screen.width).toString() + "px " + (1.2 * window.screen.height).toString() + "px";
+			document.getElementById("body").style.background = "linear-gradient(" + getRandomColor(this1) + ", " + getRandomColor(this2) + " 50%, " + getRandomColor(this1) + ")";
+			document.getElementById("body").style.backgroundSize = (2 * window.screen.width).toString() + "px " + (2 * window.screen.height).toString() + "px";
 			timer++;
 			if (timer == 1000) {
 				timer = 0;
@@ -115,8 +112,6 @@
 			delta2 = [next2[0] - this2[0], next2[1] - this2[1], next2[2] - this2[2]];
 			step1 = [delta1[0] / 1000, delta1[1] / 1000, delta1[2] / 1000];
 			step2 = [delta2[0] / 1000, delta2[1] / 1000, delta2[2] / 1000];
-			console.log(delta1);
-			console.log(step1);
 		}
 
 		randomizeColor();
