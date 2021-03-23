@@ -113,7 +113,7 @@
             for (var i = 0;i < plansza.length;i++) {
                 for (var j = 0;j < plansza[0].length;j++) {
                     plansza[i][j] = 0;
-                    if (!kodPlanszy[i+9*j].isInteger()) {
+                    if (!Number.isInteger(kodPlanszy[i+9*j])) {
                         plansza[i][j] = 0;
                     } else {
                         plansza[i][j] = kodPlanszy[i+9*j];
