@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zegar</title>
+    <meta charset = "UTF-8">
+    <style>
+        body {
+            background-color: #515151;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="tabulaRasa0" width=220 height=220></canvas>
+    <canvas id="tabulaRasa1" width=220 height=220></canvas>
+    <canvas id="tabulaRasa2" width=220 height=220></canvas>
+    <canvas id="tabulaRasa3" width=220 height=220></canvas>
+    <canvas id="tabulaRasa4" width=220 height=220></canvas>
+    <canvas id="tabulaRasa5" width=220 height=220></canvas>
+    <canvas id="tabulaRasa6" width=220 height=220></canvas>
+    <script>
+        var canvas0 = document.getElementById("tabulaRasa0");
+        var context0 = canvas0.getContext("2d");
+        var canvas1 = document.getElementById("tabulaRasa1");
+        var context1 = canvas1.getContext("2d");
+        var canvas2 = document.getElementById("tabulaRasa2");
+        var context2 = canvas2.getContext("2d");
+        var canvas3 = document.getElementById("tabulaRasa3");
+        var context3 = canvas3.getContext("2d");
+        var canvas4 = document.getElementById("tabulaRasa4");
+        var context4 = canvas4.getContext("2d");
+        var canvas5 = document.getElementById("tabulaRasa5");
+        var context5 = canvas5.getContext("2d");
+        var canvas6 = document.getElementById("tabulaRasa6");
+        var context6 = canvas6.getContext("2d");
+        var date = new Date();
+        var h = date.getHours();
+        var m = date.getMinutes();
+        var s = date.getSeconds();
+
+        function addClock () {
+            date = new Date();
+            h = date.getHours();
+            m = date.getMinutes();
+            s = date.getSeconds();
+
+	        context0.fillStyle = "#515151";
+	        context0.fillRect(0, 0, canvas0.width, canvas0.height);
+            context0.strokeStyle = "#ff80a0";
+            context0.lineWidth = 1;
+            context0.beginPath();
+            context0.moveTo(canvas0.width/2, canvas0.height/2);
+            context0.lineTo(100*Math.sin((s/60)*2*Math.PI)+canvas0.width/2, (canvas0.height/2)-100*Math.cos((s/60)*2*Math.PI));
+            context0.stroke();
+            context0.lineWidth = 2;
+            context0.beginPath();
+            context0.moveTo(canvas0.width/2, canvas0.height/2);
+            context0.lineTo(100*Math.sin((m/60)*2*Math.PI)+canvas0.width/2, (canvas0.height/2)-100*Math.cos((m/60)*2*Math.PI));
+            context0.moveTo(canvas0.width/2, canvas0.height/2);
+            context0.lineTo(50*Math.sin((h/12)*2*Math.PI)+canvas0.width/2, (canvas0.height/2)-50*Math.cos((h/12)*2*Math.PI));
+            context0.stroke();
+
+	        context1.fillStyle = "#515151";
+	        context1.fillRect(0, 0, canvas1.width, canvas1.height);
+	        context1.fillStyle = "#a0ff80";
+	        context1.fillRect((canvas1.width/2)-1, (canvas1.height/2)-1, 2, 2);
+            context1.beginPath();
+            context1.arc(100*Math.sin((s/60)*2*Math.PI)+canvas1.width/2, (canvas1.height/2)-100*Math.cos((s/60)*2*Math.PI), 1, 0, Math.PI*2, 0);
+            context1.fill();
+            context1.beginPath();
+            context1.arc(100*Math.sin((m/60)*2*Math.PI)+canvas1.width/2, (canvas1.height/2)-100*Math.cos((m/60)*2*Math.PI), 2, 0, Math.PI*2, 0);
+            context1.fill();
+            context1.beginPath();
+            context1.arc(90*Math.sin((h/12)*2*Math.PI)+canvas1.width/2, (canvas1.height/2)-90*Math.cos((h/12)*2*Math.PI), 4, 0, Math.PI*2, 0);
+            context1.fill();
+            
+	        context2.fillStyle = "#515151";
+	        context2.fillRect(0, 0, canvas2.width, canvas2.height);
+	        context2.strokeStyle = "#80a0ff";
+            context2.beginPath();
+            context2.arc(canvas2.width/2, canvas2.height/2, 100, 0 - Math.PI/2, (s/60)*2*Math.PI - Math.PI/2, 0);
+            context2.stroke();
+            context2.beginPath();
+            context2.arc(canvas2.width/2, canvas2.height/2, 90, 0 - Math.PI/2, (m/60)*2*Math.PI - Math.PI/2, 0);
+            context2.stroke();
+            context2.beginPath();
+            context2.arc(canvas2.width/2, canvas2.height/2, 80, 0 - Math.PI/2, ((h % 12)/12)*2*Math.PI - Math.PI/2, 0);
+            context2.stroke();
+            
+	        context3.fillStyle = "#515151";
+	        context3.fillRect(0, 0, canvas3.width, canvas3.height);
+	        context3.strokeStyle = "#d070df";
+            context3.beginPath();
+            context3.arc(canvas3.width/2, canvas3.height/2, 100, 0 - Math.PI/2, (s/60)*2*Math.PI - Math.PI/2, 0);
+            context3.stroke();
+            context3.beginPath();
+            context3.arc(canvas3.width/2, canvas3.height/2, 90, 0 - Math.PI/2, (m/60)*2*Math.PI - Math.PI/2, 0);
+            context3.stroke();
+            context3.beginPath();
+            context3.arc(canvas3.width/2, canvas3.height/2, 80, 0 - Math.PI/2, ((h % 12)/12)*2*Math.PI - Math.PI/2, 0);
+            context3.stroke();
+            context3.beginPath();
+            context3.moveTo(canvas3.width/2, canvas3.height/2);
+            context3.lineTo(100*Math.sin((s/60)*2*Math.PI)+canvas3.width/2, (canvas3.height/2)-100*Math.cos((s/60)*2*Math.PI));
+            context3.moveTo(canvas3.width/2, canvas3.height/2);
+            context3.lineTo(90*Math.sin((m/60)*2*Math.PI)+canvas3.width/2, (canvas3.height/2)-90*Math.cos((m/60)*2*Math.PI));
+            context3.moveTo(canvas3.width/2, canvas3.height/2);
+            context3.lineTo(80*Math.sin((h/12)*2*Math.PI)+canvas3.width/2, (canvas3.height/2)-80*Math.cos((h/12)*2*Math.PI));
+            context3.stroke();
+
+	        context4.fillStyle = "#515151";
+	        context4.fillRect(0, 0, canvas4.width, canvas4.height);
+            context4.strokeStyle = "#dfd070";
+            context4.fillStyle = "#dfd070";
+            context4.lineWidth = 1;
+            context4.beginPath();
+            context4.moveTo(canvas4.width/2, canvas4.height/2);
+            context4.lineTo(100*Math.sin((s/60)*2*Math.PI)+canvas4.width/2, (canvas4.height/2)-100*Math.cos((s/60)*2*Math.PI));
+            context4.stroke();
+            context4.lineWidth = 2;
+            context4.beginPath();
+            context4.moveTo(canvas4.width/2, canvas4.height/2);
+            context4.lineTo(100*Math.sin((m/60)*2*Math.PI)+canvas4.width/2, (canvas4.height/2)-100*Math.cos((m/60)*2*Math.PI));
+            context4.moveTo(canvas4.width/2, canvas4.height/2);
+            context4.lineTo(50*Math.sin((h/12)*2*Math.PI)+canvas4.width/2, (canvas4.height/2)-50*Math.cos((h/12)*2*Math.PI));
+            context4.stroke();
+            context4.beginPath();
+            context4.arc(100*Math.sin((s/60)*2*Math.PI)+canvas4.width/2, (canvas4.height/2)-100*Math.cos((s/60)*2*Math.PI), 1, 0, Math.PI*2, 0);
+            context4.fill();
+            context4.beginPath();
+            context4.arc(100*Math.sin((m/60)*2*Math.PI)+canvas4.width/2, (canvas4.height/2)-100*Math.cos((m/60)*2*Math.PI), 2, 0, Math.PI*2, 0);
+            context4.fill();
+            context4.beginPath();
+            context4.arc(50*Math.sin((h/12)*2*Math.PI)+canvas4.width/2, (canvas4.height/2)-50*Math.cos((h/12)*2*Math.PI), 4, 0, Math.PI*2, 0);
+            context4.fill();
+            
+	        context5.fillStyle = "#515151";
+	        context5.fillRect(0, 0, canvas5.width, canvas5.height);
+	        context5.strokeStyle = "#70dfd0";
+	        context5.fillStyle = "#70dfd0";
+            context5.beginPath();
+            context5.arc(100*Math.sin((s/60)*2*Math.PI)+canvas5.width/2, (canvas5.height/2)-100*Math.cos((s/60)*2*Math.PI), 1, 0, Math.PI*2, 0);
+            context5.fill();
+            context5.beginPath();
+            context5.arc(90*Math.sin((m/60)*2*Math.PI)+canvas5.width/2, (canvas5.height/2)-90*Math.cos((m/60)*2*Math.PI), 2, 0, Math.PI*2, 0);
+            context5.fill();
+            context5.beginPath();
+            context5.arc(80*Math.sin((h/12)*2*Math.PI)+canvas5.width/2, (canvas5.height/2)-80*Math.cos((h/12)*2*Math.PI), 4, 0, Math.PI*2, 0);
+            context5.fill();
+            context5.beginPath();
+            context5.arc(canvas5.width/2, canvas5.height/2, 100, 0 - Math.PI/2, (s/60)*2*Math.PI - Math.PI/2, 0);
+            context5.stroke();
+            context5.beginPath();
+            context5.arc(canvas5.width/2, canvas5.height/2, 90, 0 - Math.PI/2, (m/60)*2*Math.PI - Math.PI/2, 0);
+            context5.stroke();
+            context5.beginPath();
+            context5.arc(canvas5.width/2, canvas5.height/2, 80, 0 - Math.PI/2, ((h % 12)/12)*2*Math.PI - Math.PI/2, 0);
+            context5.stroke();
+
+            context6.fillStyle = "#515151";
+            context6.fillRect(0, 0, canvas6.width, canvas6.height);
+            context6.strokeStyle = "#e0e0e0";
+            context6.fillStyle = "#e0e0e0";
+            context6.lineWidth = 1;
+            context6.beginPath();
+            context6.moveTo(canvas6.width/2, canvas6.height/2);
+            context6.lineTo(100*Math.sin((s/60)*2*Math.PI)+canvas6.width/2, (canvas6.height/2)-100*Math.cos((s/60)*2*Math.PI));
+            context6.stroke();
+            context6.lineWidth = 2;
+            context6.beginPath();
+            context6.moveTo(canvas6.width/2, canvas6.height/2);
+            context6.lineTo(90*Math.sin((m/60)*2*Math.PI)+canvas6.width/2, (canvas6.height/2)-90*Math.cos((m/60)*2*Math.PI));
+            context6.moveTo(canvas6.width/2, canvas6.height/2);
+            context6.lineTo(80*Math.sin((h/12)*2*Math.PI)+canvas6.width/2, (canvas6.height/2)-80*Math.cos((h/12)*2*Math.PI));
+            context6.stroke();
+            context6.beginPath();
+            context6.arc(100*Math.sin((s/60)*2*Math.PI)+canvas6.width/2, (canvas6.height/2)-100*Math.cos((s/60)*2*Math.PI), 1, 0, Math.PI*2, 0);
+            context6.fill();
+            context6.beginPath();
+            context6.arc(90*Math.sin((m/60)*2*Math.PI)+canvas6.width/2, (canvas6.height/2)-90*Math.cos((m/60)*2*Math.PI), 2, 0, Math.PI*2, 0);
+            context6.fill();
+            context6.beginPath();
+            context6.arc(80*Math.sin((h/12)*2*Math.PI)+canvas6.width/2, (canvas6.height/2)-80*Math.cos((h/12)*2*Math.PI), 4, 0, Math.PI*2, 0);
+            context6.fill();
+            context6.beginPath();
+            context6.arc(canvas6.width/2, canvas6.height/2, 100, 0 - Math.PI/2, (s/60)*2*Math.PI - Math.PI/2, 0);
+            context6.stroke();
+            context6.beginPath();
+            context6.arc(canvas6.width/2, canvas6.height/2, 90, 0 - Math.PI/2, (m/60)*2*Math.PI - Math.PI/2, 0);
+            context6.stroke();
+            context6.beginPath();
+            context6.arc(canvas6.width/2, canvas6.height/2, 80, 0 - Math.PI/2, ((h % 12)/12)*2*Math.PI - Math.PI/2, 0);
+            context6.stroke();
+        }
+	
+        var inter = setInterval(addClock, 100);
+    </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Wykres funkcji</title>
+    <style>
+	body {
+		background-color: #99D9EA;
+	}
+	h1 {
+		font-family: "Lucida console";
+		text-align: left;
+	}
+	button {
+		background-color: #00A2E8;
+		border: 2px solid #00A2E8;
+		font-family: "Lucida console";
+		font-size: 12pt;
+		transition-duration: 0.2s;
+		cursor: pointer;
+	}
+	button:hover {
+		background-color: #99D9EA;
+		border: 2px solid #00A2E8;
+	}
+	p {
+		font-family: "Lucida console";
+		font-size: 12pt;
+	}
+	input {
+		background-color: #00A2E8;
+		border: 2px solid #00A2E8;
+		font-family: "Lucida console";
+		font-size: 12pt;
+	}
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 25px;
+      background: #99D9EA;
+      outline: none;
+    }
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 15px;
+        height: 25px;
+        background: #00A2E8;
+        cursor: crosshair;
+    }
+</style>
+</head>
+<body>
+    <canvas id="tabulaRasa" width="200" height="200"></canvas>
+    <p></p>
+    <table>
+    <tr>
+        <td><p>y = </p></td>
+        <td><input id="equation" value = "a*x+b"></input></td>
+    </tr>
+    </table>
+    <table>
+    <tr>
+        <td><p>Powiększenie: </p></td>
+        <td><input type="range" min="1" max="3" value="2" id="zoom" class="slider" onchange="draw()"</td>
+        <td><p id="zoomValue"> 1x</p></td>
+        <td><p id="unit">10px</p></td>
+    </tr>
+    <tr>
+        <td><p>Szerokość: </p></td>
+        <td><input type="range" min="100" max="500" value="200" id="width" class="slider" onchange="draw()"></td>
+        <td><p id="widthValue"> 200px</p></td>
+    </tr>
+    <tr>
+        <td><p>Wysokość: </p></td>
+        <td><input type="range" min="100" max="500" value="200" id="height" class="slider" onchange="draw()"></td>
+        <td><p id="heightValue"> 200px</p></td>
+    </tr>
+    <tr>
+        <td><p>Skala jednostek: </p></td>
+        <td><input type="range" min="1" max="20" value="1" id="scale" class="slider" onchange="draw()"></td>
+        <td><p id="scaleValue"> 1</p></td>
+    </tr>
+    </table>
+    <table>
+    <tr>
+        <td><p>Parametr a: </p></td>
+        <td><input type="range" min="-10" max="10" value="1" id="a" class="slider" onchange="draw()"></td>
+        <td><p id="aValue">0</p></td>
+    </tr>
+    <tr>
+        <td><p>Parametr b: </p></td>
+        <td><input type="range" min="-10" max="10" value="0" id="b" class="slider" onchange="draw()"></td>
+        <td><p id="bValue">0</p></td>
+    </tr>
+    <tr>
+        <td><p>Parametr c: </p></td>
+        <td><input type="range" min="-10" max="10" value="0" id="c" class="slider" onchange="draw()"></td>
+        <td><p id="cValue">0</p></td>
+    </tr>
+    </table>
+    <button id="start" onclick="draw()">Rysuj wykres!</button>
+    <script>
+        var canvas = document.getElementById("tabulaRasa");
+        var context = canvas.getContext("2d");
+        var zoom = 1;
+
+        equation.addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                document.getElementById("start").click();
+            }
+        })
+
+        function addSth() {
+            context.fillStyle = "Gray";
+            for (var x = 0;x < canvas.width;x++) {
+                context.fillRect(x, canvas.height/2, 1, 1);
+            }
+            for (var i = 0;i < 5;i++) {
+                context.fillRect(canvas.width-i, canvas.height/2-i, 1, 1);
+                context.fillRect(canvas.width-i, canvas.height/2+i, 1, 1);
+            }
+            for (var y = 0;y < canvas.height;y++) {
+                context.fillRect(canvas.width/2, y, 1, 1);
+            }
+            for (var x = canvas.width/2;x < canvas.width;x += (zoom*100)*(scale.value/10)) {
+                context.fillRect(x, canvas.height/2-2, 1, 2);
+                context.fillRect(canvas.width-x, canvas.height/2-2, 1, 2);
+            }
+            for (var y = canvas.height/2;y < canvas.height;y += (zoom*100)*(scale.value/10)) {
+                context.fillRect(canvas.width/2+1, y, 2, 1);
+                context.fillRect(canvas.width/2+1, canvas.height-y, 2, 1);
+            }
+            for (var i = 0;i < 5;i++) {
+                context.fillRect(canvas.width/2-i, i, 1, 1);
+                context.fillRect(canvas.width/2+i, i, 1, 1);
+            }
+            context.fillStyle = "Black";
+            document.getElementById("unit").innerHTML = Math.floor((zoom*100)*(scale.value/10))+"px";
+        }
+
+        function f(x) {
+            var eq = document.getElementById("equation").value;
+            /*var a = 0;
+            var b = 0;
+            var sign = "";
+            var wasx = 0;
+            var flag = 0;
+            var ainv = 1;
+            var binv = 1;
+            var abs = 0;
+            var absBegin = 0;
+            var absEnd = 0;
+            for (var i = 0;i < eq.length;i++) {
+                if (eq[i] == 'x') {
+                    wasx = 1;
+                    if (!flag) {
+                        if (!a) {
+                            if (i == 0 || eq[i-1] != '-') {
+                                a = 1;
+                            } else if (i == 1 && eq[i-1] == '-') {
+                                a = 1;
+                                ainv = -1;
+                            }
+                        }
+                    } else {
+                        if (!b) {
+                            if (eq[i-1] == sign) {
+                                b = 1;
+                            } else if (Number.isNaN(Number(eq[i-2])) && eq[i-1] == '-') {
+                                b = -1;
+                                sign = eq[i-2];
+                            }
+                        }
+                    }
+                } else if (!Number.isNaN(Number(eq[i])) || eq[i] == '.') {
+                    if (sign == "" && !wasx) {
+                        a += eq[i];
+                    } else {
+                        b += eq[i];
+                    }
+                } else {
+                    if (eq[i] != '.') {
+                        if (eq[i] != '|') {
+                            if (!wasx) {
+                                flag = 1;
+                            }
+                            if (eq[i] == '-') {
+                                if (a != "") {
+                                    sign = eq[i];
+                                }
+                            } else {
+                                sign = eq[i];
+                            }
+                        } else {
+                            abs = 1;
+                            if (b == 0) {
+                                if (wasx) {
+                                    absBegin = "a";
+                                    absEnd = "x";
+                                } else {
+                                    absBegin = "a";
+                                    absEnd = "a";
+                                }
+                            } else {
+                                if (wasx) {
+                                    absBegin = "x";
+                                    absEnd = "b";
+                                } else {
+                                    absBegin = "b";
+                                    absEnd = "b";
+                                }
+                            }
+                        }
+                        if (eq[i] == '-') {
+                            if (a != "") {
+                                binv = -1;
+                            } else {
+                                flag = 0;
+                                ainv = -1;
+                            }
+                        } else if (eq[i] == '+') {
+                            if (a != "") {
+                                binv = 1;
+                            } else {
+                                ainv = 1;
+                            }
+                        }
+                    }
+                }
+            }
+            if (sign == 'V') {
+                if (a == 0) {
+                    a = 1;
+                }
+            }
+            a = Number(a) * ainv;
+            b = Number(b) * binv;
+            console.log(wasx+" "+flag+" "+abs+" "+absBegin+" "+absEnd)
+            if (wasx) {
+                if (!flag) {
+                    if (!abs) {
+                        if (sign == '^') {
+                            return Math.pow((a*x), b);
+                        } else if (sign == '/') {
+                            return (a*x)/b
+                        } else if (sign == 'V') {
+                            return Math.sqrt(a*x)*b;
+                        } else {
+                            return (a*x)+b;
+                        }
+                    } else {
+                        if (absBegin == "a" && absEnd == "a") {
+                            if (sign == '^') {
+                                return Math.pow((Math.abs(a)*x), b);
+                            } else if (sign == '/') {
+                                return (Math.abs(a)*x)/b
+                            } else if (sign == 'V') {
+                                return Math.sqrt(Math.abs(a)*x)*b;
+                            } else {
+                                return (Math.abs(a)*x)+b;
+                            }
+                        } else if (absBegin == "a" && absEnd == "x") {
+                            if (sign == '^') {
+                                return Math.pow((Math.abs(a*x)), b);
+                            } else if (sign == '/') {
+                                return (Math.abs(a*x))/b
+                            } else if (sign == 'V') {
+                                return Math.sqrt(Math.abs(a*x))*b;
+                            } else {
+                                return (Math.abs(a*x))+b;
+                            }
+                        } else if (absBegin == "x" && absEnd == "b") {
+                            if (sign == '^') {
+                                return Math.pow(a, Math.abs((b*x)));
+                            } else if (sign == '/') {
+                                return a/Math.abs((b*x));
+                            } else if (sign == 'V') {
+                                return a*Math.sqrt(Math.abs(x*b));
+                            } else {
+                                return a+Math.abs(b*x);
+                            }
+                        }
+                    }
+                } else {
+                    if (!abs) {
+                        if (sign == '^') {
+                            return Math.pow(a, (b*x));
+                        } else if (sign == '/') {
+                            return a/(b*x)
+                        } else if (sign == 'V') {
+                            return a*Math.sqrt(x*b);
+                        } else {
+                            return a+(b*x);
+                        }
+                    } else {
+                        if (absBegin == "x" && absEnd == "b") {
+                            if (sign == '^') {
+                                return Math.pow(a, Math.abs((b*x)));
+                            } else if (sign == '/') {
+                                return a/Math.abs((b*x));
+                            } else if (sign == 'V') {
+                                return a*Math.sqrt(Math.abs(x*b));
+                            } else {
+                                return a+Math.abs(b*x);
+                            }
+                        } else if (absBegin == "b" && absEnd == "b") {
+                            if (sign == '^') {
+                                return Math.pow(a, Math.abs(b)*x);
+                            } else if (sign == '/') {
+                                return a/Math.abs(b)*x;
+                            } else if (sign == 'V') {
+                                return a*Math.sqrt(Math.abs(b)*x);
+                            } else {
+                                return a+Math.abs(b)*x;
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (!flag) {
+                    if (sign == '^') {
+                        return Math.pow(a, b);
+                    } else if (sign == '/') {
+                        return a/b
+                    } else if (sign == 'V') {
+                        return Math.sqrt(a)*b;
+                    } else {
+                        return a+b;
+                    }
+                } else {
+                    if (sign == '^') {
+                        return Math.pow(a, b);
+                    } else if (sign == '/') {
+                        return a/b
+                    } else if (sign == 'V') {
+                        return a*Math.sqrt(b);
+                    } else {
+                        return a+b;
+                    }
+                }
+            }*/
+            var a = Number(document.getElementById("a").value);
+            document.getElementById("aValue").innerHTML = a;
+            var b = Number(document.getElementById("b").value);
+            document.getElementById("bValue").innerHTML = b;
+            var c = Number(document.getElementById("c").value);
+            document.getElementById("cValue").innerHTML = c;
+            return eval(eq);
+        }
+
+        function clear() {
+            context.fillStyle = "#99D9EA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = "Black";
+        }
+
+        function draw() {
+            canvas.width = document.getElementById("width").value;
+            canvas.height = document.getElementById("height").value;
+            clear();
+            var zoomSlider = Number(document.getElementById("zoom").value);
+            if (zoomSlider == 1) {
+                zoom = 10;
+            } else if (zoomSlider == 2) {
+                zoom = 1;
+            } else {
+                zoom = 0.1;
+            }
+            var scale = document.getElementById("scale").value;
+            document.getElementById("zoomValue").innerHTML = " "+zoom+"x";
+            document.getElementById("widthValue").innerHTML = " "+canvas.width+"px";
+            document.getElementById("heightValue").innerHTML = " "+canvas.height+"px";
+            document.getElementById("scaleValue").innerHTML = " "+scale;
+            addSth();
+            var y = 0;
+            zoom /= Math.pow(zoom, 2);
+            var x = -1*(canvas.width/2)*(zoom/10);
+            for (var i = 0;i < canvas.width;i++) {
+                y = f(x);
+                context.lineWidth = 2;
+                context.beginPath();
+                context.moveTo((x/(zoom/10))+(canvas.width/2), (canvas.height/2)-(y/(zoom/10)));
+                context.lineTo(((x-(zoom/10))/(zoom/10))+(canvas.width/2), (canvas.height/2)-(f(x-(zoom/10))/(zoom/10)), 2, 2);
+                context.stroke();
+                x += (zoom/10);
+            }
+        }
+
+        draw();
+    </script>
+</body>
+</head>

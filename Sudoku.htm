@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sudoku</title>
+    <meta charset=UTF-8>
+    <style>
+        button {
+            font-family: "Arial";
+            font-size: 20pt;
+        }
+        input {
+            font-family: "Arial";
+            font-size: 20pt;
+            width: 450px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="tabulaRasa" width=450 height=450></canvas>
+    <table>
+        <tr>
+            <td>
+                <button id="1" onclick="wpiszLiczbe(1)">1</button>
+            </td>
+            <td>
+                <button id="2" onclick="wpiszLiczbe(2)">2</button>
+            </td>
+            <td>
+                <button id="3" onclick="wpiszLiczbe(3)">3</button>
+            </td>
+            <td>
+                <button id="4" onclick="wpiszLiczbe(4)">4</button>
+            </td>
+            <td>
+                <button id="5" onclick="wpiszLiczbe(5)">5</button>
+            </td>
+            <td>
+                <button id="6" onclick="wpiszLiczbe(6)">6</button>
+            </td>
+            <td>
+                <button id="7" onclick="wpiszLiczbe(7)">7</button>
+            </td>
+            <td>
+                <button id="8" onclick="wpiszLiczbe(8)">8</button>
+            </td>
+            <td>
+                <button id="9" onclick="wpiszLiczbe(9)">9</button>
+            </td>
+            <td>
+                <button id="0" onclick="wpiszLiczbe(0)">Wymaż</button>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td><input id="nowaPlansza" value="300240085500300160080000200008402000000000000000107300003000020061003009970056001"></input></td>
+            <td><button onclick="nowaPlansza()">Stwórz planszę</button></td>
+        </tr>
+    </table>
+    <script src="jquery-3.5.1.js"></script>
+    <script>
+        var canvas = document.getElementById("tabulaRasa");
+        var context = canvas.getContext("2d");
+        var pozycjaMyszy = [0, 0];
+        var pozycjaKlikniecia = [600, 60];
+        var zaznaczony = [9, 9];
+        var blad = [9, 9];
+        var bledy = 0;
+        var plansza = [[3, 5, 0, 0, 0, 0, 0, 0, 9], 
+                       [0, 0, 8, 0, 0, 0, 0, 6, 7], 
+                       [0, 0, 0, 8, 0, 0, 3, 1, 0], 
+                       [2, 3, 0, 4, 0, 1, 0, 0, 0], 
+                       [4, 0, 0, 0, 0, 0, 0, 0, 5], 
+                       [0, 0, 0, 2, 0, 7, 0, 3, 6], 
+                       [0, 1, 2, 0, 0, 3, 0, 0, 0], 
+                       [8, 6, 0, 0, 0, 0, 2, 0, 0], 
+                       [5, 0, 0, 0, 0, 0, 0, 9, 1]];
+        var blokada = [[0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                       [0, 0, 0, 0, 0, 0, 0, 0, 0]];
+
+        for (var i = 0;i < plansza.length;i++) {
+            for (var j = 0;j < plansza[0].length;j++) {
+                if (plansza[i][j] != 0) {
+                    blokada[i][j] = 1;
+                }
+            }
+        }
+
+        $("canvas").mousemove(function(dwe) {
+            pozycjaMyszy[0] = dwe.pageX-2;
+            pozycjaMyszy[1] = dwe.pageY-2;
+        })
+
+        $("canvas").click(function(dwe) {
+            pozycjaKlikniecia[0] = dwe.pageX-2;
+            pozycjaKlikniecia[1] = dwe.pageY-2;
+        })
+
+        function nowaPlansza () {
+            var kodPlanszy = document.getElementById("nowaPlansza").value;
+            for (var i = 0;i < plansza.length;i++) {
+                for (var j = 0;j < plansza[0].length;j++) {
+                    blokada[i][j] = 0;
+                }
+            }
+            for (var i = 0;i < plansza.length;i++) {
+                for (var j = 0;j < plansza[0].length;j++) {
+                    plansza[i][j] = 0;
+                    plansza[i][j] = kodPlanszy[i+9*j];
+                }
+            }
+            for (var i = 0;i < plansza.length;i++) {
+                for (var j = 0;j < plansza[0].length;j++) {
+                    if (plansza[i][j] != 0) {
+                        blokada[i][j] = 1;
+                    }
+                }
+            }
+        }
+                    
+        function rysujKratki () {
+            context.fillStyle = "White";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = "#C0C0C0";
+            for (var i = 0;i < blokada.length;i++) {
+                for (var j = 0;j < blokada[0].length;j++) {
+                    if (blokada[i][j] == 1) {
+                        context.fillRect(i*(canvas.width/9), j*(canvas.width/9), (canvas.width/9), (canvas.width/9));
+                    }
+                }
+            }
+            if (zaznaczony[0] <= 8 && zaznaczony[1] <= 8) {
+                if (blokada[zaznaczony[0]][zaznaczony[1]]) {
+                    context.fillStyle = "#C0C000";
+                } else {
+                    context.fillStyle = "#FFFF00";
+                }
+                context.fillRect(zaznaczony[0]*(canvas.width/9), zaznaczony[1]*(canvas.width/9), (canvas.width/9), (canvas.width/9));
+            }
+            for (var i = 0;i <= plansza.length;i++) {
+                context.strokeStyle = "Black";
+                if (i % 3 == 0) {
+                    context.lineWidth = 3;
+                } else {
+                    context.lineWidth = 1;
+                }
+                context.beginPath();
+                context.moveTo(i*(canvas.width/plansza.length), 0);
+                context.lineTo(i*(canvas.width/plansza.length), canvas.height);
+                context.stroke();
+            }
+            for (var i = 0;i <= plansza[0].length;i++) {
+                context.strokeStyle = "Black";
+                if (i % 3 == 0) {
+                    context.lineWidth = 3;
+                } else {
+                    context.lineWidth = 1;
+                }
+                context.beginPath();
+                context.moveTo(0, i*(canvas.height/plansza[0].length));
+                context.lineTo(canvas.height, i*(canvas.height/plansza[0].length));
+                context.stroke();
+            }
+        }
+
+        function rysujPlansze () {
+            for (var i = 0;i < plansza.length;i++) {
+                for (var j = 1;j <= plansza[0].length;j++) {
+                    if (plansza[i][j-1] != "0") {
+                        if (i == blad[0] && (j-1) == blad[1]) {
+                            context.fillStyle = "Red";
+                        } else {
+                            context.fillStyle = "Black";
+                        }
+                        context.font = 30 + "px Arial";
+                        context.fillText(plansza[i][j-1], i*(canvas.width/plansza.length)+(canvas.width/(plansza.length*3)), j*(canvas.height/plansza[0].length)-(canvas.height/(plansza[0].length*3)));
+                    }
+                }
+            }
+        }
+
+        function zmienLiczby () {
+            zaznaczony = [((pozycjaKlikniecia[0]-pozycjaKlikniecia[0]%50)/50), ((pozycjaKlikniecia[1]-pozycjaKlikniecia[1]%50)/50)];
+        }
+
+        function wpiszLiczbe (liczba) {
+            if (zaznaczony[0] <= 8 && zaznaczony[1] <= 8 && zaznaczony[0] >= 0 && zaznaczony[1] >= 0) {
+                if (!blokada[zaznaczony[0]][zaznaczony[1]]) {
+                    plansza[zaznaczony[0]][zaznaczony[1]] = liczba;
+                }
+            }
+        }
+
+        function wypiszKwadrat (numer) {
+            var kwadrat = [];
+            for (var i = 0;i < 9;i++) {
+                kwadrat.push(plansza[(numer % 3)*3 + (i % 3)][(numer - numer % 3) + (i - (i % 3)) / 3]);
+            }
+            return kwadrat;
+        }
+
+        function sprawdzBledy () {
+            var kwadrat = [];
+            for (var i = 0;i < plansza.length;i++) {
+                for (var j = 0;j < plansza[0].length;j++) {
+                    for (var k = 0;k < plansza[0].length;k++) {
+                        if ((plansza[i][j] == plansza[i][k]) && (plansza[i][j] != 0 && plansza[i][k] != 0) && (j != k)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            for (var i = 0;i < plansza[0].length;i++) {
+                for (var j = 0;j < plansza.length;j++) {
+                    for (var k = 0;k < plansza.length;k++) {
+                        if ((plansza[j][i] == plansza[k][i]) && (plansza[j][i] != 0 && plansza[k][i] != 0) && (j != k)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            for (var i = 0;i < 9;i++) {
+                kwadrat = wypiszKwadrat(i);
+                for (var j = 0;j < kwadrat.length;j++) {
+                    for (var k = 0;k < kwadrat.length;k++) {
+                        if ((kwadrat[j] == kwadrat[k]) && (kwadrat[j] != 0 && kwadrat[k] != 0) && (j != k)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function wygrana () {
+            if (!sprawdzBledy()) {
+                for (var i = 0;i < plansza.length;i++) {
+                    for (var j = 0;j < plansza[0].length;j++) {
+                        if (plansza[i][j] == 0) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        function gra () {
+            rysujKratki();
+            rysujPlansze();
+            zmienLiczby();
+            if (!sprawdzBledy()) {
+                blad = [9, 9];
+            } else {
+                if (blad[0] == 9 && blad[1] == 9) {
+                    bledy++;
+                    blad = [zaznaczony[0], zaznaczony[1]];
+                }
+            }
+            if (wygrana()) {
+                clearInterval(powtarzanie);
+                alert("Wygrana! Popełniłeś " + bledy + " błędów.");
+                zaznaczony = [9, 9];
+                rysujKratki();
+                rysujPlansze();
+            }
+        }
+
+        var powtarzanie = setInterval(gra, 10);
+    </script>
+</body>
+</html>
