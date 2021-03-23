@@ -5,11 +5,11 @@
     <meta charset=UTF-8>
     <style>
         button {
-            font-family: "Arial";
+            font-family: "Segoe UI";
             font-size: 20pt;
         }
         input {
-            font-family: "Arial";
+            font-family: "Segoe UI";
             font-size: 20pt;
             width: 450px;
         }
@@ -113,7 +113,11 @@
             for (var i = 0;i < plansza.length;i++) {
                 for (var j = 0;j < plansza[0].length;j++) {
                     plansza[i][j] = 0;
-                    plansza[i][j] = kodPlanszy[i+9*j];
+                    if (kodPlanszy[i+9*j] == undefined) {
+                        plansza[i][j] = 0;
+                    } else {
+                        plansza[i][j] = kodPlanszy[i+9*j];
+                    }
                 }
             }
             for (var i = 0;i < plansza.length;i++) {
