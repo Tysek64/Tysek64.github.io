@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Game of life</title>
+	<style>
+        canvas {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+        }
+		button {
+			height: 20px;
+			width: 100px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="tabulaRasa" width=600 height=600></canvas>
+	<button onclick="start()" id="button">START</button>
+	<button onclick="cleaar()" id="button1">CZYŚĆ</button>
+	<script src="https://tysek64.github.io/jquery-3.5.1.js"></script>
+	<script>
+		var canvas = document.getElementById("tabulaRasa");
+		var context = canvas.getContext("2d");
+		canvas.width = window.screen.width;
+		canvas.height = window.screen.height - 40;
+		document.getElementById("button").style.position = "absolute";
+		document.getElementById("button").style.left = "10px";
+		document.getElementById("button").style.top = (window.screen.height - 30).toString() + "px";
+		document.getElementById("button1").style.position = "absolute";
+		document.getElementById("button1").style.left = "120px";
+		document.getElementById("button1").style.top = (window.screen.height - 30).toString() + "px";
+
+		var cellSize = 10;
+		var cellsWidth = canvas.width / cellSize + 1;
+		var cellsHeight = canvas.height / cellSize + 1;
+		var cellArray = [];
+		var cellRow = [];
+		var stateRow = [];
+		var tempArray = [];
+		var stateArray = [];
+		var inter = undefined;
+		var ready = true;
+		var mousePos = [0, 0];
+
+		var Cell = function (x, y, state) {
+			this.x = x;
+			this.y = y;
+			this.state = state;
+		}
+
+		Cell.prototype.draw = function () {
+			if (this.state) {
+				context.fillStyle = "Black";
+				context.fillRect((this.x - 0) * cellSize, (this.y - 0) * cellSize, cellSize, cellSize);
+			} else {
+				context.strokeStyle = "Black";
+				context.lineWidth = "1px";
+				context.strokeRect((this.x - 0) * cellSize, (this.y - 0) * cellSize, cellSize, cellSize);
+			}
+		}
+
+		for (var i = 0;i < cellsWidth + 2;i++) {
+			for (var j = 0;j < cellsHeight + 2;j++) {
+				cellRow.push(new Cell(i - 1, j - 1, false));
+				stateRow.push(false);
+			}
+			cellArray.push(cellRow);
+			stateArray.push(stateRow);
+			tempArray.push(stateRow);
+			cellRow = [];
+			stateRow = [];
+		}
+		for (var i = 0;i < cellsWidth;i++) {
+			for (var j = 0;j < cellsHeight;j++) {
+				cellArray[i][j].state = stateArray[i][j];
+				cellArray[i][j].draw();
+			}
+		}
+
+		function countNeighbors (x, y) {
+			var count = 0;
+			if (cellArray[x-1][y].state) {
+				count++;
+			}
+			if (cellArray[x+1][y].state) {
+				count++;
+			}
+			if (cellArray[x-1][y-1].state) {
+				count++;
+			}
+			if (cellArray[x-1][y+1].state) {
+				count++;
+			}
+			if (cellArray[x+1][y-1].state) {
+				count++;
+			}
+			if (cellArray[x+1][y+1].state) {
+				count++;
+			}
+			if (cellArray[x][y-1].state) {
+				count++;
+			}
+			if (cellArray[x][y+1].state) {
+				count++;
+			}
+			return count;
+		}
+
+		function update () {
+			context.fillStyle = "White";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			for (var i = 1;i < cellsWidth-1;i++) {
+				for (var j = 1;j < cellsHeight-1;j++) {
+					if (!stateArray[i][j]) {
+						if (countNeighbors(i, j) == 3) {
+							tempArray[i][j] = true;
+						}
+					} else {
+						if (countNeighbors(i, j) == 3 || countNeighbors(i, j) == 2) {
+							tempArray[i][j] = true;
+						} else {
+							tempArray[i][j] = false;
+						}
+					}
+				}
+			}
+			for (var i = 0;i < cellsWidth;i++) {
+				for (var j = 0;j < cellsHeight;j++) {
+					stateArray[i][j] = tempArray[i][j];
+					cellArray[i][j].state = stateArray[i][j];
+					cellArray[i][j].draw();
+					stateArray[i][j] = cellArray[i][j].state;
+				}
+			}
+		}
+
+		function start () {
+			inter = setInterval(update, 100);
+			ready = false;
+			document.getElementById("button").innerHTML = "STOP";
+			document.getElementById("button").setAttribute("onclick", "stop()");
+			document.getElementById("button1").disabled = true;
+		}
+
+		function stop () {
+			clearInterval(inter);
+			ready = true;
+			document.getElementById("button").innerHTML = "START";
+			document.getElementById("button").setAttribute("onclick", "start()");
+			document.getElementById("button1").disabled = false;
+		}
+
+		function cleaar () {
+			if (ready) {
+				context.fillStyle = "White";
+				context.fillRect(0, 0, canvas.width, canvas.height);
+				for (var i = 0;i < cellsWidth;i++) {
+					for (var j = 0;j < cellsHeight;j++) {
+						stateArray[i][j] = false;
+						cellArray[i][j].state = stateArray[i][j];
+						cellArray[i][j].draw();
+					}
+				}
+			}
+		}
+
+		$("canvas").click(function(dwe) {
+			if (ready) {
+				mousePos[0] = dwe.pageX + (cellSize * 1);
+				mousePos[1] = dwe.pageY + (cellSize * 1);
+				mousePos[0] -= (mousePos[0] % cellSize);
+				mousePos[0] /= cellSize;
+				mousePos[1] -= (mousePos[1] % cellSize);
+				mousePos[1] /= cellSize;
+				stateArray[mousePos[0]][mousePos[1]] = !stateArray[mousePos[0]][mousePos[1]];
+				context.fillStyle = "White";
+				context.fillRect(0, 0, canvas.width, canvas.height);
+				for (var i = 0;i < cellsWidth;i++) {
+					for (var j = 0;j < cellsHeight;j++) {
+						cellArray[i][j].state = stateArray[i][j];
+						cellArray[i][j].draw();
+					}
+				}
+			}
+		})
+	</script>
+</body>
+</html>
