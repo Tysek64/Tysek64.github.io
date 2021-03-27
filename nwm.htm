@@ -1,277 +1,265 @@
 ﻿<!DOCTYPE html>
-
 <html>
-
 <head>
+	<meta charset=UTF-8>
+	<style>
+		body {
+			background-color: #99D9EA;
+		}
+		h1 {
+			font-family: "Segoe UI";
+			text-align: left;
+			cursor: default;
+		}
+		button {
+			background-color: #00A2E8;
+			border: 2px solid #00A2E8;
+			font-family: "Segoe UI";
+			font-size: 12pt;
+			width: 104px;
+			transition-duration: 0.2s;
+			cursor: pointer;
+		}
+		button:hover {
+			background-color: #99D9EA;
+			border: 2px solid #00A2E8;
+		}
+		button:disabled {
+			cursor: default;
+			background-color:#00A2E8; 
+		}
+		th {
+			font-family: "Segoe UI";
+			font-size: 12pt;
+			font-weight: normal;
+			cursor: default;
+		}
+		input {
+			background-color: #00A2E8;
+			border: 2px solid #00A2E8;
+			font-family: "Segoe UI";
+			font-size: 12pt;
+			width: 100px;
+		}
+		#caly {
+			width: 100%;
+			background-color: #99D9EA;
+			border: 2px solid #00A2E8;
+		}
 
-<meta charset=UTF-8>
-
-<style>
-	body {
-		background-color: #99D9EA;
-	}
-	h1 {
-		font-family: "Lucida console";
-		text-align: left;
-		cursor: default;
-	}
-	button {
-		background-color: #00A2E8;
-		border: 2px solid #00A2E8;
-		font-family: "Lucida console";
-		font-size: 12pt;
-		width: 104px;
-		transition-duration: 0.2s;
-		cursor: pointer;
-	}
-	button:hover {
-		background-color: #99D9EA;
-		border: 2px solid #00A2E8;
-	}
-	button:disabled {
-		cursor: default;
-		background-color:#00A2E8; 
-	}
-	th {
-		font-family: "Lucida console";
-		font-size: 12pt;
-		font-weight: normal;
-		cursor: default;
-	}
-	input {
-		background-color: #00A2E8;
-		border: 2px solid #00A2E8;
-		font-family: "Lucida console";
-		font-size: 12pt;
-		width: 100px;
-	}
-	#caly {
-		width: 100%;
-		background-color: #99D9EA;
-		border: 2px solid #00A2E8;
-	}
-
-	#pas {
-		width: 0%;
-		height: 30px;
-		background-color: #00A2E8;
-	}
-
-</style>
-
-<title>Minutnik</title>
-
+		#pas {
+			width: 0%;
+			height: 30px;
+			background-color: #00A2E8;
+		}
+	</style>
+	<title>Minutnik</title>
 </head>
-
 <body>
+	<table>
+		<tr>
+			<th>Godziny</th>
+			<th>Minuty</th>
+			<th>Sekundy</th>
+		</tr>
+		<tr>
+			<td><input id="godz" value=0></td>
+			<td><input id="min" value=0></td>
+			<td><input id="sek"value=5></td>
+		</tr>
+		<tr>
+			<td><p></p></td>
+		</tr>
+		<tr>
+			<td><button onclick=alarm() id="start">Start</button></td>
+			<td><button onclick=pause() id="Pause" disabled>Wstrzymaj</button></td>
+			<td><button onclick=stop() id="stop" disabled>Stop</button></td>
+		</tr>
+	</table>
 
-<table>
-	<tr>
-		<th>Godziny</th>
-		<th>Minuty</th>
-		<th>Sekundy</th>
-	</tr>
-	<tr>
-		<td><input id="godz" value=0></td>
-		<td><input id="min" value=1></td>
-		<td><input id="sek"value=0></td>
-	</tr>
-	<tr>
-		<td><p></p></td>
-	</tr>
-	<tr>
-		<td><button onclick=alarm() id="start">Start</button></td>
-		<td><button onclick=pause() id="Pause" disabled>Wstrzymaj</button></td>
-		<td><button onclick=stop() id="stop" disabled>Stop</button></td>
-	</tr>
-</table>
+	<table>
+		<tr>
+			<td><h1 id="godzh">00</h1></td>
+			<td><h1>:</h1></td>
+			<td><h1 id="minh">00</h1></td>
+			<td><h1>:</h1></td>
+			<td><h1 id="sekh">00</h1></td>
+			<td><h1>.</h1></td>
+			<td><h1 id="seth">00</h1></td>
+		</tr>
+	</table>
 
-<table>
-	<tr>
-		<td><h1 id="godzh">00</h1></td>
-		<td><h1>:</h1></td>
-		<td><h1 id="minh">00</h1></td>
-		<td><h1>:</h1></td>
-		<td><h1 id="sekh">00</h1></td>
-		<td><h1>.</h1></td>
-		<td><h1 id="seth">00</h1></td>
-	</tr>
-</table>
-
-<div id="caly">
-	<div id="pas"></div>
-</div>
-
-<audio id="audio" loop>
+	<div id="caly">
+		<div id="pas"></div>
+	</div>
 	
-<source src="notify.wav" type="audio/wav">
+	<h1 id="koniecCzasu"></h1>
 
-</div>
+	<audio id="audio" loop=>
+	<source src="notify.wav" type="audio/wav">
+	<script>
+		var remain = undefined;
+		var pausa = 0;
+		var godz = undefined;
+		var min = undefined;
+		var sek = undefined;
+		var czas = undefined;
+		var zeit = undefined;
+		var lock = 0;
+		var teim = 0;
+		var godzh1 = 00;
+		var minhj = 00;
+		var sekhj = 00;
+		var sethj = 00;
 
-<script>
-
-var remain = undefined;
-var pausa = 0;
-var godz = undefined;
-var min = undefined;
-var sek = undefined;
-var czas = undefined;
-var zeit = undefined;
-var lock = 0;
-var teim = 0;
-var godzh1 = 00;
-var minhj = 00;
-var sekhj = 00;
-var sethj = 00;
-
-var open = function() {
-	document.getElementById("menu").style.display = block;
-}
-
-var close = function() {
-	document.getElementById("menu").style.display = "none";
-}
-
-var koniec = function() {
-	document.getElementById("godzh").innerHTML = "00";
-	document.getElementById("minh").innerHTML = "00";
-	document.getElementById("sekh").innerHTML = "00";
-	document.getElementById("seth").innerHTML = "00";
-	document.getElementById("Pause").innerHTML = "Wstrzymaj";
-	document.getElementById("pas").style.width = "0%";
-	audio.currentTime = 0;
-	audio.play();
-	alert("Koniec czasu!");
-	audio.pause();
-	lock = 0;
-	pausa = 0;
-	clearInterval(teim);
-	document.getElementById("start").disabled = false;
-	document.getElementById("Pause").disabled = true;
-	document.getElementById("stop").disabled = true;
-	document.getElementById("godz").disabled = false;
-	document.getElementById("min").disabled = false;
-	document.getElementById("sek").disabled = false;
-	check = 0;
-}
-
-var alarm = function() {
-
-		document.getElementById("sek").value = document.getElementById("sek").value.replace(",",".")
-
-	godz = document.getElementById("godz").value;
-	min = document.getElementById("min").value;
-	sek = document.getElementById("sek").value;
-
-	while (sek>=60) {
-		document.getElementById("min").value++;
-		min++;
-		document.getElementById("sek").value = sek-60;
-		sek = sek-60;
-	}
-	
-	while (min>=60) {
-		document.getElementById("godz").value++;
-		godz++;
-		document.getElementById("min").value = min-60;
-		min = min-60;
-	}
-
-
-	if (lock==0) {
-		czas = (godz*3600000)+(min*60000)+(sek*1000);
-		if ((isNaN(czas) == true) || (godz < 0) || (min < 0) || (sek < 0) || (godz % 1 != 0) || (min % 1 != 0)) {
-			alert("Coś jest nie tak...");
-		} else {
-		zeit = setTimeout(koniec, czas);
-		lock = 1;
-		document.getElementById("start").disabled = true;
-		document.getElementById("Pause").disabled = false;
-		document.getElementById("stop").disabled = false;
-		document.getElementById("godz").disabled = true;
-		document.getElementById("min").disabled = true;
-		document.getElementById("sek").disabled = true;
-		remain = (czas/10) - 1;
-		teim = setInterval(a, 10);
-
+		var open = function() {
+			document.getElementById("menu").style.display = block;
 		}
 
-	} else {
-		alert("Minutnik już działa!");
-	}
-}
+		var close = function() {
+			document.getElementById("menu").style.display = "none";
+		}
 
-var stop = function() {
-	if (lock==1) {
-		document.getElementById("start").disabled = false;
-		document.getElementById("Pause").disabled = true;
-		document.getElementById("stop").disabled = true;
-		document.getElementById("godz").disabled = false;
-		document.getElementById("min").disabled = false;
-		document.getElementById("sek").disabled = false;
-		document.getElementById("Pause").innerHTML = "Wstrzymaj";
-		document.getElementById("pas").style.width = "0%";
-		clearTimeout(zeit);
-		clearInterval(teim);
-		lock = 0;
-		pausa = 0;
-		document.getElementById("godzh").innerHTML = "00";
-		document.getElementById("minh").innerHTML = "00";
-		document.getElementById("sekh").innerHTML = "00";
-		document.getElementById("seth").innerHTML = "00";
-	} else {
-		alert("Nie ma ustawionego minutnika!");
-	}
-}
+		var koniec = function() {
+			audio.play();
+			document.getElementById("koniecCzasu").innerHTML = "Koniec czasu!";
+			document.getElementById("Pause").disabled = true;
+			document.getElementById("stop").setAttribute("onclick", "endd()");
+			clearInterval(teim);
+		}
 
-var pause = function() {
-	if (lock==1) {
-		if (pausa==0) {
-			document.getElementById("Pause").innerHTML = "Wznów    ";
-			pausa = 1;
-			clearTimeout(zeit);
-		} else {
+		var endd = function () {
+			document.getElementById("koniecCzasu").innerHTML = "";
+			document.getElementById("godzh").innerHTML = "00";
+			document.getElementById("minh").innerHTML = "00";
+			document.getElementById("sekh").innerHTML = "00";
+			document.getElementById("seth").innerHTML = "00";
 			document.getElementById("Pause").innerHTML = "Wstrzymaj";
+			document.getElementById("pas").style.width = "0%";
+			audio.pause();
+			document.getElementById("stop").setAttribute("onclick", "koniec()");
+			lock = 0;
 			pausa = 0;
-			zeit = setTimeout(koniec, remain*10);
+			document.getElementById("start").disabled = false;
+			document.getElementById("Pause").disabled = true;
+			document.getElementById("stop").disabled = true;
+			document.getElementById("godz").disabled = false;
+			document.getElementById("min").disabled = false;
+			document.getElementById("sek").disabled = false;
+			check = 0;
 		}
+
+		var alarm = function() {
+
+			document.getElementById("sek").value = document.getElementById("sek").value.replace(",",".")
+
+			godz = document.getElementById("godz").value;
+			min = document.getElementById("min").value;
+			sek = document.getElementById("sek").value;
+
+			while (sek>=60) {
+				document.getElementById("min").value++;
+				min++;
+				document.getElementById("sek").value = sek-60;
+				sek = sek-60;
+			}
 			
-	} else {
-		alert("Nie ma ustawionego minutnika");
-	}
-}
+			while (min>=60) {
+				document.getElementById("godz").value++;
+				godz++;
+				document.getElementById("min").value = min-60;
+				min = min-60;
+			}
 
-var a = function() {
-	if(pausa == 0 && lock == 1) {
-		remain--;
-		godzhj = Math.floor(((((remain/100) - ((remain/100) % 60)) / 3600))).toString();
-		minhj = ((((remain/100) - ((remain/100) % 60)) / 60) % 60).toString();
-		sekhj = (((remain/100) % 60) - (((remain/100) % 60) % 1)).toString();
-		sethj = (((((remain/100) % 60) % 1) * 100) - (((((remain/100) % 60) % 1) * 100) % 1)).toString();
-		if (godzhj.length == 1) {
-			godzhj = "0"+godzhj;
+
+			if (lock==0) {
+				czas = (godz*3600000)+(min*60000)+(sek*1000);
+				if ((isNaN(czas) == true) || (godz < 0) || (min < 0) || (sek < 0) || (godz % 1 != 0) || (min % 1 != 0)) {
+					alert("Coś jest nie tak...");
+				} else {
+					zeit = setTimeout(koniec, czas);
+					lock = 1;
+					document.getElementById("start").disabled = true;
+					document.getElementById("Pause").disabled = false;
+					document.getElementById("stop").disabled = false;
+					document.getElementById("godz").disabled = true;
+					document.getElementById("min").disabled = true;
+					document.getElementById("sek").disabled = true;
+					remain = (czas/10) - 1;
+					teim = setInterval(a, 10);
+				}
+
+			} else {
+				alert("Minutnik już działa!");
+			}
 		}
-		if (minhj.length == 1) {
-			minhj = "0"+minhj;
+
+		var stop = function() {
+			if (lock==1) {
+				document.getElementById("start").disabled = false;
+				document.getElementById("Pause").disabled = true;
+				document.getElementById("stop").disabled = true;
+				document.getElementById("godz").disabled = false;
+				document.getElementById("min").disabled = false;
+				document.getElementById("sek").disabled = false;
+				document.getElementById("Pause").innerHTML = "Wstrzymaj";
+				document.getElementById("pas").style.width = "0%";
+				clearTimeout(zeit);
+				clearInterval(teim);
+				lock = 0;
+				pausa = 0;
+				document.getElementById("godzh").innerHTML = "00";
+				document.getElementById("minh").innerHTML = "00";
+				document.getElementById("sekh").innerHTML = "00";
+				document.getElementById("seth").innerHTML = "00";
+			} else {
+				alert("Nie ma ustawionego minutnika!");
+			}
 		}
-		if (sekhj.length == 1) {
-			sekhj = "0"+sekhj;
+
+		var pause = function() {
+			if (lock==1) {
+				if (pausa==0) {
+					document.getElementById("Pause").innerHTML = "Wznów    ";
+					pausa = 1;
+					clearTimeout(zeit);
+				} else {
+					document.getElementById("Pause").innerHTML = "Wstrzymaj";
+					pausa = 0;
+					zeit = setTimeout(koniec, remain*10);
+				}
+					
+			} else {
+				alert("Nie ma ustawionego minutnika");
+			}
 		}
-		if (sethj.length == 1) {
-			sethj = "0"+sethj;
+
+		var a = function() {
+			if(pausa == 0 && lock == 1) {
+				remain--;
+				godzhj = Math.floor(((((remain/100) - ((remain/100) % 60)) / 3600))).toString();
+				minhj = ((((remain/100) - ((remain/100) % 60)) / 60) % 60).toString();
+				sekhj = (((remain/100) % 60) - (((remain/100) % 60) % 1)).toString();
+				sethj = (((((remain/100) % 60) % 1) * 100) - (((((remain/100) % 60) % 1) * 100) % 1)).toString();
+				if (godzhj.length == 1) {
+					godzhj = "0"+godzhj;
+				}
+				if (minhj.length == 1) {
+					minhj = "0"+minhj;
+				}
+				if (sekhj.length == 1) {
+					sekhj = "0"+sekhj;
+				}
+				if (sethj.length == 1) {
+					sethj = "0"+sethj;
+				}
+				document.getElementById("godzh").innerHTML = godzhj;
+				document.getElementById("minh").innerHTML = minhj;
+				document.getElementById("sekh").innerHTML = sekhj;
+				document.getElementById("seth").innerHTML = sethj;
+				document.getElementById("pas").style.width = (remain * 1000) / czas + "%";
+			}
 		}
-
-
-		document.getElementById("godzh").innerHTML = godzhj;
-		document.getElementById("minh").innerHTML = minhj;
-		document.getElementById("sekh").innerHTML = sekhj;
-		document.getElementById("seth").innerHTML = sethj;
-		document.getElementById("pas").style.width = (remain * 1000) / czas + "%";
-	}
-}
-
-</script>
-
+	</script>
 </body>
-
 </html>
