@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html id="html">
+<head>
+	<title>Raycast demo</title>
+	<style>
+		canvas {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="widok3d" width=400 height=400></canvas>
+	<canvas id="tabulaRasa" width=320 height=240></canvas>
+	<script>
+		var canvas = document.getElementById("tabulaRasa");
+		var context = canvas.getContext("2d");
+
+		var canvas1 = document.getElementById("widok3d");
+		var context1 = canvas1.getContext("2d");
+
+		//canvas.style.display = "none";
+
+		canvas1.width = window.screen.width;
+		canvas1.height = window.screen.height;
+
+		var levelWidth = 64;
+		var levelHeight = 48;
+
+		var Player = function (x, y, fov) {
+			this.x = x;
+			this.y = y;
+			this.dir = Math.PI / 2;
+			this.fov = fov;
+			this.dirx = 0;
+			this.diry = 0;
+			this.dira = 0;
+			this.rayArray = [];
+			this.resolution = 100;
+		}
+
+		Player.prototype.draw = function (level, rays) {
+			this.rayArray = [];
+			for (var i = (-0.5 * this.resolution);i < this.resolution / 2;i++) {
+				this.rayArray.push(new Ray(this.x, this.y, (this.dir + (i * 2 * this.fov / this.resolution))));
+			}
+			context.fillStyle = "White";
+			context.fillRect((this.x - 1) / 2, (this.y - 1) / 2, 2, 2);
+			for (var i = 0;i < this.resolution;i++) {
+				rays.push(this.rayArray[i].cast(level));
+			}
+		}
+
+		Player.prototype.update = function () {
+			var nextx = this.x - Math.cos(this.dir) * this.diry;
+			var nexty = this.y -  Math.sin(this.dir) * this.diry;
+			this.dir += this.dira;
+			var levelX = parseInt(nextx);
+			levelX -= (levelX % ((canvas.width * 2) / levelWidth));
+			levelX /= ((canvas.width * 2) / levelWidth);
+			var levelY = parseInt(nexty);
+			levelY -= (levelY % ((canvas.height * 2) / levelHeight));
+			levelY /= ((canvas.height * 2) / levelHeight);
+			var onWall = (level[levelY][levelX] == 1);
+			if (onWall) {
+				this.dirx = 0;
+				this.diry = 0;
+			} else {
+				this.x = nextx;
+				this.y = nexty;
+			}
+		}
+
+		var Ray = function (x, y, dir) {
+			this.x = x;
+			this.y = y;
+			this.dir = dir;
+			this.step = 4;
+		}
+
+		Ray.prototype.cast = function (level) {
+			var newx = 0;
+			var newy = 0;
+			var onWall = false;
+			var length = 0;
+			while (this.x > 0 && this.x < (canvas.width * 2) && this.y > 0 && this.y < (canvas.height * 2) && !onWall && length < 700) {
+				newx = this.x + Math.cos(this.dir) * this.step;
+				newy = this.y + Math.sin(this.dir) * this.step;
+				context.strokeStyle = "White";
+				context.lineWidth = 1;
+				context.beginPath();
+				context.moveTo(this.x / 2, this.y / 2);
+				context.lineTo(newx / 2, newy / 2);
+				context.stroke();
+				this.x = newx;
+				this.y = newy;
+				var levelX = parseInt(this.x);
+				levelX -= (levelX % ((canvas.width * 2) / levelWidth));
+				levelX /= ((canvas.width * 2) / levelWidth);
+				var levelY = parseInt(this.y);
+				levelY -= (levelY % ((canvas.height * 2) / levelHeight));
+				levelY /= ((canvas.height * 2) / levelHeight);
+				onWall = (level[levelY][levelX] == 1);
+				length += this.step;
+			}
+			return length * Math.abs(Math.cos(this.dir));
+		}
+
+		var mainPlayer = new Player((canvas.width * 2) / 2, (canvas.height * 2) / 2, Math.PI / 6);
+		var level = [];
+		var levelRow = [];
+		var raysLength = [];
+		for (var i = 0;i < levelHeight;i++) {
+			for (var j = 0;j < levelWidth;j++) {
+				if (j == 0 || j == levelWidth - 1 || i == 0 || i == levelHeight - 1) {
+					levelRow.push(1);
+				} else {
+					levelRow.push(0);
+				}
+			}
+			level.push(levelRow);
+			levelRow = [];
+		}
+		for (var i = 0;i < 10;i++) {
+			level[Math.floor(Math.random() * levelHeight)][Math.floor(Math.random() * levelWidth)] = 1;
+		}
+
+		function update () {
+			context.fillStyle = "Black";
+			context.fillRect(0, 0, (canvas.width), (canvas.height));
+			context1.fillStyle = "Black";
+			context1.fillRect(0, 0, canvas1.width, canvas1.height);
+			mainPlayer.update();
+			for (var i = 0;i < levelHeight;i++) {
+				for (var j = 0;j < levelWidth;j++) {
+					if (level[i][j] == 1) {
+						context.fillStyle = "#B0B0B0";
+					} else {
+						context.fillStyle = "Black";
+					}
+					context.fillRect(j * ((canvas.height) / levelHeight), i * ((canvas.width) / levelWidth), ((canvas.width) / levelWidth), ((canvas.height) / levelHeight));
+				}
+			}
+			mainPlayer.draw(level, raysLength);
+			
+			for (var i = 0;i < canvas1.height / 2;i++) {
+				context1.fillStyle = "#" + parseInt((255 / canvas1.height) * i).toString(16) + parseInt((255 / canvas1.height) * i).toString(16) + parseInt((255 / canvas1.height) * i).toString(16);
+				context1.fillRect(0, canvas1.height / 2 + i, canvas1.width, 1);
+			}
+			for (var i = 0;i < raysLength.length;i++) {
+				context1.fillStyle = "#" + parseInt(256 - (255 / 700) * raysLength[i]).toString(16) + parseInt(256 - (255 / 700) * raysLength[i]).toString(16) + parseInt(256 - (255 / 700) * raysLength[i]).toString(16);
+				context1.fillRect(i * (canvas1.width / mainPlayer.resolution), (canvas1.height / 2) - ((700 - raysLength[i]) / (697 / (canvas1.height / 2))), (canvas1.width / mainPlayer.resolution) + 1, ((700 - raysLength[i]) / (697 / (canvas1.height))));
+			}
+			raysLength = [];
+		}
+
+		var inter = setInterval(update, 50);
+
+		function stop () {
+			clearInterval(inter);
+		}
+
+		html.addEventListener("keydown", function (dwe) {
+			switch (dwe.keyCode) {
+				case 38:
+					mainPlayer.diry = -4;
+					break;
+				case 40:
+					mainPlayer.diry = 4;
+					break;
+				case 39:
+					mainPlayer.dirx = 4;
+					break;
+				case 37:
+					mainPlayer.dirx = -4;
+					break;
+				case 65:
+					mainPlayer.dira = -0.05;
+					break;
+				case 68:
+					mainPlayer.dira = 0.05;
+					break;
+			}
+		});
+
+		html.addEventListener("keyup", function (dwe) {
+			switch (dwe.keyCode) {
+				case 38:
+					mainPlayer.diry = 0;
+					break;
+				case 40:
+					mainPlayer.diry = 0;
+					break;
+				case 39:
+					mainPlayer.dirx = 0;
+					break;
+				case 37:
+					mainPlayer.dirx = 0;
+					break;
+				case 65:
+					mainPlayer.dira = 0;
+					break;
+				case 68:
+					mainPlayer.dira = 0;
+					break;
+			}
+		});
+	</script>
+</body>
+</html>
