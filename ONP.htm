@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html id="html">
+<head>
+	<title>ONP</title>
+</head>
+<body>
+	<h1 id="wynik">0</h1>
+	<input id="dzialanie"></input>
+	<button onclick="oblicz()">OBLICZ</button>
+	<script>
+		function oblicz () {
+			var dzialanie = document.getElementById("dzialanie").value;
+			var rzeczy = dzialanie.split(" ");
+			var stos = [];
+			var i = 0;
+			var a = 0;
+			var b = 0;
+			do {
+				if (!isNaN(Number(rzeczy[i]))) {
+					stos.push(Number(rzeczy[i]));
+				} else {
+					a = stos.pop();
+					b = stos.pop();
+					switch (rzeczy[i]) {
+						case '+':
+							stos.push(b + a);
+							break;
+						case '-':
+							stos.push(b - a);
+							break;
+						case '*':
+							stos.push(b * a);
+							break;
+						case '/':
+							stos.push(b / a);
+							break;
+					}
+				}
+				i++;
+			} while (i < rzeczy.length);
+			document.getElementById("wynik").innerHTML = stos[0];
+		}
+
+		html.addEventListener("keydown", function (dwe) {
+			if (dwe.keyCode == 13) {
+				oblicz();
+			}
+		})
+	</script>
+</body>
+</html>
