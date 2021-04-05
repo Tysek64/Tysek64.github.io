@@ -63,6 +63,10 @@
 			<td><input type="range" min=1 max=3 id="randomness"></input></td>
 		</tr>
 		<tr>
+			<td><p>Animacje: </p></td>
+			<td><input type="range" min=1 max=2 value=2 id="animeshon"></input></td>
+		</tr>
+		<tr>
 			<td><button onclick="start()">Generuj</button></td>
 		</tr>
 	</table>
@@ -80,9 +84,21 @@
 		var width = canvas.width / tileSize;
 		var height = canvas.height / tileSize;
 		var started = false;
+		var inter = undefined;
+		var counter = 0;
 
 		var colors = [];
-		var ea = [];
+		var eacon = [];
+		var oldcolors = [];
+		var difference = [];
+
+		for (var i = 0;i < width;i++) {
+			for (var j = 0;j < height;j++) {
+				eacon.push([0, 0, 0]);
+			}
+			difference.push(eacon);
+			eacon = [];
+		}
 
 		function generateColor () {
 			var rn = Math.floor(Math.random() * 256);
@@ -107,16 +123,43 @@
 			return "#" + r + g + b;
 		}
 
+		function transition () {
+			for (var i = 0;i < width;i++) {
+				for (var j = 0;j < height;j++) {
+					context.fillStyle = toHex([Math.floor(oldcolors[i][j][0] + difference[i][j][0]), Math.floor(oldcolors[i][j][1] + difference[i][j][1]), Math.floor(oldcolors[i][j][2] + difference[i][j][2])]);
+					oldcolors[i][j][0] += difference[i][j][0];
+					oldcolors[i][j][1] += difference[i][j][1];
+					oldcolors[i][j][2] += difference[i][j][2];
+					context.fillRect(i * tileSize, j * tileSize, tileSize, tileSize);
+				}
+			}
+			counter++;
+			if (counter == 5 * tileSize) {
+				for (var i = 0;i < width;i++) {
+					for (var j = 0;j < height;j++) {
+						context.fillStyle = toHex(colors[i][j]);
+						context.fillRect(i * tileSize, j * tileSize, tileSize, tileSize);
+					}
+				}
+				started = true;
+				clearInterval(inter);
+			}
+		}
+
 		function update () {
 			colors = [];
-			ea = [];
+			eacon = [];
+			var eacon1 = [];
 
 			for (var i = 0;i < width;i++) {
 				for (var j = 0;j < height;j++) {
-					ea.push(0);
+					eacon.push(0);
+					eacon1.push([25, 25, 112]);
 				}
-				colors.push(ea);
-				ea = [];
+				colors.push(eacon);
+				oldcolors.push(eacon1);
+				eacon = [];
+				eacon1 = [];
 			}
 
 			colors[0][0] = generateColor();
@@ -191,8 +234,20 @@
 
 			for (var i = 0;i < width;i++) {
 				for (var j = 0;j < height;j++) {
-					context.fillStyle = toHex(colors[i][j]);
-					context.fillRect(i * tileSize, j * tileSize, tileSize, tileSize);
+					difference [i][j] = [(((colors[i][j][0] - oldcolors[i][j][0]) / (5 * tileSize))), (((colors[i][j][1] - oldcolors[i][j][1]) / (5 * tileSize))), (((colors[i][j][2] - oldcolors[i][j][2]) / (5 * tileSize)))];
+				}
+			}
+
+			if (document.getElementById("animeshon").value == 2) {
+				counter = 0;
+				started = false;
+				inter = setInterval(transition, 10);
+			} else {
+				for (var i = 0;i < width;i++) {
+					for (var j = 0;j < height;j++) {
+						context.fillStyle = toHex(colors[i][j]);
+						context.fillRect(i * tileSize, j * tileSize, tileSize, tileSize);
+					}
 				}
 			}
 		}
@@ -222,6 +277,14 @@
 			}
 			width = canvas.width / tileSize;
 			height = canvas.height / tileSize;
+			var eacon2 = [];
+			for (var i = 0;i < width;i++) {
+				for (var j = 0;j < height;j++) {
+					eacon2.push([0, 0, 0]);
+				}
+				difference.push(eacon2);
+				eacon2 = [];
+			}
 			started = true;
 			document.getElementById("UI").style.display = "none";
 			canvas.style.display = "block";
