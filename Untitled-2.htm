@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html id="html">
+<head>
+	<title></title>
+	<style>
+		canvas {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="tabulaRasa" width=100 height=100></canvas>
+	<script>
+		var canvas = document.getElementById("tabulaRasa");
+		var context = canvas.getContext("2d");
+
+		canvas.width = window.screen.width;
+		canvas.height = window.screen.height;
+
+		var tileSize = 10;
+		var randomness = 31;
+		var width = canvas.width / tileSize;
+		var height = canvas.height / tileSize;
+
+		var colors = [];
+		var ea = [];
+
+		function generateColor () {
+			var rn = Math.floor(Math.random() * 256);
+			var gn = Math.floor(Math.random() * 256);
+			var bn = Math.floor(Math.random() * 256);
+			return [rn, gn, bn];
+		}
+
+		function toHex (color) {
+			var r = color[0].toString(16);
+			if (r.length == 1) {
+				r = "0" + r;
+			}
+			var g = color[1].toString(16);
+			if (g.length == 1) {
+				g = "0" + g;
+			}
+			var b = color[2].toString(16);
+			if (b.length == 1) {
+				b = "0" + b;
+			}
+			return "#" + r + g + b;
+		}
+
+		function update () {
+			colors = [];
+			ea = [];
+
+			for (var i = 0;i < width;i++) {
+				for (var j = 0;j < height;j++) {
+					ea.push(0);
+				}
+				colors.push(ea);
+				ea = [];
+			}
+
+			colors[0][0] = generateColor();
+
+			for (var i = 1;i < width;i++) {
+				colors[i][0] = [colors[i-1][0][0] + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2)), colors[i-1][0][1] + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2)), colors[i-1][0][2] + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2))];
+				if (colors[i][0][0] < 0) {
+					colors[i][0][0] = 0;
+				}
+				if (colors[i][0][1] < 0) {
+					colors[i][0][1] = 0;
+				}
+				if (colors[i][0][2] < 0) {
+					colors[i][0][2] = 0;
+				}
+				if (colors[i][0][0] > 255) {
+					colors[i][0][0] = 255;
+				}
+				if (colors[i][0][1] > 255) {
+					colors[i][0][1] = 255;
+				}
+				if (colors[i][0][2] > 255) {
+					colors[i][0][2] = 255;
+				}
+			}
+
+			for (var i = 1;i < height;i++) {
+				colors[0][i] = [colors[0][i-1][0] + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2)), colors[0][i-1][1] + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2)), colors[0][i-1][2] + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2))];
+				if (colors[0][i][0] < 0) {
+					colors[0][i][0] = 0;
+				}
+				if (colors[0][i][1] < 0) {
+					colors[0][i][1] = 0;
+				}
+				if (colors[0][i][2] < 0) {
+					colors[0][i][2] = 0;
+				}
+				if (colors[0][i][0] > 255) {
+					colors[0][i][0] = 255;
+				}
+				if (colors[0][i][1] > 255) {
+					colors[0][i][1] = 255;
+				}
+				if (colors[0][i][2] > 255) {
+					colors[0][i][2] = 255;
+				}
+			}
+
+			for (var i = 1;i < width;i++) {
+				for (var j = 1;j < height;j++) {
+					colors[i][j] = [Math.floor((colors[i][j-1][0] + colors[i-1][j-1][0]) / 2) + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2)), Math.floor((colors[i][j-1][1] + colors[i-1][j-1][1]) / 2) + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2)), Math.floor((colors[i][j-1][2] + colors[i-1][j-1][2]) / 2) + (Math.floor(Math.random() * randomness) - Math.floor(randomness / 2))];
+					if (colors[i][j][0] < 0) {
+						colors[i][j][0] = 0;
+					}
+					if (colors[i][j][1] < 0) {
+						colors[i][j][1] = 0;
+					}
+					if (colors[i][j][2] < 0) {
+						colors[i][j][2] = 0;
+					}
+					if (colors[i][j][0] > 255) {
+						colors[i][j][0] = 255;
+					}
+					if (colors[i][j][1] > 255) {
+						colors[i][j][1] = 255;
+					}
+					if (colors[i][j][2] > 255) {
+						colors[i][j][2] = 255;
+					}
+				}
+			}
+
+			for (var i = 0;i < width;i++) {
+				for (var j = 0;j < height;j++) {
+					context.fillStyle = toHex(colors[i][j]);
+					context.fillRect(i * tileSize, j * tileSize, tileSize, tileSize);
+				}
+			}
+		}
+
+		update();
+
+		//var inter = setInterval(update, 500);
+
+		function stop () {
+			clearInterval(inter);
+		}
+
+		html.addEventListener("keydown", function (dwe) {
+			if (dwe.keyCode == 32) {
+				update();
+			}
+		})
+	</script>
+</body>
+</html>
