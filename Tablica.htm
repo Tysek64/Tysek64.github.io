@@ -5,43 +5,49 @@
     <title>Tablica</title>
     <style>
         body {
-            background-color: #EEEEEE;
+            background-color: #000000;
+			color: #EEEEEE;
         }
         canvas {
             cursor: url('pen_m.cur'), default;
+			position: absolute;
+			left: 0px;
+			top: 100px;
         }
         input {
+            background-color: #000000;
+			color: #EEEEEE;
             font-family: "Arial";
             font-size: 30;
         }
         #textInput {
             display: none;
         }
-	#everything {
-	    cursor: pointer;
-	}
-	p {
-	    font-family: "Arial";
-	    font-size: 12pt;
-	}
-	button {
-	    font-family: "Arial";
-	    font-size: 12pt;
-	    background-color: #EEEEEE;
-	    border: 2px solid #808080;
-	    cursor: pointer;
-	    transition-duration: 0.2s;
-	}
-	button:hover {
-	    background-color: #BB80FF;
-	}
-	button:disabled {
-	    border: 2px solid #000000;
-	}
+		#everything {
+			cursor: pointer;
+		}
+		p {
+			font-family: "Arial";
+			font-size: 12pt;
+		}
+		button {
+			font-family: "Arial";
+			color: #EEEEEE;
+			font-size: 12pt;
+			background-color: #000000;
+			border: 2px solid #808080;
+			cursor: pointer;
+			transition-duration: 0.2s;
+		}
+		button:hover {
+			background-color: #808080;
+		}
+		button:disabled {
+			border: 2px solid #000000;
+		}
     </style>
 </head>
 <body>
-    <canvas id="tabulaRasa" width="700" height="500"></canvas>
     <table>
         <tr>
             <td><button id="0" onclick="change(0)" disabled>Rysowanie</button></td>
@@ -61,14 +67,14 @@
     </table>
     <table>
 	<tr>
-            <td><button id="#000000" onclick="colourc(0)" style="background-color: #000000; height: 25; width: 25; border: 3px solid #000000;"></button></td>
-            <td><button id="#FF0000" onclick="colourc(1)" style="background-color: #FF0000; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#00FF00" onclick="colourc(2)" style="background-color: #00FF00; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#0000FF" onclick="colourc(3)" style="background-color: #0000FF; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#00FFFF" onclick="colourc(4)" style="background-color: #00FFFF; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#FFFF00" onclick="colourc(5)" style="background-color: #FFFF00; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#FF00FF" onclick="colourc(6)" style="background-color: #FF00FF; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-	    <td><input type="color" id="everything" style="border: 3px solid #808080; width: 25; height: 25" onchange="colourc(99)"></td>
+            <td><button id="#E6E6E6" onclick="colourc(0)" style="background-color: #E6E6E6; height: 25; width: 25; border: 3px solid #000000;"></button></td>
+            <td><button id="#C41847" onclick="colourc(1)" style="background-color: #C41847; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+            <td><button id="#1D9A6C" onclick="colourc(2)" style="background-color: #1D9A6C; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+            <td><button id="#2E5D87" onclick="colourc(3)" style="background-color: #2E5D87; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+            <td><button id="#DE6348" onclick="colourc(4)" style="background-color: #DE6348; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+            <td><button id="#FFFEA2" onclick="colourc(5)" style="background-color: #FFFEA2; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+            <td><button id="#B51557" onclick="colourc(6)" style="background-color: #B51557; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+	    <td><input type="color" id="everything" value="#E6E6E6" style="border: 3px solid #808080; width: 25; height: 25" onchange="colourc(99)"></td>
 	</tr>
     </table>
     <table>
@@ -76,14 +82,19 @@
 	    <td><button onclick="save()">Zapisz</button></td>
 	</tr>
     </table>
+    <canvas id="tabulaRasa" width="700" height="500"></canvas>
     <p id="p"></p>
     <a id="link"></a>
     <input id="textInput" disabled></input>
     <script src="jquery-3.5.1.js"></script></script>
     <script>
         var canvas = document.getElementById("tabulaRasa");
+		canvas.width = window.screen.width;
+		canvas.height = window.screen.height - 100;
         var context = canvas.getContext("2d");
-	context.lineCap = "round";
+		context.lineCap = "round";
+		context.fillStyle = "#202020";
+		context.fillRect(0, 0, canvas.width, canvas.height);
         var x = 0;
         var y = 0;
         var prevx = 0;
@@ -97,15 +108,13 @@
 	var beginY = -99;
 	var endX = 0;
 	var endY = 0;
-	var colour = "#000000";
+	var colour = "#E6E6E6";
 	var inputs = [];
 	var sol = [1,1,3,1,6,2,1,7,2,1,7,1,1,6,3,1,7,2,1,6,4,1,5,7,1,4,6,7,1,3,2,1,4,1,1,5,4,1,5,7,1,4,2,1,5,3,1,4,1];
 
-        context.fillStyle = "White";
-        context.fillRect(0, 0, canvas.width, canvas.height);
         context.strokeStyle = colour;
 	context.fillStyle = colour;
-	
+
 	textInput.addEventListener("keyup", function(event) {
 	    if (event.keyCode === 13) {
 		event.preventDefault();
@@ -114,34 +123,42 @@
 	})
 
 	function colourc (val) {
-	    if (colour == "#000000" || colour == "#FF0000" || colour == "#00FF00" || colour == "#0000FF" || colour == "#00FFFF" || colour == "#FFFF00" || colour == "#FF00FF") {
+	    if (colour == "#E6E6E6" || colour == "#C41847" || colour == "#1D9A6C" || colour == "#2E5D87" || colour == "#DE6348" || colour == "#FFFEA2" || colour == "#B51557") {
 		document.getElementById(colour).style.border = "3px solid #808080";
 	    }
 	    document.getElementById("everything").style.border = "3px solid #808080";
-	    switch (val){ 
+	    switch (val){
 	    case 0 :
-		colour = "#000000";
+		colour = "#E6E6E6";
+		document.getElementById("textInput").style.color = "#E6E6E6";
 		break;
 	    case 1 :
-		colour = "#FF0000";
+		colour = "#C41847";
+		document.getElementById("textInput").style.color = "#C41847";
 		break;
 	    case 2:
-		colour = "#00FF00";
+		colour = "#1D9A6C";
+		document.getElementById("textInput").style.color = "#1D9A6C";
 		break;
 	    case 3:
-		colour = "#0000FF";
+		colour = "#2E5D87";
+		document.getElementById("textInput").style.color = "#2E5D87";
 		break;
 	    case 4:
-		colour = "#00FFFF";
+		colour = "#DE6348";
+		document.getElementById("textInput").style.color = "#DE6348";
 		break;
 	    case 5:
-		colour = "#FFFF00";
+		colour = "#FFFEA2";
+		document.getElementById("textInput").style.color = "#FFFEA2";
 		break;
-	    case 6: 
-		colour = "#FF00FF";
+	    case 6:
+		colour = "#B51557";
+		document.getElementById("textInput").style.color = "#B51557";
 		break;
 	    default:
 		colour = document.getElementById("everything").value;
+		document.getElementById("textInput").style.color = document.getElementById("everything").value;
 		break;
 	    }
 	    document.getElementById("everything").value = colour;
@@ -156,13 +173,13 @@
 	    inputs.push(4);
 	    var confirmc = confirm("Czy na pewno chcesz wyczyścić tablicę?");
 	    if (confirmc) {
-        	context.fillStyle = "White";
+        	context.fillStyle = "#202020";
         	context.fillRect(0, 0, canvas.width, canvas.height);
         	context.strokeStyle = colour;
 		context.fillStyle = colour;
 	    }
 	}
-		
+
 
         function updateSize () {
             size = document.getElementById("sizeValue").value;
@@ -180,9 +197,7 @@
                 prevx = x;
                 prevy = y;
                 x = dwe.pageX;
-                y = dwe.pageY;
-		x -= 8;
-		y -= 8
+                y = dwe.pageY-100;
                 if (!began) {
                     prevx = x;
                     prevy = y;
@@ -196,6 +211,7 @@
                     context.lineTo(x, y);
                     context.stroke();
                 } else if (tool == 1) {
+                    document.getElementById("textInput").style.display = "block";
                     began = false;
                     text = document.getElementById("textInput").value;
                     text = "";
@@ -376,15 +392,12 @@
         }
 
         function change(tools) {
+            document.getElementById("textInput").style.display = "none";
 	    if (tools != 0) {
 		inputs.push(tools);
 	    }
 	    beginX = -99;
 	    beginY = -99;
-            $("#textInput").offset({
-                left: 0,
-                top: 600
-            })
             if (tools == 0) {
                 document.getElementById("sizeValue").value = 2;
             } else if (tools == 1) {
@@ -397,7 +410,6 @@
             }
             if (tools == 1) {
                 document.getElementById("textInput").disabled = 0;
-                document.getElementById("textInput").style.display = "initial";
             } else {
                 document.getElementById("textInput").style.display = "none";
                 document.getElementById("textInput").disabled = 1;
