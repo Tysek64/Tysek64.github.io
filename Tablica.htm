@@ -1,446 +1,569 @@
 <DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Tablica</title>
-    <style>
-        body {
-            background-color: #000000;
-			color: #EEEEEE;
-        }
-        canvas {
-            cursor: url('pen_m.cur'), default;
-			position: absolute;
-			left: 0px;
-			top: 100px;
-        }
-        input {
-            background-color: #000000;
-			color: #EEEEEE;
-            font-family: "Arial";
-            font-size: 30;
-        }
-        #textInput {
-            display: none;
-        }
-		#everything {
-			cursor: pointer;
-		}
-		p {
-			font-family: "Arial";
-			font-size: 12pt;
-		}
-		button {
-			font-family: "Arial";
-			color: #EEEEEE;
-			font-size: 12pt;
-			background-color: #000000;
-			border: 2px solid #808080;
-			cursor: pointer;
-			transition-duration: 0.2s;
-		}
-		button:hover {
-			background-color: #808080;
-		}
-		button:disabled {
-			border: 2px solid #000000;
-		}
-    </style>
-</head>
-<body>
-    <table>
-        <tr>
-            <td><button id="0" onclick="change(0)" disabled>Rysowanie</button></td>
-            <td><button id="2" onclick="change(2)">Zakreślacz</button></td>
-            <td><button id="5" onclick="change(5)">Linia</button></td>
-            <td><button id="8" onclick="change(8)">Wektor</button></td>
-            <td><button id="6" onclick="change(6)">Prostokąt</button></td>
-            <td><button id="7" onclick="change(7)">Obramowanie</button></td>
-            <td><button id="9" onclick="change(9)">Koło</button></td>
-            <td><button id="10" onclick="change(10)">Okrąg</button></td>
-            <td><button id="1" onclick="change(1)">Tekst</button></td>
-            <td><button id="3" onclick="change(3)">Gumka</button></td>
-            <td><button id="4" onclick="clearc()">Czyść</button></td>
-            <td><p>Rozmiar: </p></td>
-            <td><input type="range" min="1" max="10" value="2" id="sizeValue" onchange="updateSize()"></td>
-        </tr>
-    </table>
-    <table>
-	<tr>
-            <td><button id="#E6E6E6" onclick="colourc(0)" style="background-color: #E6E6E6; height: 25; width: 25; border: 3px solid #000000;"></button></td>
-            <td><button id="#C41847" onclick="colourc(1)" style="background-color: #C41847; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#1D9A6C" onclick="colourc(2)" style="background-color: #1D9A6C; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#2E5D87" onclick="colourc(3)" style="background-color: #2E5D87; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#DE6348" onclick="colourc(4)" style="background-color: #DE6348; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#FFFEA2" onclick="colourc(5)" style="background-color: #FFFEA2; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-            <td><button id="#B51557" onclick="colourc(6)" style="background-color: #B51557; height: 25; width: 25; border: 3px solid #808080;"></button></td>
-	    <td><input type="color" id="everything" value="#E6E6E6" style="border: 3px solid #808080; width: 25; height: 25" onchange="colourc(99)"></td>
-	</tr>
-    </table>
-    <table>
-	<tr>
-	    <td><button onclick="save()">Zapisz</button></td>
-	</tr>
-    </table>
-    <canvas id="tabulaRasa" width="700" height="500"></canvas>
-    <p id="p"></p>
-    <a id="link"></a>
-    <input id="textInput" disabled></input>
-    <script src="jquery-3.5.1.js"></script></script>
-    <script>
-        var canvas = document.getElementById("tabulaRasa");
-		canvas.width = window.screen.width;
-		canvas.height = window.screen.height - 100;
-        var context = canvas.getContext("2d");
-		context.lineCap = "round";
-		context.fillStyle = "#202020";
-		context.fillRect(0, 0, canvas.width, canvas.height);
-        var x = 0;
-        var y = 0;
-        var prevx = 0;
-        var prevy = 0;
-        var began = false;
-        var mouseDown = false;
-        var tool = 0;
-        var text = "";
-        var size = document.getElementById("sizeValue").value;
-	var beginX = -99;
-	var beginY = -99;
-	var endX = 0;
-	var endY = 0;
-	var colour = "#E6E6E6";
-	var inputs = [];
-	var sol = [1,1,3,1,6,2,1,7,2,1,7,1,1,6,3,1,7,2,1,6,4,1,5,7,1,4,6,7,1,3,2,1,4,1,1,5,4,1,5,7,1,4,2,1,5,3,1,4,1];
+	<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Tablica</title>
+		<style>
+			:root {
+				--collorr: (#808080);
+			}
+			body {
+				background-color: #000000;
+				color: #EEEEEE;
+			}
+			canvas {
+				cursor: url('pen_m.cur'), default;
+				position: absolute;
+				left: 0px;
+				top: 100px;
+			}
+			input {
+				background-color: #202020;
+				color: #EEEEEE;
+				font-family: "Arial";
+				font-size: 30;
+			}
+			#textInput {
+				display: none;
+			}
+			#everything {
+				cursor: pointer;
+			}
+			p {
+				font-family: "Arial";
+				font-size: 12pt;
+			}
+			button {
+				font-family: "Arial";
+				color: #EEEEEE;
+				font-size: 12pt;
+				background-color: #000000;
+				border: 2px solid #808080;
+				cursor: pointer;
+				transition-duration: 0.2s;
+			}
+			button:hover {
+				background-color: var(--collorr);
+			}
+			button:disabled {
+				border: 2px solid #000000;
+			}
+		</style>
+	</head>
+	<body id="body">
+		<table>
+			<tr>
+				<td><button id="0" onclick="change(0)" disabled onmouseover="colchang(0)" onmouseleave="back(0)">Rysowanie</button></td>
+				<td><button id="2" onclick="change(2)" onmouseover="colchang(2)" onmouseleave="back(2)">Zakreślacz</button></td>
+				<td><button id="5" onclick="change(5)" onmouseover="colchang(5)" onmouseleave="back(5)">Linia</button></td>
+				<td><button id="8" onclick="change(8)" onmouseover="colchang(8)" onmouseleave="back(8)">Wektor</button></td>
+				<td><button id="6" onclick="change(6)" onmouseover="colchang(6)" onmouseleave="back(6)">Prostokąt</button></td>
+				<td><button id="7" onclick="change(7)" onmouseover="colchang(7)" onmouseleave="back(7)">Obramowanie</button></td>
+				<td><button id="9" onclick="change(9)" onmouseover="colchang(9)" onmouseleave="back(9)">Koło</button></td>
+				<td><button id="10" onclick="change(10)" onmouseover="colchang(10)" onmouseleave="back(10)">Okrąg</button></td>
+				<td><button id="1" onclick="change(1)" onmouseover="colchang(1)" onmouseleave="back(1)">Tekst</button></td>
+				<td><button id="3" onclick="change(3)" onmouseover="colchang(3)" onmouseleave="back(3)">Gumka</button></td>
+				<td><button id="4" onclick="clearc()" onmouseover="colchang(4)" onmouseleave="back(4)">Czyść</button></td>
+				<td><p>Rozmiar: </p></td>
+				<td><input type="range" min="1" max="10" value="2" id="sizeValue" onchange="updateSize()"></td>
+			</tr>
+		</table>
+		<table>
+		<tr>
+				<td><button id="#E6E6E6" onclick="colourc(0)" style="background-color: #E6E6E6; height: 25; width: 25; border: 3px solid #000000;"></button></td>
+				<td><button id="#C41847" onclick="colourc(1)" style="background-color: #C41847; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+				<td><button id="#1D9A6C" onclick="colourc(2)" style="background-color: #1D9A6C; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+				<td><button id="#2E5D87" onclick="colourc(3)" style="background-color: #2E5D87; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+				<td><button id="#DE6348" onclick="colourc(4)" style="background-color: #DE6348; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+				<td><button id="#FFFEA2" onclick="colourc(5)" style="background-color: #FFFEA2; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+				<td><button id="#B51557" onclick="colourc(6)" style="background-color: #B51557; height: 25; width: 25; border: 3px solid #808080;"></button></td>
+			<td><input type="color" id="everything" value="#E6E6E6" style="border: 3px solid #808080; width: 25; height: 25" onchange="colourc(99)"></td>
+		</tr>
+		</table>
+		<table>
+		<tr>
+			<td><button onclick="save()" id="save" onmouseover="colchang('save')" onmouseleave="back('save')">Zapisz</button></td>
+			<td><button onclick="fs()" id="fs" onmouseover="colchang('fs')" onmouseleave="back('fs')">Pełny ekran</button></td>
+			<td><button onclick="cs()" id="cs" onmouseover="colchang('cs')" onmouseleave="back('cs')">Zmień kolory</button></td>
+		</tr>
+		</table>
+		<canvas id="tabulaRasa" width="700" height="500"></canvas>
+		<p id="p"></p>
+		<a id="link"></a>
+		<input id="textInput" disabled type="text"></input>
+		<script src="jquery-3.5.1.js"></script></script>
+		<script>
+			var scheme = 0;
 
-        context.strokeStyle = colour;
-	context.fillStyle = colour;
-
-	textInput.addEventListener("keyup", function(event) {
-	    if (event.keyCode === 13) {
-		event.preventDefault();
-		addtext();
-	    }
-	})
-
-	function colourc (val) {
-	    if (colour == "#E6E6E6" || colour == "#C41847" || colour == "#1D9A6C" || colour == "#2E5D87" || colour == "#DE6348" || colour == "#FFFEA2" || colour == "#B51557") {
-		document.getElementById(colour).style.border = "3px solid #808080";
-	    }
-	    document.getElementById("everything").style.border = "3px solid #808080";
-	    switch (val){
-	    case 0 :
-		colour = "#E6E6E6";
-		document.getElementById("textInput").style.color = "#E6E6E6";
-		break;
-	    case 1 :
-		colour = "#C41847";
-		document.getElementById("textInput").style.color = "#C41847";
-		break;
-	    case 2:
-		colour = "#1D9A6C";
-		document.getElementById("textInput").style.color = "#1D9A6C";
-		break;
-	    case 3:
-		colour = "#2E5D87";
-		document.getElementById("textInput").style.color = "#2E5D87";
-		break;
-	    case 4:
-		colour = "#DE6348";
-		document.getElementById("textInput").style.color = "#DE6348";
-		break;
-	    case 5:
-		colour = "#FFFEA2";
-		document.getElementById("textInput").style.color = "#FFFEA2";
-		break;
-	    case 6:
-		colour = "#B51557";
-		document.getElementById("textInput").style.color = "#B51557";
-		break;
-	    default:
-		colour = document.getElementById("everything").value;
-		document.getElementById("textInput").style.color = document.getElementById("everything").value;
-		break;
-	    }
-	    document.getElementById("everything").value = colour;
-	    if (val < 99) {
-		document.getElementById(colour).style.border = "3px solid #000000"
-	    } else {
-		document.getElementById("everything").style.border = "3px solid #000000"
-	    }
-	}
-
-	function clearc () {
-	    inputs.push(4);
-	    var confirmc = confirm("Czy na pewno chcesz wyczyścić tablicę?");
-	    if (confirmc) {
-        	context.fillStyle = "#202020";
-        	context.fillRect(0, 0, canvas.width, canvas.height);
-        	context.strokeStyle = colour;
-		context.fillStyle = colour;
-	    }
-	}
-
-
-        function updateSize () {
-            size = document.getElementById("sizeValue").value;
-            document.getElementById("textInput").style.fontSize = size*10;
-        }
-
-	function radians_to_degrees(radians)
-	{
-  	    var pi = Math.PI;
-  	    return radians * (180/pi);
-	}
-
-        var clicky = function(dwe) {
-            if (mouseDown) {
-                prevx = x;
-                prevy = y;
-                x = dwe.pageX;
-                y = dwe.pageY-100;
-                if (!began) {
-                    prevx = x;
-                    prevy = y;
+            function colchang (id) {
+                document.getElementById(id).style.backgroundColor = "#808080";
+            }
+            function back (id) {
+                if (scheme == 0) {
+                    document.getElementById(id).style.backgroundColor = "#000000";
+                } else {
+                    document.getElementById(id).style.backgroundColor = "#EEEEEE";
                 }
-                began = true;
-                if (!tool) {
-		    context.strokeStyle = colour;
-                    context.lineWidth = size;
-                    context.beginPath();
-                    context.moveTo(prevx, prevy);
-                    context.lineTo(x, y);
-                    context.stroke();
-                } else if (tool == 1) {
-                    document.getElementById("textInput").style.display = "block";
-                    began = false;
-                    text = document.getElementById("textInput").value;
-                    text = "";
-		    updateSize();
-                    context.font = size*10 + "px Arial";
-                    began = false;
-                    $("#textInput").offset({
-                        left: dwe.pageX-10,
-                        top: dwe.pageY-10
-                    })
-                    mouseDown = false;
-                } else if (tool == 2) {
-                    context.globalAlpha = 0.25;
-                    context.strokeStyle = colour;
-                    context.lineWidth = size;
-                    context.beginPath();
-                    context.moveTo(prevx, prevy);
-                    context.lineTo(x, y);
-                    context.stroke();
-                    context.globalAlpha = 1;
-                    context.strokeStyle = colour;
-                } else if (tool == 3) {
-                    context.strokeStyle = "#202020";
-                    context.lineWidth = size * 2;
-                    context.beginPath();
-                    context.moveTo(prevx, prevy);
-                    context.lineTo(x, y);
-                    context.stroke();
-                    context.strokeStyle = colour;
-                } else if (tool == 5) {
-		    if (beginX == -99 || beginY == -99) {
-			beginX = x;
-			beginY = y;
-		    } else {
-			endX = x;
-			endY = y;
+            }
+
+			function fs () {
+				var elem = document.documentElement;
+				if (elem.requestFullscreen) {
+					elem.requestFullscreen();
+				} else if (elem.webkitRequestFullscreen) {
+					elem.webkitRequestFullscreen();
+				} else if (elem.msRequestFullscreen) {
+					elem.msRequestFullscreen();
+				}
+			}
+
+			var canvas = document.getElementById("tabulaRasa");
+			canvas.width = window.screen.width;
+			canvas.height = window.screen.height - 100;
+			var context = canvas.getContext("2d");
+			context.lineCap = "round";
+			context.fillStyle = "#202020";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			var x = 0;
+			var y = 0;
+			var prevx = 0;
+			var prevy = 0;
+			var began = false;
+			var mouseDown = false;
+			var tool = 0;
+			var text = "";
+			var size = document.getElementById("sizeValue").value;
+		var beginX = -99;
+		var beginY = -99;
+		var endX = 0;
+		var endY = 0;
+		var colour = "#E6E6E6";
+		var inputs = [];
+		var sol = [1,1,3,1,6,2,1,7,2,1,7,1,1,6,3,1,7,2,1,6,4,1,5,7,1,4,6,7,1,3,2,1,4,1,1,5,4,1,5,7,1,4,2,1,5,3,1,4,1];
+
 			context.strokeStyle = colour;
-			context.lineWidth = size;
-                        context.beginPath();
-                        context.moveTo(beginX, beginY);
-                        context.lineTo(endX, endY);
-                        context.stroke();
-			beginX = -99;
-			beginY = -99;
-		    }
-		} else if (tool == 6) {
-		    if (beginX == -99 || beginY == -99) {
-			beginX = x;
-			beginY = y;
-		    } else {
-			endX = x;
-			endY = y;
-			context.fillStyle = colour;
-			context.fillRect(beginX, beginY, endX-beginX, endY-beginY);
-			beginX = -99;
-			beginY = -99;
-		    }
-		} else if (tool == 7) {
-		    if (beginX == -99 || beginY == -99) {
-			beginX = x;
-			beginY = y;
-		    } else {
-			endX = x;
-			endY = y;
-			context.strokeStyle = colour;
-			context.lineWidth = size;
-                        context.beginPath();
-                        context.moveTo(beginX, beginY);
-                        context.lineTo(endX, beginY);
-                        context.lineTo(endX, endY);
-                        context.lineTo(beginX, endY);
-                        context.lineTo(beginX, beginY);
-                        context.stroke();
-			beginX = -99;
-			beginY = -99;
-		    }
-		} else if (tool == 8) {
-		    if (beginX == -99 || beginY == -99) {
-			beginX = x;
-			beginY = y;
-		    } else {
-			endX = x;
-			endY = y;
-			var angle = Math.atan2(endY-beginY, endX-beginX);
-			var len = 10;
-			console.log(angle);
-			context.strokeStyle = colour;
-			context.lineWidth = size;
-                        context.beginPath();
-                        context.moveTo(beginX, beginY);
-                        context.lineTo(endX, endY);
-                        context.stroke();
-			context.beginPath();
-			context.moveTo(endX, endY);
-			context.lineTo(endX - len * Math.cos((angle) - Math.PI / 6), endY - len * Math.sin((angle) - Math.PI / 6));
-			context.moveTo(endX, endY);
-			context.lineTo(endX - len * Math.cos((angle) + Math.PI / 6), endY - len * Math.sin((angle) + Math.PI / 6));
-			context.stroke();
-			beginX = -99;
-			beginY = -99;
-		    }
-		} else if (tool == 9) {
-		    if (beginX == -99 || beginY == -99) {
-			beginX = x;
-			beginY = y;
-		    } else {
-			endX = x;
-			endY = y;
-			var radius = Math.sqrt((endY-beginY)*(endY-beginY) + (endX-beginX)*(endX-beginX));
-			context.fillStyle = colour;
-			context.beginPath();
-			context.arc(beginX, beginY, radius, 0, Math.PI*2, 0);
-			context.fill();
-			beginX = -99;
-			beginY = -99;
-		    }
-		} else if (tool == 10) {
-		    if (beginX == -99 || beginY == -99) {
-			beginX = x;
-			beginY = y;
-		    } else {
-			endX = x;
-			endY = y;
-			var radius = Math.sqrt((endY-beginY)*(endY-beginY) + (endX-beginX)*(endX-beginX));
-			context.strokeStyle = colour;
-			context.lineWidth = size;
-			context.beginPath();
-			context.arc(beginX, beginY, radius, 0, Math.PI*2, 0);
-			context.stroke();
-			beginX = -99;
-			beginY = -99;
-		    }
+		context.fillStyle = colour;
+
+		textInput.addEventListener("keyup", function(event) {
+			if (event.keyCode === 13) {
+			event.preventDefault();
+			addtext();
+			}
+		})
+
+		function colourc (val) {
+			if (scheme == 0) {
+			if (colour == "#E6E6E6" || colour == "#C41847" || colour == "#1D9A6C" || colour == "#2E5D87" || colour == "#DE6348" || colour == "#FFFEA2" || colour == "#B51557") {
+			document.getElementById(colour).style.border = "3px solid #808080";
+			}
+			document.getElementById("everything").style.border = "3px solid #808080";
+			switch (val){
+			case 0 :
+			colour = "#E6E6E6";
+			break;
+			case 1 :
+			colour = "#C41847";
+			break;
+			case 2:
+			colour = "#1D9A6C";
+			break;
+			case 3:
+			colour = "#2E5D87";
+			break;
+			case 4:
+			colour = "#DE6348";
+			break;
+			case 5:
+			colour = "#FFFEA2";
+			break;
+			case 6:
+			colour = "#B51557";
+			break;
+			default:
+			colour = document.getElementById("everything").value;
+			break;
+			}
+			document.getElementById("textInput").style.color = colour;
+			document.getElementById("everything").value = colour;
+			if (val < 99) {
+			document.getElementById(colour).style.border = "3px solid #000000"
+			} else {
+			document.getElementById("everything").style.border = "3px solid #000000"
+			}
+			} else {
+				var conversion = {
+					"#000000": "#E6E6E6",
+					"#FF0000": "#C41847",
+					"#00FF00": "#1D9A6C",
+					"#0000FF": "#2E5D87",
+					"#00FFFF": "#DE6348",
+					"#FFFF00": "#FFFEA2",
+					"#FF00FF": "#B51557"
+				}
+				if (colour == "#000000" || colour == "#FF0000" || colour == "#00FF00" || colour == "#0000FF" || colour == "#00FFFF" || colour == "#FFFF00" || colour == "#FF00FF") {
+					document.getElementById(conversion[colour]).style.border = "3px solid #808080";
+				}
+				document.getElementById("everything").style.border = "3px solid #808080";
+				switch (val) {
+					case 0 :
+					colour = "#000000";
+					break;
+					case 1 :
+						colour = "#FF0000";
+						break;
+					case 2:
+						colour = "#00FF00";
+						break;
+					case 3:
+						colour = "#0000FF";
+						break;
+					case 4:
+						colour = "#00FFFF";
+						break;
+					case 5:
+						colour = "#FFFF00";
+						break;
+					case 6:
+						colour = "#FF00FF";
+						break;
+					default:
+						colour = document.getElementById("everything").value;
+						break;
+				}
+				document.getElementById("textInput").style.color = colour;
+				document.getElementById("everything").value = colour;
+				if (val < 99) {
+					document.getElementById(conversion[colour]).style.border = "3px solid #000000"
+				} else {
+					document.getElementById("everything").style.border = "3px solid #000000"
+				}
+			}
 		}
-            }
-        }
 
-	function calcLeft () {
-	    var i = 0;
-	    var result = 0;
-	    var power10 = document.getElementById("textInput").style.left.length - 2;
-	    var st = power10;
-	    for (var i = 0;i < st;i++) {
-		result += Number(document.getElementById("textInput").style.left[i])*Math.pow(10, power10);
-		power10--;
-	    }
-	    result /= 10;
-	    return result
-	}
+		function clearc () {
+			inputs.push(4);
+			var confirmc = confirm("Czy na pewno chcesz wyczyścić tablicę?");
+			if (confirmc) {
+				context.fillStyle = "#202020";
+				context.fillRect(0, 0, canvas.width, canvas.height);
+				context.strokeStyle = colour;
+			context.fillStyle = colour;
+			}
+		}
 
-        function addtext () {
-	    updateSize();
-	    context.fillStyle = colour;
-            context.font = size*10 + "px Arial";
-            text = document.getElementById("textInput").value;
-            context.fillText(text, calcLeft(), y+10);
-            text = "";
-        }
 
-        $("canvas").mouseup(function(){
-            began = false;
-            mouseDown = false;
-        });
-        $("canvas").mousedown(function(){
-            mouseDown = true;
-        });
-        if (!tool) {
-            $("canvas").mousemove(clicky);
-            $("canvas").mousedown(clicky);
-        } else {
-            $("canvas").mousedown(clicky);
-        }
+			function updateSize () {
+				size = document.getElementById("sizeValue").value;
+				document.getElementById("textInput").style.fontSize = size*10;
+			}
 
-        function save () {
-            var link = document.getElementById('link');
-            link.setAttribute('download', 'Tablica.png');
-            link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
-            link.click();
-        }
+		function radians_to_degrees(radians)
+		{
+			  var pi = Math.PI;
+			  return radians * (180/pi);
+		}
 
-        function change(tools) {
-            document.getElementById("textInput").style.display = "none";
-	    if (tools != 0) {
-		inputs.push(tools);
-	    }
-	    beginX = -99;
-	    beginY = -99;
-            if (tools == 0) {
-                document.getElementById("sizeValue").value = 2;
-            } else if (tools == 1) {
-                document.getElementById("sizeValue").value = 3;
-            } else if (tools == 2){
-                document.getElementById("sizeValue").value = 5;
-		colourc(5);
-            } else {
-                document.getElementById("sizeValue").value = 2;
-            }
-            if (tools == 1) {
-                document.getElementById("textInput").disabled = 0;
-            } else {
-                document.getElementById("textInput").style.display = "none";
-                document.getElementById("textInput").disabled = 1;
-            }
-            document.getElementById("textInput").value = "";
-            for (var i = 0;i < 11;i++) {
-                document.getElementById(i).disabled = false;
-            }
-            document.getElementById(tools).disabled = true;
-            updateSize();
-            tool = tools;
-	    if (check()) {
-		document.getElementById("p").innerHTML = "Stworzone przez Krzysztofa Żałobkę 16.10.2020r.";
-	    } else {
-		document.getElementById("p").innerHTML = "";
-	    }
-        }
+			var clicky = function(dwe) {
+				if (mouseDown) {
+					prevx = x;
+					prevy = y;
+					x = dwe.pageX;
+					y = dwe.pageY-100;
+					if (!began) {
+						prevx = x;
+						prevy = y;
+					}
+					began = true;
+					if (!tool) {
+				context.strokeStyle = colour;
+						context.lineWidth = size;
+						context.beginPath();
+						context.moveTo(prevx, prevy);
+						context.lineTo(x, y);
+						context.stroke();
+					} else if (tool == 1) {
+						document.getElementById("textInput").style.display = "block";
+						began = false;
+						text = document.getElementById("textInput").value;
+						text = "";
+				updateSize();
+						context.font = size*10 + "px Arial";
+						began = false;
+						$("#textInput").offset({
+							left: dwe.pageX-10,
+							top: dwe.pageY-10
+						})
+						mouseDown = false;
+					} else if (tool == 2) {
+						context.globalAlpha = 0.25;
+						context.strokeStyle = colour;
+						context.lineWidth = size;
+						context.beginPath();
+						context.moveTo(prevx, prevy);
+						context.lineTo(x, y);
+						context.stroke();
+						context.globalAlpha = 1;
+						context.strokeStyle = colour;
+					} else if (tool == 3) {
+						context.strokeStyle = "#202020";
+						context.lineWidth = size * 2;
+						context.beginPath();
+						context.moveTo(prevx, prevy);
+						context.lineTo(x, y);
+						context.stroke();
+						context.strokeStyle = colour;
+					} else if (tool == 5) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+							context.beginPath();
+							context.moveTo(beginX, beginY);
+							context.lineTo(endX, endY);
+							context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 6) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				context.fillStyle = colour;
+				context.fillRect(beginX, beginY, endX-beginX, endY-beginY);
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 7) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+							context.beginPath();
+							context.moveTo(beginX, beginY);
+							context.lineTo(endX, beginY);
+							context.lineTo(endX, endY);
+							context.lineTo(beginX, endY);
+							context.lineTo(beginX, beginY);
+							context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 8) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				var angle = Math.atan2(endY-beginY, endX-beginX);
+				var len = 10;
+				console.log(angle);
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+							context.beginPath();
+							context.moveTo(beginX, beginY);
+							context.lineTo(endX, endY);
+							context.stroke();
+				context.beginPath();
+				context.moveTo(endX, endY);
+				context.lineTo(endX - len * Math.cos((angle) - Math.PI / 6), endY - len * Math.sin((angle) - Math.PI / 6));
+				context.moveTo(endX, endY);
+				context.lineTo(endX - len * Math.cos((angle) + Math.PI / 6), endY - len * Math.sin((angle) + Math.PI / 6));
+				context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 9) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				var radius = Math.sqrt((endY-beginY)*(endY-beginY) + (endX-beginX)*(endX-beginX));
+				context.fillStyle = colour;
+				context.beginPath();
+				context.arc(beginX, beginY, radius, 0, Math.PI*2, 0);
+				context.fill();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 10) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				var radius = Math.sqrt((endY-beginY)*(endY-beginY) + (endX-beginX)*(endX-beginX));
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+				context.beginPath();
+				context.arc(beginX, beginY, radius, 0, Math.PI*2, 0);
+				context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			}
+				}
+			}
 
-	function check () {
-	    var win = true;
-	    if (inputs.length == sol.length) {
-		for (var i = 0;i < inputs.length;i++) {
-		    if (inputs[i] != sol[i]) {
-		        win = false;
-		    }
-	        }
-	    } else {
-		win = false;
-	    }
-	    return win;
-	}
-    </script>
-</body>
-</html>
+		function calcLeft () {
+			var i = 0;
+			var result = 0;
+			var power10 = document.getElementById("textInput").style.left.length - 2;
+			var st = power10;
+			for (var i = 0;i < st;i++) {
+			result += Number(document.getElementById("textInput").style.left[i])*Math.pow(10, power10);
+			power10--;
+			}
+			result /= 10;
+			return result
+		}
+
+			function addtext () {
+			updateSize();
+			context.fillStyle = colour;
+				context.font = size*10 + "px Arial";
+				text = document.getElementById("textInput").value;
+				context.fillText(text, calcLeft(), y+10);
+				text = "";
+			}
+
+			$("canvas").mouseup(function(){
+				began = false;
+				mouseDown = false;
+			});
+			$("canvas").mousedown(function(){
+				mouseDown = true;
+			});
+			if (!tool) {
+				$("canvas").mousemove(clicky);
+				$("canvas").mousedown(clicky);
+			} else {
+				$("canvas").mousedown(clicky);
+			}
+
+			function save () {
+				var link = document.getElementById('link');
+				link.setAttribute('download', 'Tablica.png');
+				link.setAttribute('href', canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+				link.click();
+			}
+
+			function change(tools) {
+			    back(tools);
+				document.getElementById("textInput").style.display = "none";
+			if (tools != 0) {
+			inputs.push(tools);
+			}
+			beginX = -99;
+			beginY = -99;
+				if (tools == 0) {
+					document.getElementById("sizeValue").value = 2;
+				} else if (tools == 1) {
+					document.getElementById("sizeValue").value = 3;
+				} else if (tools == 2){
+					document.getElementById("sizeValue").value = 5;
+			colourc(5);
+				} else {
+					document.getElementById("sizeValue").value = 2;
+				}
+				if (tools == 1) {
+					document.getElementById("textInput").disabled = 0;
+				} else {
+					document.getElementById("textInput").style.display = "none";
+					document.getElementById("textInput").disabled = 1;
+				}
+				document.getElementById("textInput").value = "";
+				for (var i = 0;i < 11;i++) {
+					document.getElementById(i).disabled = false;
+				}
+				document.getElementById(tools).disabled = true;
+				updateSize();
+				tool = tools;
+			if (check()) {
+			document.getElementById("p").innerHTML = "Stworzone przez Krzysztofa Żałobkę 16.10.2020r.";
+			} else {
+			document.getElementById("p").innerHTML = "";
+			}
+			}
+
+		function check () {
+			var win = true;
+			if (inputs.length == sol.length) {
+			for (var i = 0;i < inputs.length;i++) {
+				if (inputs[i] != sol[i]) {
+					win = false;
+				}
+				}
+			} else {
+			win = false;
+			}
+			return win;
+		}
+
+		function cs () {
+			var confirmc = confirm("Zmiana kolorów spowoduje wyczyszczenie tablicy. Czy chcesz kontynuować?");
+			if (confirmc) {
+			scheme++;
+			scheme %= 2;
+			var conversion = {
+				"#E6E6E6": "#000000",
+				"#C41847": "#FF0000",
+				"#1D9A6C": "#00FF00",
+				"#2E5D87": "#0000FF",
+				"#DE6348": "#00FFFF",
+				"#FFFEA2": "#FFFF00",
+				"#B51557": "#FF00FF"
+			}
+			var buttons = document.querySelectorAll('button');
+			if (scheme == 0) {
+				change(0);
+				colourc(0);
+				for (var i = 0;i < buttons.length;i++) {
+					buttons[i].style["background-color"] = "rgb(0, 0, 0)";
+					buttons[i].style["color"] = "rgb(238, 238, 238)";
+				}
+				for (var i = 0;i < 7;i++) {
+					document.getElementById(Object.keys(conversion)[i]).style.backgroundColor = Object.keys(conversion)[i];
+				}
+				document.getElementById("body").style.backgroundColor = "#000000";
+				document.getElementById("body").style.color = "#EEEEEE";
+				document.getElementById("textInput").style.backgroundColor = "#202020";
+				context.fillStyle = "#202020";
+				context.fillRect(0, 0, canvas.width, canvas.height);
+			} else {
+				change(0);
+				colourc(0);
+				for (var i = 0;i < buttons.length;i++) {
+					document.documentElement.style.setProperty("collorr", "background-color: #808080");
+					console.log(buttons[i].style["color"]);
+					buttons[i].style["background-color"] = "rgb(238, 238, 238)";
+					buttons[i].style["color"] = "rgb(0, 0, 0)";
+				}
+				for (var i = 0;i < 7;i++) {
+					document.getElementById(Object.keys(conversion)[i]).style.backgroundColor = conversion[Object.keys(conversion)[i]];
+				}
+				document.getElementById("body").style.backgroundColor = "#EEEEEE";
+				document.getElementById("body").style.color = "#000000";
+				document.getElementById("textInput").style.backgroundColor = "#FFFFFF";
+				context.fillStyle = "#FFFFFF";
+				context.fillRect(0, 0, canvas.width, canvas.height);
+			}
+			}
+		}
+		</script>
+	</body>
+	</html>
