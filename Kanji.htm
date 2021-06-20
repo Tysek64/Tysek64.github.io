@@ -181,6 +181,9 @@
 			<tr>
 				<td><button id="submit" onclick="submit()">CHECK</button></td>
 			</tr>
+			<tr>
+				<td id="pointCount">Points: 0</td>
+			</tr>
 		</table>
 	</div>
 
@@ -216,12 +219,24 @@
 		var mouseX = 0;
 		var time = -1;
 		var started = false;
+		var points = 0;
 
 		var known = false;
 
 		var currentCol = [255, 225, 230];
 		var targetCol1 = [255, 0  , 96 ];
 		var targetCol2 = [0  , 255, 96 ];
+
+		var boundaries = [80, 240, 440, 640, 825, 1006];
+
+		var max = 0;
+		var id = 0;
+
+		var answers = [];
+
+		for (var i = 0;i < data.length;i++) {
+			answers.push(false);
+		}
 
 		var screenWidth = window.screen.width;
 		var screenHeight = window.screen.height;
@@ -244,11 +259,6 @@
 		document.getElementById("message").style.fontSize = divHeight / 16 + "px";
 
 		document.getElementById("sign").height = divWidth / 3;
-
-		var max = 0;
-		var id = 0;
-
-		var boundaries = [80, 240, 440, 640, 825, 1006];
 		
 		document.getElementById("on").style.width = "500px";
 		document.getElementById("kun").style.width = "500px";
@@ -282,7 +292,9 @@
 				max = 5;
 			}
 			
-			id = Math.floor(Math.random() * boundaries[max]);
+			do {
+				id = Math.floor(Math.random() * boundaries[max]);
+			} while (answers[id]);
 
 			document.getElementById("Kanji").innerHTML = data[id].kanji;
 			document.getElementById("Reading1").innerHTML = data[id].on;
@@ -311,8 +323,10 @@
 
 			document.getElementById("Reading").style.color = "#FFB7C5";
 			document.getElementById("English").style.color = "#FFB7C5";
-
-			id = Math.floor(Math.random() * boundaries[max]);
+			
+			do {
+				id = Math.floor(Math.random() * boundaries[max]);
+			} while (answers[id]);
 
 			document.getElementById("Kanji").innerHTML = data[id].kanji;
 			document.getElementById("Reading1").innerHTML = data[id].on;
@@ -346,6 +360,13 @@
 				document.getElementById("englishTr").style.color = "#FF0000";
 				document.getElementById("englishTr").value = english + " / " + correctEnglish;
 			}
+
+			if (on == correctOn && kun == correctKun && english == correctEnglish) {
+				answers[id] = true;
+				points++;
+			}
+
+			document.getElementById("pointCount").innerHTML = "Points: " + points;
 
 			document.getElementById("submit").innerHTML = "NEXT";
 			document.getElementById("submit").setAttribute("onclick", "next()");
