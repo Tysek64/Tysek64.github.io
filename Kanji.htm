@@ -238,8 +238,8 @@
 			answers.push(false);
 		}
 
-		var screenWidth = window.screen.width;
-		var screenHeight = window.screen.height;
+		var screenWidth = window.screen.width * window.devicePixelRatio;
+		var screenHeight = window.screen.height * window.devicePixelRatio;
 
 		var divWidth = 100;
 		var divHeight = 100;
