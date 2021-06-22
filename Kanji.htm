@@ -149,7 +149,7 @@
 </head>
 <body id="body">
 	<h1 id="title">漢字</h1>
-	<p id="subtitle">Select a level:</h1>
+	<p id="subtitle">Difficulty:</h1>
 
 	<div id="center" style="display: none">
 		<img src="sign.png" id="sign"></img>
@@ -464,7 +464,38 @@
 			}
 		})
 
+		document.getElementById("html").addEventListener("touchstart", function(dwe) {
+			if (dwe.touches[0].clientX > ((screenWidth / 2) - (divWidth / 2)) && dwe.touches[0].clientX < ((screenWidth / 2) + (divWidth / 2)) && angle == 0 && started) {
+				mouseDown = true;
+				startX = dwe.touches[0].clientX;
+			}
+		})
+
 		$("html").mouseup(function(dwe) {
+			if (mouseDown) {
+				if (1 - (4 * Math.abs(angle)) <= 0.2) {
+					known = angle > 0;
+					if (known) {
+						if (document.getElementById("Reading").style.color == "rgb(0, 0, 0)") {
+							next();
+						} else {
+							console.log("a");
+							document.getElementById("quiz").style.display = "block";
+							inter = setInterval(disappear, 10);
+						}
+					} else {
+						document.getElementById("Reading").style.color = "#000000";
+						document.getElementById("English").style.color = "#000000";
+						inter = setInterval(deRotate, 5);
+					}
+				} else {
+					inter = setInterval(deRotate, 5);
+				}
+				mouseDown = false;
+			}
+		})
+
+		document.getElementById("html").addEventListener("touchend", function(dwe) {
 			if (mouseDown) {
 				if (1 - (4 * Math.abs(angle)) <= 0.2) {
 					known = angle > 0;
@@ -521,6 +552,74 @@
 					difference[0] = (currentCol[0] - targetCol2[0]) * ((dwe.pageX - (screenWidth / 2) - ((startX < (screenWidth / 2) ? (screenWidth / 2) : startX) - (screenWidth / 2))) / (screenWidth / 2));
 					difference[1] = (currentCol[1] - targetCol2[1]) * ((dwe.pageX - (screenWidth / 2) - ((startX < (screenWidth / 2) ? (screenWidth / 2) : startX) - (screenWidth / 2))) / (screenWidth / 2));
 					difference[2] = (currentCol[2] - targetCol2[2]) * ((dwe.pageX - (screenWidth / 2) - ((startX < (screenWidth / 2) ? (screenWidth / 2) : startX) - (screenWidth / 2))) / (screenWidth / 2));
+					if (difference[0] < 0) {
+						difference[0] = 0;
+					}
+					if (difference[1] < 0) {
+						difference[1] = 0;
+					}
+					if (difference[2] < 0) {
+						difference[2] = 0;
+					}
+				}
+
+				var r = (currentCol[0] - difference[0]);
+				r -= (r % 1);
+				r = r.toString(16);
+				if (r.length == 1) {
+					r = "0" + r;
+				}
+				var g = (currentCol[1] - difference[1]);
+				g -= (g % 1);
+				g = g.toString(16);
+				if (g.length == 1) {
+					g = "0" + g;
+				}
+				var b = (currentCol[2] - difference[2]);
+				b -= (b % 1);
+				b = b.toString(16);
+				if (b.length == 1) {
+					b = "0" + b;
+				}
+
+				document.getElementById("body").style.backgroundColor = "#" + r + g + b;
+				mouseX = dwe.pageX;
+			}
+		})
+		
+		document.getElementById("html").addEventListener("touchmove", function(dwe) {
+			var difference = [0, 0, 0];
+			if (mouseDown) {
+				var x = dwe.touches[0].clientX - (startX +-(screenWidth / 2));
+				var y = dwe.touches[0].clientY;
+				angle = ((x - (screenWidth / 2)) / screenWidth) / 2;
+				document.getElementById("card").style.transform = "rotate(" + (angle / 2) + "turn)";
+				document.getElementById("card").style.opacity = 1 - (5 * Math.abs(angle));
+				if (angle < 0) {
+					document.getElementById("sign").src = "bad.png";
+					document.getElementById("message").innerHTML = "";
+				} else {
+					document.getElementById("sign").src = "sign.png";
+					document.getElementById("message").innerHTML = "";
+				}
+
+				if (dwe.pageX - (screenWidth / 2) < 0) {
+					difference[0] = (currentCol[0] - targetCol1[0]) * (((screenWidth / 2) - dwe.touches[0].clientX - ((screenWidth / 2) - (startX > (screenWidth / 2) ? (screenWidth / 2) : startX))) / (screenWidth / 2));
+					difference[1] = (currentCol[1] - targetCol1[1]) * (((screenWidth / 2) - dwe.touches[0].clientX - ((screenWidth / 2) - (startX > (screenWidth / 2) ? (screenWidth / 2) : startX))) / (screenWidth / 2));
+					difference[2] = (currentCol[2] - targetCol1[2]) * (((screenWidth / 2) - dwe.touches[0].clientX - ((screenWidth / 2) - (startX > (screenWidth / 2) ? (screenWidth / 2) : startX))) / (screenWidth / 2));
+					if (difference[0] < 0) {
+						difference[0] = 0;
+					}
+					if (difference[1] < 0) {
+						difference[1] = 0;
+					}
+					if (difference[2] < 0) {
+						difference[2] = 0;
+					}
+				} else {
+					difference[0] = (currentCol[0] - targetCol2[0]) * ((dwe.touches[0].clientX - (screenWidth / 2) - ((startX < (screenWidth / 2) ? (screenWidth / 2) : startX) - (screenWidth / 2))) / (screenWidth / 2));
+					difference[1] = (currentCol[1] - targetCol2[1]) * ((dwe.touches[0].clientX - (screenWidth / 2) - ((startX < (screenWidth / 2) ? (screenWidth / 2) : startX) - (screenWidth / 2))) / (screenWidth / 2));
+					difference[2] = (currentCol[2] - targetCol2[2]) * ((dwe.touches[0].clientX - (screenWidth / 2) - ((startX < (screenWidth / 2) ? (screenWidth / 2) : startX) - (screenWidth / 2))) / (screenWidth / 2));
 					if (difference[0] < 0) {
 						difference[0] = 0;
 					}
