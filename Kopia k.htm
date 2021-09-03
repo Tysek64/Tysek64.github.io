@@ -1,329 +1,314 @@
-﻿<!DOCTYPE html>
-
+<!doctype html>
 <html>
-
-<style>
-
-	body {
-		background-color: #99D9EA;
-	}
-	h1 {
-		font-family: "Lucida console";
-		text-align: left;
-	}
-	button {
-		background-color: #00A2E8;
-		border: 2px solid #00A2E8;
-		font-family: "Lucida console";
-		font-size: 12pt;
-		transition-duration: 0.2s;
-		cursor: pointer;
-	}
-	button:hover {
-		background-color: #99D9EA;
-		border: 2px solid #00A2E8;
-	}
-	p {
-		font-family: "Lucida console";
-		font-size: 12pt;
-	}
-	input {
-		background-color: #00A2E8;
-		border: 2px solid #00A2E8;
-		font-family: "Lucida console";
-		font-size: 12pt;
-		width: 500px;
-	}
-</style>
-
 <head>
-
-	<meta charset = "UTF-8">
-	<title>Kalkulator</title>
-
-</head>
-
+	<style>
+		body {
+			background-color: #99D9EA;
+		}
+		h1 {
+			font-family: "Lucida console";
+			text-align: left;
+		}
+		button {
+			background-color: #00A2E8;
+			border: 2px solid #00A2E8;
+			font-family: "Lucida console";
+			font-size: 12pt;
+			transition-duration: 0.2s;
+			cursor: pointer;
+		}
+		button:hover {
+			background-color: #99D9EA;
+			border: 2px solid #00A2E8;
+		}
+		p {
+			font-family: "Lucida console";
+			font-size: 12pt;
+		}
+		input {
+			background-color: #00A2E8;
+			border: 2px solid #00A2E8;
+			font-family: "Lucida console";
+			font-size: 12pt;
+			width: 500px;
+		}
+	</style>
+	<title>Lepszy kalkulator</title>
+	<meta charset="UTF-8">
+<head>
 <body>
+	<canvas id="tabulaRasa" width=640 height=480 style="display: none;"></canvas>
+	<table>
+		<tr>
+			<td><button onclick="save()">przycister</button></td>
+			<td><button onclick="erase()">antyprzycister</button></td>
+			<td><button onclick='document.getElementById("solution").innerHTML = ""'>czyść ekran</button></td>
+		</tr>
+	</table>
+	<table>
+		<tr>
+			<input id="equation" value="Podaj działanie. Liczby ujemne podaj w nawiasach." onmouseover="clearInput()" style="color: #646464"></input>
+		</tr>
+		<tr>
+			<td><button onclick = "start()">Użyj kalkulatora!!!</button></td>
+		</tr>
+	</table>
+	<p id="memory">Pamięć: </p>
+	<h1 id="solution"></h1>
+	<script>
+		console.log(Math.floor(Math.random() * 2) == 0 ? "Hugokopter:)" : "AntyHugokopter:(");
 
-<table>
-	<tr>
-		<td><button onclick="zapis()">przycister</button></td>
-		<td><button onclick="kosz()">antyprzycister</button></td>
-		<td><button onclick="czysc()">czyść ekran</button></td>
-	</tr>
-</table>
+		var canvas = document.getElementById("tabulaRasa");
+		var context = canvas.getContext("2d");
+		
+		var x = canvas.width / 2;
+		var y = canvas.height / 4;
+		
+		var signs = ['+', '-', '*', '/', '^', '@'];
+		var weight = [1, 1, 2, 2, 3, 3];
 
-<table>
-	<tr>
-		<td><input id="dzialanie" value="Podaj działanie. Liczby ujemne podaj w nawiasach." onmouseover="klik()" style="color: #646464"></td>
-	</tr>
-	<tr>
-		<td><button onclick="moj()" id="start">Użyj kalkulatora!!!</button></td>
-	</tr>
-</table>
+		var memory = 0;
+		
+		var Node = function(l, r, val, stage) {
+			this.l = l;
+			this.r = r;
+			this.val = val;
+			this.x = 0;
+			this.y = 0;
+			this.filled = false;
+			this.rawStage = stage;
+			this.stage = canvas.width / (2 * Math.pow(2, stage));
+		}
+		
+		Node.prototype.draw = function() {
+			if (this.x == 0 && this.y == 0) {
+				this.x = x;
+				this.y = y;
+			} else {
+				x = this.x;
+				y = this.y;
+			}
+			context.strokeStyle = "Black";
+			context.lineWidth = "2px";
+			
+			context.fillStyle = "Black";
+			context.font = "14px Arial";
+			
+			context.fillText(this.val, this.x, this.y);
+			
+			context.beginPath();
+			context.moveTo(x, y);
+			context.lineTo(x -= this.stage, y *= 1.5);
+			context.stroke();
+			
+			if (typeof(this.l) == "object") {
+				this.l.draw();
+			} else {
+				context.fillStyle = "Black";
+				context.font = "14px Arial";
+			
+				context.fillText(this.l, x, y);
+			}
+			
+			x = this.x;
+			y = this.y;
+			
+			context.beginPath();
+			context.moveTo(x, y);
+			context.lineTo(x += this.stage, y *= 1.5);
+			context.stroke();
+			
+			if (typeof(this.r) == "object") {
+				this.r.draw();
+			} else {
+				context.fillStyle = "Black";
+				context.font = "14px Arial";
+			
+				context.fillText(this.r, x, y);
+			}
+		}
+		
+		Node.prototype.solve = function () {
+			if (typeof(this.l) == "object") {
+				this.l.solve();
+				this.l = this.l.val;
+			}
+			if (typeof(this.r) == "object") {
+				this.r.solve();
+				this.r = this.r.val;
+			}
+			if (this.l == 'PI' || this.l == 'Pi' || this.l == 'pI' || this.l == 'pi') {
+				this.l = 3.1415926535897932384626433;
+			} else if (this.l == 'M' || this.l == 'm') {
+				this.l = memory;
+			}
+			if (this.r == 'PI' || this.r == 'Pi' || this.r == 'pI' || this.r == 'pi') {
+				this.r = 3.1415926535897932384626433;
+			} else if (this.r == 'M' || this.r == 'm') {
+				this.r = memory;
+			}
+			switch (this.val) {
+				case '+':
+					this.val = Number(this.l) + Number(this.r);
+					break;
+				case '-':
+					this.val = Number(this.l) - Number(this.r);
+					break;
+				case '*':
+					this.val = Number(this.l) * Number(this.r);
+					break;
+				case '/':
+					this.val = Number(this.l) / Number(this.r);
+					break;
+				case '^':
+					this.val = Math.pow(Number(this.l), Number(this.r));
+					break;
+				case '@':
+					this.val = Math.pow(Number(this.l), 1 / Number(this.r));
+					break;
+			}
+		}
+		
+		var equation = "";
 
-	<p id="pamiec">Pamięć: </p>
+		function clearInput () {
+			if (document.getElementById("equation").style.color == "rgb(100, 100, 100)") {
+				document.getElementById("equation").value=""
+				document.getElementById("equation").style.color = "rgb(0, 0, 0)"
+			}
+		}
 
-	<h1 id="wynik"></h1>
+		var tree = new Node("a", "", '+', 1);
+		var useSpaces = false;
 
-<script>
+		function save () {
+			if (signs.indexOf(tree.val) == -1) {
+				memory = tree.val;
+				document.getElementById("memory").innerHTML = "Pamięć: " + memory;
+			}
+		}
 
-function klik() {
-	if (document.getElementById("dzialanie").style.color == "rgb(100, 100, 100)") {
-		document.getElementById("dzialanie").value=""
-		document.getElementById("dzialanie").style.color = "rgb(0, 0, 0)"
-	}
-}
+		function erase () {
+			memory = undefined;
+			document.getElementById("memory").innerHTML = "Pamięć: ";
+		}
 
-if (Math.floor(Math.random()*10)%2==0) {
-	console.log("Hugokopter:)")
-} else {
-	console.log("AntyHugokopter:(")
-}
+		function clear () {
+			document.getElementById("solution").innerHTML = "";
+		}
 
-var mem=0
-var wyni = ""
-
-function zapis() {
-	mem=wyni
-	if (mem==undefined||mem==null) {
-		mem == ""
-	}
-	document.getElementById("pamiec").innerHTML = "Pamięć: "+mem
-}
-
-function kosz() {
-	mem=null
-	document.getElementById("pamiec").innerHTML = "Pamięć: "
-}
-
-function czysc() {
-	document.getElementById("wynik").innerHTML = ""
-}
-
-var dzialanie = document.getElementById("dzialanie")
-
-dzialanie.addEventListener("keyup", function(event) {
-	if (event.keyCode === 13) {
-		event.preventDefault();
-		document.getElementById("start").click();
-	}
-})
-
-function moj() {
-	var nul = 0
-	var ram = ""
-	var czyznak = 0
-	var j = 0
-	var znak = ""
-	var z = ""
-	var b = ""
-	var rbm = ""
-	var dzj = ""
-	var wlasnieznak=0
-	var lup = 0
-	var koniec = 0
-	var jdwa = 0
-	var ramj = ""
-	var ujemna = 0
-	var a = ""
-	dzialanie = document.getElementById("dzialanie").value
-	if (dzialanie != null) {
-		while(j<dzialanie.length) {
-			dzj = dzialanie[j]
-			wlasnieznak=0
-			if(dzialanie[j-1]!="(") {
-				if(dzialanie[j]=="+"||dzialanie[j]=="-"||dzialanie[j]=="*"||dzialanie[j]=="/"||dzialanie[j]=="^"||dzialanie[j]=="@"||dzialanie[j]=="!"||dzialanie[j]=="?"||dzialanie[j]=="b"||dzialanie[j]=="h"||dzialanie[j]=="%") {
-					if (czyznak==1) {
-						document.getElementById("wynik").innerHTML = "Tylko jedno działanie!"
-					} else {
-						czyznak = 1
-						ujemna = 0
-						znak=dzialanie[j]
-						wlasnieznak=1
+		function start () {
+			equation = document.getElementById("equation").value;
+			tree = treeify(1, equation);
+			tree.draw();
+			tree.solve();
+			if (!isNaN(tree.val) && Math.abs(tree.val) != Infinity) {
+				document.getElementById("solution").innerHTML = equation + (useSpaces ? " = " : "=") + tree.val;
+			} else {
+				document.getElementById("solution").innerHTML = "Podaj LICZBY źlaku!";
+			}
+		}
+		
+		function calculateBrackets (code) {
+			var stage = 1;
+			var result = "";
+			for (var i = 0;i < code.length;i++) {
+				if (code[i] == ')' && stage == 1) {
+					break;
+				} else {
+					if (code[i] == '(') {
+						stage++;
 					}
+					if (code[i] == ')') {
+						stage--;
+					}
+					result += code[i];
 				}
 			}
-			if(czyznak==0) {
-				if (dzj=="(") {
-					ujemna = 1
-				}
-				if (ujemna == 1) {
-					if (dzj!=")"&&dzj!="(") {
-						ram = ram+dzialanie[j]
-					}
+			return result;
+		}
+
+		function calculateAbs (code) {
+			var stage = 1;
+			var result = "";
+			for (var i = 0;i < code.length;i++) {
+				if (code[i] == ']' && stage == 1) {
+					break;
 				} else {
-					ram = ram+dzialanie[j]
-				}
-			} else {
-				if(wlasnieznak==0) {
-					if (dzj=="(") {
-						ujemna = 1
+					if (code[i] == '[') {
+						stage++;
 					}
-					if (ujemna == 1) {
-						if (dzj!=")"&&dzj!="(") {
-							rbm = rbm+dzialanie[j]
+					if (code[i] == ']') {
+						stage--;
+					}
+					result += code[i];
+				}
+			}
+			return result;
+		}
+		
+		function treeify (beginStage, code) {
+			var master = new Node("a", "", '+', beginStage);
+			var pointer = master;
+			var temp = 0;
+			for (var i = 0;i < code.length;i++) {
+				if (code[i] == ' ') {
+					useSpaces = true;
+				} else if (signs.indexOf(code[i]) != -1) {
+					if (pointer.filled == false) {
+						pointer.val = code[i];
+						pointer.filled = true;
+					} else {
+						if (weight[signs.indexOf(code[i])] > weight[signs.indexOf(pointer.val)]) {
+							temp = pointer.r;
+							pointer.r = new Node(temp, "", code[i], pointer.rawStage + 1);
+							pointer = pointer.r;
+							pointer.filled = true;
+						} else {
+							temp = pointer.l;
+							pointer.l = new Node(temp, pointer.r, pointer.val, pointer.rawStage + 1);
+							pointer.val = code[i];
+							pointer.r = 0;
+							pointer.filled = true;
 						}
+					}
+				} else if (code[i] == '(') {
+					var codeInBrackets = calculateBrackets(code.slice(i + 1));
+					if (pointer.filled == false) {
+						pointer.l = treeify(pointer.rawStage + 1, codeInBrackets);
 					} else {
-						rbm = rbm+dzialanie[j]
+						temp = pointer.r;
+						pointer.r = treeify(pointer.rawStage += 1, codeInBrackets);
+						pointer = pointer.r;
+						pointer.filled = true;
+					}
+					i += codeInBrackets.length;
+				} else if (code[i] == '[') {
+					var codeInAbs = calculateAbs(code.slice(i + 1));
+					var solved = treeify(pointer.rawStage + 1, codeInAbs);
+					solved.solve();
+					solved = solved.val;
+					if (pointer.filled == false) {
+						pointer.l = solved < 0 ? -solved : solved;
+					} else {
+						temp = pointer.r;
+						pointer.r = solved < 0 ? -solved : solved;
+						pointer.filled = true;
+					}
+					i += codeInAbs.length;
+				} else if (code[i] != ')' && code[i] != ']') {
+					if (pointer.l == 'a') {
+						pointer.l = "";
+					}
+					if (pointer.filled == false) {
+						pointer.l +=code[i];
+					} else {
+						pointer.r += code[i];
 					}
 				}
 			}
-		j++
+			return master;
 		}
-	} else {
-		ram = "0"
-		rbm = "0"
-		znak = "+"
-		nul = 1
-		document.getElementById("wynik").innerHTML = ""
-	}
-	a = ram
-	if (rbm!="") {
-		if (rbm=="+"||rbm=="-"||rbm=="*"||rbm=="/"||rbm=="^"||rbm=="@"||rbm=="!"||rbm=="?"||rbm=="%"||rbm=="b"||rbm=="h") {
-			b = "0"
-		} else {
-			b = rbm
-		}
-	} else {
-		b = "0"
-	}
-	if (znak!="") {
-		z=znak
-	} else {
-		z = "+"
-	}
-	var sp = "5 9"
-	if (a=="mem") {
-		a=mem
-	} else if (a=="-mem") {
-		a = -1*mem
-	}
-	if (a=="pi") {
-		a = "3.1415926535897932384626433832795"
-	} else if (a=="-pi") {
-		a = "-3.1415926535897932384626433832795"
-	}
-	if (b=="pi") {
-		b = "3.1415926535897932384626433832795"
-	} else if (b=="-pi") {
-		b = "-3.1415926535897932384626433832795"
-	}
-	var k = String.fromCharCode(75)+String.fromCharCode(90)
-	if (b=="mem") {
-		b=mem
-	} else if (b=="-mem") {
-		b = -1*mem
-	}
-	var d = Number(a)+Number(b)
-	var l = Math.pow(45, 2)-6
-	var o = a-b
-	var m = a*b
-	var dz = a/b
-	var p = Math.pow(a, b)
-	var pr = ","+sp[1]
-	var bpd = b%2
-	var bpj = b%1
-	var w = 1/b
-	var pi = undefined
-	if (a<0&&b%2==1) {
-		pi = Math.pow(-1*a, w)*-1
-	} else if (a<0&&b%2==0) {
-		pi = "nie"
-	} else {
-		pi = Math.pow(a, w)
-	}
-	var s = 1
-	var ps = 1
-	var i = 1
-	var sl = 1
-	var psl = 1
-	var j = 1
-	var r = l.toString()
-	var bin = Number(a).toString(2)
-	var hex = Number(a).toString(16)
-	var mod = a%b
-	while (i<Number(a)+1) {
-		s=ps*i
-		ps = s
-		i++
-	}
-	if (a == 1 && z == "?") {
-		sl = 1
-	} else {
-		while (j<Number(a)+1) {
-			sl=psl+j
-			psl = sl
-			j++
-		}
-		sl = sl-1
-	}var ct = r+pr+k
-	if (sp[0] == 5&&sp[2] == 9) {
-		if (nul == 0) {
-			if (a/1 == a && b/1 == b && a != "" && b != "") {
-				if (z === "+") {
-					wyni=d
-					document.getElementById("wynik").innerHTML = "Wynik to "+d
-				} else if (z === "-") {
-					wyni=o
-					document.getElementById("wynik").innerHTML = "Wynik to "+o
-				} else if (z === "b") {
-					wyni=bin
-					document.getElementById("wynik").innerHTML = "Wynik to "+bin
-				} else if (z === "h") {
-					wyni=hex
-					document.getElementById("wynik").innerHTML = "Wynik to "+hex
-				} else if (z === "%") {
-					wyni=mod
-					document.getElementById("wynik").innerHTML = "Wynik to "+mod
-				} else if (z === "*") {
-					wyni=m
-					document.getElementById("wynik").innerHTML = "Wynik to "+m
-				} else if (z === "/") {
-					if (b == 0) {
-						document.getElementById("wynik").innerHTML = "Nie dzielimy przez 0"
-					} else {
-						wyni=dz
-						document.getElementById("wynik").innerHTML = "Wynik to "+dz
-					}
-				} else if (z === "^") {
-					wyni=p
-					document.getElementById("wynik").innerHTML = "Wynik to "+p
-				} else if (z === "@") {
-					if (pi=="nie"||b%1!=0||b<0) {
-					document.getElementById("wynik").innerHTML = "Nie można wykonać"
-				} else {
-					wyni=pi
-					document.getElementById("wynik").innerHTML = "Wynik to "+pi
-				}
-			} else if (z === "!") {
-				if (a<=0 || a%1!=0) {
-					document.getElementById("wynik").innerHTML = "Nie można wykonać"
-				} else {
-					wyni=s
-					document.getElementById("wynik").innerHTML = "Wynik to "+s
-				}
-			} else if (z === "?") {
-				if (a%1!=0 || a<0) {
-					document.getElementById("wynik").innerHTML = "Nie można wykonać"
-				} else {
-					wyni=sl
-					document.getElementById("wynik").innerHTML = "Wynik to "+sl
-				}
-			} else {
-				document.getElementById("wynik").innerHTML = "Zły znak działania!"
-			}
-		} else {
-			document.getElementById("wynik").innerHTML = "Podaj LICZBY źlaku!"
-		}
-	}
-	if (sp[1] == " ") {
-		console.log(ct)
-	} else {
-		console.log("cheat")
-	}
-}
-}
-</script>
+	</script>
 </body>
 </html>
