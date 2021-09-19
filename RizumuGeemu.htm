@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Game</title>
+</head>
+<body>
+	<canvas id="tabulaRasa" width=1000 height=400></canvas>
+
+	<p></p>
+
+	<input id="audio_file" type="file" accept="audio/*" style="display:none;"></input>
+	<audio id="audio_player"></audio>
+	<button onclick="startProg()" id="start">START</button>
+	<script>
+		var canvas = document.getElementById("tabulaRasa");
+		var context = canvas.getContext("2d");
+
+		var WIDTH = canvas.width;
+		var HEIGHT = canvas.height;
+
+		var audioContext = undefined;
+
+		var audioBuffer = null;
+
+		var source = undefined;
+		var source1 = undefined;
+		var filter = undefined;
+		var analyser = undefined;
+		var gain = undefined;
+
+		var bufferLength = undefined;
+		var dataArray = undefined;
+		var deltaTime = 0;
+		var difference = 0;
+
+		var avgLevel = 0;
+		var prevLevel = 0;
+
+		var rhythm = false;
+		var showDrum = false;
+
+		var drums = [];
+
+		var drumPos = 0;
+
+		var spacePress = false;
+
+		context.fillStyle = "Red";
+
+		context.fillRect(0, 0, 10, 10);
+
+		function loadSound (url) {
+			var request = new XMLHttpRequest();
+			request.open("GET", url, true);
+			request.responseType = "arraybuffer";
+
+			request.onload = function () {
+				audioContext.decodeAudioData(request.response, function(buffer) {
+					audioBuffer = buffer;
+				});
+			}
+			request.send();
+		}
+
+		function startProg () {
+			document.getElementById("start").style.display = "none";
+			document.getElementById("audio_file").style.display = "block";
+
+			audioContext = new AudioContext();
+
+			analyser = audioContext.createAnalyser();
+		}
+
+		function playSoundA(buffer) {
+			source = audioContext.createBufferSource();
+			source1 = audioContext.createBufferSource();
+
+			filter = audioContext.createBiquadFilter();
+			filter.type = "lowpass";
+			filter.frequency.value = 100;
+
+			source.buffer = buffer;
+			source1.buffer = buffer;
+
+			gain = audioContext.createGain();
+			gain.gain.value = 0;
+
+			source1.connect(audioContext.destination);
+
+			gain.connect(audioContext.destination);
+			analyser.connect(gain);
+			filter.connect(analyser);
+			source.connect(filter);
+
+			bufferLength = analyser.frequencyBinCount;
+			dataArray = new Uint8Array(bufferLength);
+
+			analyser.getByteTimeDomainData(dataArray);
+
+			source.start(audioContext.currentTime);
+			source1.start(audioContext.currentTime + 5);
+		}
+
+		audio_file.onchange = function(){
+			var files = this.files;
+			var file = URL.createObjectURL(files[0]); 
+			audio_player.src = file;
+
+			loadSound(file);
+			
+			document.getElementById("audio_file").disabled = true;
+
+			setTimeout(function () {
+				document.getElementById("audio_file").style.display = "none";
+				document.getElementById("start").setAttribute("onClick", "beginGame()");
+				document.getElementById("start").style.display = "block";
+			}, 5000);
+		};
+
+		function beginGame () {
+			playSoundA(audioBuffer);
+			draw();
+			document.getElementById("start").disabled = true;
+		}
+
+		function draw () {
+			context.fillStyle = "White";
+			context.fillRect(0, 0, WIDTH, HEIGHT);
+
+			var drawVisual = requestAnimationFrame(draw);
+
+			analyser.getByteTimeDomainData(dataArray);
+
+			prevLevel = avgLevel;
+
+			avgLevel = 0;
+
+			for (var i = 0;i < bufferLength;i++) {
+				avgLevel += dataArray[i];
+			}
+
+			avgLevel /= bufferLength;
+
+			var delta = prevLevel - avgLevel;
+
+			if (delta < 6 && deltaTime < 7) {
+				deltaTime++;
+			}
+
+			if (delta < 6 && difference < 25) {
+				difference++;
+			}
+
+			if (delta > 6) {
+				deltaTime = 0;
+			}
+
+			if (delta > 6 && (difference < 7 || difference > 15)) {
+				difference = 0;
+			}
+
+			rhythm = (delta > 6 || deltaTime < 7) && difference < 7 ? true : false;
+
+			if (rhythm && !showDrum) {
+				drums.push(Date.now());
+				showDrum = true;
+			}
+
+			if (!rhythm) {
+				showDrum = false;
+			}
+
+			context.strokeStyle = "Black";
+
+			context.strokeRect(40, 40, 30, 30);
+
+			if (spacePress) {
+				context.beginPath();
+				context.moveTo(40, 40);
+				context.lineTo(70, 70);
+				context.moveTo(40, 70);
+				context.lineTo(70, 40);
+				context.stroke();
+			}
+			
+			for (var i = 0;i < drums.length;i++) {
+				context.fillStyle = "Red";
+				context.fillRect(1000 - 0.2 * (Date.now() - drums[i]) + 50, 50, 10, 10);
+
+				if (((1000 - 0.2 * (Date.now() - drums[i])) > -10) && ((1000 - 0.2 * (Date.now() - drums[i])) < 10) && spacePress) {
+					drums.splice(i, 1);
+					console.log("a");
+				}
+			}
+		};
+
+		var inter = undefined;
+
+		onkeydown = function (dwe) {
+			if (dwe.keyCode == 32) {
+				spacePress = true;
+			}
+		}
+		
+		onkeyup = function (dwe) {
+			if (dwe.keyCode == 32) {
+				spacePress = false;
+			}
+		}
+	</script>
+</body>
+</html>
