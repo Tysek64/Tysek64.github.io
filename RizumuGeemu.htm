@@ -27,11 +27,18 @@
 		var filter = undefined;
 		var analyser = undefined;
 		var gain = undefined;
+		var source2 = undefined;
+		var filter2 = undefined;
+		var analyser2 = undefined;
+		var gain2 = undefined;
 
 		var bufferLength = undefined;
 		var dataArray = undefined;
 		var deltaTime = 0;
 		var difference = 0;
+
+		var avgDelta = 0;
+		var tickCount = 0;
 
 		var avgLevel = 0;
 		var prevLevel = 0;
@@ -41,9 +48,29 @@
 
 		var drums = [];
 
-		var drumPos = 0;
-
 		var spacePress = false;
+
+		var lastTime = 0;
+		
+		var bufferLength2 = undefined;
+		var dataArray2 = undefined;
+		var deltaTime2 = 0;
+		var difference2 = 0;
+
+		var avgDelta2 = 0;
+		var tickCount2 = 0;
+
+		var avgLevel2 = 0;
+		var prevLevel2 = 0;
+
+		var rhythm2 = false;
+		var showDrum2 = false;
+
+		var drums2 = [];
+
+		var spacePress2 = false;
+
+		var lastTime2 = 0;
 
 		context.fillStyle = "Red";
 
@@ -69,15 +96,17 @@
 			audioContext = new AudioContext();
 
 			analyser = audioContext.createAnalyser();
+			analyser2 = audioContext.createAnalyser();
 		}
 
 		function playSoundA(buffer) {
 			source = audioContext.createBufferSource();
 			source1 = audioContext.createBufferSource();
+			source2 = audioContext.createBufferSource();
 
 			filter = audioContext.createBiquadFilter();
 			filter.type = "lowpass";
-			filter.frequency.value = 100;
+			filter.frequency.value = 220;
 
 			source.buffer = buffer;
 			source1.buffer = buffer;
@@ -96,9 +125,31 @@
 			dataArray = new Uint8Array(bufferLength);
 
 			analyser.getByteTimeDomainData(dataArray);
+			
+			filter2 = audioContext.createBiquadFilter();
+			filter2.type = "bandpass";
+			filter2.frequency.value = 1000;
+
+			source2.buffer = buffer;
+
+			gain2 = audioContext.createGain();
+			gain2.gain.value = 0;
+
+			gain2.connect(audioContext.destination);
+			analyser2.connect(gain2);
+			filter2.connect(analyser2);
+			source2.connect(filter2);
+
+			bufferLength2 = analyser2.frequencyBinCount;
+			dataArray2 = new Uint8Array(bufferLength2);
+
+			analyser2.getByteTimeDomainData(dataArray2);
 
 			source.start(audioContext.currentTime);
-			source1.start(audioContext.currentTime + 5);
+			source2.start(audioContext.currentTime);
+			source1.start(audioContext.currentTime + 3);
+
+			console.log("a");
 		}
 
 		audio_file.onchange = function(){
@@ -143,27 +194,36 @@
 
 			var delta = prevLevel - avgLevel;
 
-			if (delta < 6 && deltaTime < 7) {
+			if (delta < 5 && deltaTime < 7) {
 				deltaTime++;
 			}
 
-			if (delta < 6 && difference < 25) {
+			if (delta < 5 && difference < 25) {
 				difference++;
 			}
 
-			if (delta > 6) {
+			if (delta > 5) {
 				deltaTime = 0;
 			}
 
-			if (delta > 6 && (difference < 7 || difference > 15)) {
+			if (delta > 5 && (difference < 7 || difference > 15)) {
 				difference = 0;
 			}
 
-			rhythm = (delta > 6 || deltaTime < 7) && difference < 7 ? true : false;
+			rhythm = (delta > 5 || deltaTime < 7) && difference < 7 ? true : false;
 
 			if (rhythm && !showDrum) {
 				drums.push(Date.now());
 				showDrum = true;
+
+				lastTime = Date.now();
+				
+				if (lastTime - lastTime2 < 50) {
+					drums.pop();
+					drums.push(lastTime2);
+
+					lastTime = lastTime2;
+				}
 			}
 
 			if (!rhythm) {
@@ -185,11 +245,84 @@
 			
 			for (var i = 0;i < drums.length;i++) {
 				context.fillStyle = "Red";
-				context.fillRect(1000 - 0.2 * (Date.now() - drums[i]) + 50, 50, 10, 10);
+				context.fillRect(990 - 0.33 * (Date.now() - drums[i]) + 50, 50, 10, 10);
 
-				if (((1000 - 0.2 * (Date.now() - drums[i])) > -10) && ((1000 - 0.2 * (Date.now() - drums[i])) < 10) && spacePress) {
+				if (((990 - 0.33 * (Date.now() - drums[i])) > -10) && ((990 - 0.33 * (Date.now() - drums[i])) < 10) && spacePress) {
 					drums.splice(i, 1);
 					console.log("a");
+				}
+			}
+
+			
+			analyser2.getByteTimeDomainData(dataArray2);
+
+			prevLevel2 = avgLevel2;
+
+			avgLevel2 = 0;
+
+			for (var i = 0;i < bufferLength2;i++) {
+				avgLevel2 += dataArray2[i];
+			}
+
+			avgLevel2 /= bufferLength2;
+
+			var delta2 = prevLevel2 - avgLevel2;
+
+			if (delta2 < 0.4 && deltaTime2 < 7) {
+				deltaTime2++;
+			}
+
+			if (delta2 < 0.4 && difference2 < 25) {
+				difference2++;
+			}
+
+			if (delta2 > 0.4) {
+				deltaTime2 = 0;
+			}
+
+			if (delta2 > 0.4 && (difference2 < 7 || difference2 > 15)) {
+				difference2 = 0;
+			}
+
+			rhythm2 = (delta2 > 0.4 || deltaTime2 < 7) && difference2 < 7 ? true : false;
+
+			if (rhythm2 && !showDrum2) {
+				drums2.push(Date.now());
+				showDrum2 = true;
+
+				lastTime2 = Date.now();
+
+				if (lastTime2 - lastTime < 50) {
+					drums2.pop();
+					drums2.push(lastTime);
+
+					lastTime2 = lastTime;
+				}
+			}
+
+			if (!rhythm2) {
+				showDrum2 = false;
+			}
+
+			context.strokeStyle = "Black";
+
+			context.strokeRect(40, 140, 30, 30);
+
+			if (spacePress2) {
+				context.beginPath();
+				context.moveTo(40, 140);
+				context.lineTo(70, 170);
+				context.moveTo(40, 170);
+				context.lineTo(70, 140);
+				context.stroke();
+			}
+			
+			for (var i = 0;i < drums2.length;i++) {
+				context.fillStyle = "Blue";
+				context.fillRect(990 - 0.33 * (Date.now() - drums2[i]) + 50, 150, 10, 10);
+
+				if (((990 - 0.33 * (Date.now() - drums2[i])) > -10) && ((990 - 0.33 * (Date.now() - drums2[i])) < 10) && spacePress2) {
+					drums2.splice(i, 1);
 				}
 			}
 		};
@@ -199,12 +332,16 @@
 		onkeydown = function (dwe) {
 			if (dwe.keyCode == 32) {
 				spacePress = true;
+			} else if (dwe.keyCode == 40) {
+				spacePress2 = true;
 			}
 		}
 		
 		onkeyup = function (dwe) {
 			if (dwe.keyCode == 32) {
 				spacePress = false;
+			} else if (dwe.keyCode == 40) {
+				spacePress2 = false;
 			}
 		}
 	</script>
