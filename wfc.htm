@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WFC</title>
+</head>
+<body>
+	<canvas id="tabulaRasa" width=450 height=450></canvas>
+	<button onclick="initState = JSON.parse(JSON.stringify(grid));beginTime = Date.now();inter2 = setInterval(solve, 10)" id="solver">START</button>
+	<button onclick="grid = JSON.parse(JSON.stringify(initState));updatePossibilities();">RESET</button>
+	<button onclick="clearInterval(inter2); solving=false;">STOP</button>
+	<button onclick="clearGrid()">ZERO</button>
+	<script>
+		var canvas = document.getElementById("tabulaRasa");
+		var context = canvas.getContext("2d");
+
+		var cellWidth = canvas.width / 9;
+
+		var inter2 = undefined;
+
+		var solving = false;
+
+		var gridRow = [];
+		var grid = [];
+
+		var possibleRow = [];
+		var possible = [];
+
+		var lockRow = [];
+		var lock = [];
+
+		var mouseX = 0;
+		var mouseY = 0;
+		var cellX = -1;
+		var cellY = -1;
+
+		for (var x = 0;x < 9;x++) {
+			for (var y = 0;y < 9;y++) {
+				gridRow.push(0);
+			}
+			grid.push(gridRow);
+			gridRow = [];
+		}
+		
+		for (var x = 0;x < 9;x++) {
+			for (var y = 0;y < 9;y++) {
+				lockRow.push(0);
+			}
+			lock.push(lockRow);
+			lockRow = [];
+		}
+
+		for (var x = 0;x < 9;x++) {
+			for (var y = 0;y < 9;y++) {
+				possibleRow.push([1, 1, 1, 1, 1, 1, 1, 1, 1]);
+			}
+			possible.push(possibleRow);
+			possibleRow = [];
+		}
+
+		if (confirm()) {
+			// grid = [[3, 5, 0, 0, 0, 0, 0, 0, 9], 
+            //         [0, 0, 8, 0, 0, 0, 0, 6, 7], 
+            //         [0, 0, 0, 8, 0, 0, 3, 1, 0], 
+            //         [2, 3, 0, 4, 0, 1, 0, 0, 0], 
+            //         [4, 0, 0, 0, 0, 0, 0, 0, 5], 
+            //         [0, 0, 0, 2, 0, 7, 0, 3, 6], 
+            //         [0, 1, 2, 0, 0, 3, 0, 0, 0], 
+            //         [8, 6, 0, 0, 0, 0, 2, 0, 0], 
+            //         [5, 0, 0, 0, 0, 0, 0, 9, 1]];
+
+			grid = [[8, 0, 0, 0, 0, 0, 0, 0, 0],
+					[0, 0, 7, 5, 0, 0, 0, 0, 9],
+					[0, 3, 0, 0, 0, 0, 1, 8, 0],
+					[0, 6, 0, 0, 0, 1, 0, 5, 0],
+					[0, 0, 9, 0, 4, 0, 0, 0, 0],
+					[0, 0, 0, 7, 5, 0, 0, 0, 0],
+					[0, 0, 2, 0, 7, 0, 0, 0, 4],
+					[0, 0, 0, 0, 0, 3, 6, 1, 0],
+					[0, 0, 0, 0, 0, 0, 8, 0, 0]];
+		}
+		
+		var initState = JSON.parse(JSON.stringify(grid));
+
+		function update () {
+			context.fillStyle = "White";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+
+			for (var x = 0;x < 9;x++) {
+				for (var y = 0;y < 9;y++) {
+					if (grid[x][y] > 0) {
+						clearPossibilities(grid[x][y], x, y);
+					}
+
+					if (initState[x][y] > 0 && solving) {
+						context.fillStyle = "#808080";
+						context.fillRect(x * cellWidth, y * cellWidth, cellWidth, cellWidth);
+					}
+
+					if (x == cellX && y == cellY) {
+						context.globalAlpha = 0.5;
+						context.fillStyle = "Yellow";
+						context.fillRect(cellX * cellWidth, cellY * cellWidth, cellWidth, cellWidth);
+						context.globalAlpha = 1;
+					}
+
+					context.strokeStyle = "Black";
+					context.lineWidth = 2;
+					context.strokeRect(x * cellWidth, y * cellWidth, cellWidth, cellWidth);
+
+					if (grid[x][y] != 0) {
+						context.fillStyle = "Black";
+						context.font = cellWidth + "px Arial";
+						context.fillText(grid[x][y], x * cellWidth + cellWidth / 4, y * cellWidth + cellWidth * 0.875);
+					}
+
+					for (var n = 0;n < 9;n++) {
+						context.fillStyle = "#808080";
+						context.font = cellWidth / 3 + "px Arial";
+
+						context.fillText(possible[x][y][n] == 1 ? n + 1 : " ", x * cellWidth + ((cellWidth / 4) * ((n % 3) + 1)), y * cellWidth + ((cellWidth * 0.875) * ((Math.floor(n  / 3) % 3) + 1) / 3))
+					}
+				}
+			}
+
+			for (var x = 0;x < 3;x++) {
+				for (var y = 0;y < 3;y++) {
+					context.strokeStyle = "Black";
+					context.lineWidth = 4;
+					context.strokeRect(x * 3 * cellWidth, y * 3 * cellWidth, 3 * cellWidth, 3 * cellWidth);
+				}
+			}
+
+			if (!solving) {
+				updatePossibilities();
+			}
+
+			document.getElementById("solver").disabled = checkErrors();
+		}
+
+		function checkErrors () {
+			for (var x = 0;x < 9;x++) {
+				for (var y = 0;y < 9;y++) {
+					if (checkRow(x, y) || checkColumn(x, y) || checkSquare(x, y)) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		function checkRow (x, y) {
+			for (var i = 0;i < 9;i++) {
+				if (grid[i][y] == grid[x][y] && i != x && grid[i][y] > 0) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		function checkColumn (x, y) {
+			for (var i = 0;i < 9;i++) {
+				if (grid[x][i] == grid[x][y] && i != y && grid[x][i] > 0) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		function checkSquare (x, y) {
+			var squareBeginX = Math.floor(x / 3) * 3;
+			var squareBeginY = Math.floor(y / 3) * 3;
+
+			for (var i = squareBeginX;i < squareBeginX + 3;i++) {
+				for (var j = squareBeginY;j < squareBeginY + 3;j++) {
+					if (grid[i][j] == grid[x][y] && i != x && j != y && grid[i][j] > 0) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+		function clearGrid () {
+			clearInterval(inter2);
+			solving = false;
+
+			for (var x = 0;x < 9;x++) {
+				for (var y = 0;y < 9;y++) {
+					grid[x][y] = 0;
+				}
+			}
+
+			initState = JSON.parse(JSON.stringify(grid));
+		}
+
+		function clearPossibilities (value, valueX, valueY) {
+			possible[valueX][valueY] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+			for (var x = 0;x < 9;x++) {
+				possible[x][valueY][value - 1] = 0;
+			}
+				
+			for (var y = 0;y < 9;y++) {
+				possible[valueX][y][value - 1] = 0;
+			}
+
+			for (var x = 0;x < 3;x++) {
+				for (var y = 0;y < 3;y++) {
+					possible[valueX - (valueX % 3) + x][valueY - (valueY % 3) + y][value - 1] = 0;
+				}
+			}
+		}
+
+		function updatePossibilities () {
+			for (var x = 0;x < 9;x++) {
+				for (var y = 0;y < 9;y++) {
+					for (var n = 0;n < 9;n++) {
+						possible[x][y][n] = 1;
+					}
+					if (grid[x][y] > 0) {
+						clearPossibilities(grid[x][y], x, y);
+					}
+				}
+			}
+		}
+
+		onmousedown = function(dwe) {
+			mouseX = dwe.clientX;
+			mouseY = dwe.clientY;
+
+			cellX = Math.floor(mouseX / cellWidth);
+			cellY = Math.floor(mouseY / cellWidth);
+		}
+
+		onkeydown = function(dwe) {
+			if (dwe.keyCode > 47 && dwe.keyCode < 58 && cellX >= 0 && !solving) {
+				grid[cellX][cellY] = dwe.keyCode - 48;
+			}
+		}
+
+		var finished = false;
+
+		var beginTime = Date.now();
+
+		function solve () {
+			solving = true;
+			
+			var possibleNr = 0;
+			var number = 0;
+
+			var mtop = true;
+			var mtop2 = true;
+
+			var miniCells = [];
+
+			var miniVal = [[]];
+
+			var min = Infinity;
+			var prevMin = 0;
+
+			var randI = 0;
+			var randVal = 0;
+
+			var data = setup(min, miniCells, miniVal, possibleNr);
+
+			min = data[0];
+			miniCells = data[1];
+			miniVal = data[2];
+			possibleNr = data[3];
+
+			while (mtop) {
+				mtop = true;
+				mtop2 = true;
+
+				for (var x = 0;x < 9;x++) {
+					for (var y = 0;y < 9;y++) {
+						for (var n = 0;n < 9;n++) {
+							if (possible[x][y][n] == 1) {
+								mtop = false;
+							}
+						}
+					}
+				}
+
+				for (var x = 0;x < 9;x++) {
+					for (var y = 0;y < 9;y++) {
+						if (grid[x][y] == 0) {
+							mtop2 = false;
+						}
+					}
+				}
+
+				if ((mtop && !mtop2) || checkErrors()) {
+					grid = JSON.parse(JSON.stringify(initState));
+					updatePossibilities();
+				}
+
+				if (mtop2 && !checkErrors() && !finished) {
+					alert((Date.now() - beginTime) / 1000);
+					finished = true;
+				}
+
+				mtop = miniCells.length > 0;
+				
+				if (!mtop) {
+					break;
+				}
+
+				if (miniCells.length == 0) {
+					min = Infinity;
+					miniCells = [];
+					miniVal = [[]];
+
+					data = setup(min, miniCells, miniVal, possibleNr);
+
+					min = data[0];
+					miniCells = data[1];
+					miniVal = data[2];
+					possibleNr = data[3];
+				}
+
+				randI = Math.floor(Math.random () * miniCells.length);
+				randVal = Math.floor(Math.random() * miniVal[randI].length);
+				
+				grid[miniCells[randI][0]][miniCells[randI][1]] = miniVal[randI][randVal];
+
+				clearPossibilities(miniVal[randI][randVal], miniCells[randI][0], miniCells[randI][1]);
+
+				prevMin = min;
+
+				for (var x = 0;x < 9;x++) {
+					for (var y = 0;y < 9;y++) {
+						for (var n = 0;n < 9;n++) {
+							possibleNr += possible[x][y][n];
+						}
+						if (possibleNr < min && possibleNr > 0) {
+							min = possibleNr;
+						}
+						possibleNr = 0;
+					}
+				}
+
+				if (min < prevMin) {
+					min = Infinity;
+					miniCells = [];
+					miniVal = [[]];
+					data = setup(min, miniCells, miniVal, possibleNr);
+
+					min = data[0];
+					miniCells = data[1];
+					miniVal = data[2];
+					possibleNr = data[3];
+				}
+
+				
+
+				miniCells.splice(randI, 1);
+
+				miniVal.splice(randI, 1);
+
+				randI = 0;
+				randVal = 0;
+			}
+		}
+
+		function setup (min, miniCells, miniVal, possibleNr) {
+			for (var x = 0;x < 9;x++) {
+				for (var y = 0;y < 9;y++) {
+					for (var n = 0;n < 9;n++) {
+						possibleNr += possible[x][y][n];
+					}
+					if (possibleNr < min && possibleNr > 0) {
+						min = possibleNr;
+					}
+					possibleNr = 0;
+				}
+			}
+					
+			for (var x = 0;x < 9;x++) {
+				for (var y = 0;y < 9;y++) {
+					for (var n = 0;n < 9;n++) {
+						possibleNr += possible[x][y][n];
+					}
+					if (possibleNr == min) {
+						miniCells.push([x, y]);
+						for (var n = 0;n < 9;n++) {
+							if (possible[x][y][n]) {
+								miniVal[miniVal.length - 1].push(n + 1);
+							}
+						}
+						miniVal.push([]);
+					}
+					possibleNr = 0;
+				}
+			}
+
+			return [min, miniCells, miniVal, possibleNr];
+		}
+		
+		var inter = setInterval(update, 10);
+	</script>
+</body>
+</html>
