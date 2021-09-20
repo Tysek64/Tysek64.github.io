@@ -2,25 +2,47 @@
 <html>
 <head>
 	<title>Game</title>
+
+	<style>
+		video {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			
+			z-index: -1;
+
+			display: none;
+		}
+
+		canvas {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+
+			z-index: 1;
+
+			display: none;
+		}
+	</style>
 </head>
 <body>
+	<video id="video_player" muted></video>
+
 	<canvas id="tabulaRasa" width=1000 height=400></canvas>
 
 	<p></p>
 
 	<input id="audio_file" type="file" accept="audio/*" style="display:none;"></input>
-	<audio id="audio_player"></audio>
 	<button onclick="startProg()" id="start">START</button>
 	<script>
 		var canvas = document.getElementById("tabulaRasa");
 		var context = canvas.getContext("2d");
 
-		var WIDTH = canvas.width;
-		var HEIGHT = canvas.height;
-
 		var audioContext = undefined;
 
 		var audioBuffer = null;
+
+		var speed = 3000;
 
 		var source = undefined;
 		var source1 = undefined;
@@ -72,9 +94,16 @@
 
 		var lastTime2 = 0;
 
-		context.fillStyle = "Red";
+		var perfect = true;
+		
+		video_player.width = window.screen.width;
 
-		context.fillRect(0, 0, 10, 10);
+		canvas.width = window.screen.width;
+
+		canvas.height = window.screen.height;
+		
+		var WIDTH = canvas.width;
+		var HEIGHT = canvas.height;
 
 		function loadSound (url) {
 			var request = new XMLHttpRequest();
@@ -147,7 +176,16 @@
 
 			source.start(audioContext.currentTime);
 			source2.start(audioContext.currentTime);
-			source1.start(audioContext.currentTime + 3);
+			source1.start(audioContext.currentTime + (speed / 1000));
+
+			canvas.style.display = "block";
+
+			document.getElementById("start").style.display = "none";
+
+			setTimeout(function () {
+				video_player.style.display = "block";
+				video_player.play();
+			}, speed);
 
 			console.log("a");
 		}
@@ -155,7 +193,7 @@
 		audio_file.onchange = function(){
 			var files = this.files;
 			var file = URL.createObjectURL(files[0]); 
-			audio_player.src = file;
+			video_player.src = file;
 
 			loadSound(file);
 			
@@ -175,8 +213,17 @@
 		}
 
 		function draw () {
-			context.fillStyle = "White";
+			context.clearRect(0, 0, WIDTH, HEIGHT);
+
+			context.fillStyle = perfect ? "White" : "Black";
+			context.globalAlpha = 0.5;
+
 			context.fillRect(0, 0, WIDTH, HEIGHT);
+
+			context.fillRect(0, 20, WIDTH, 70);
+			context.fillRect(0, 120, WIDTH, 70);
+
+			context.globalAlpha = 1;
 
 			var drawVisual = requestAnimationFrame(draw);
 
@@ -194,23 +241,23 @@
 
 			var delta = prevLevel - avgLevel;
 
-			if (delta < 5.5 && deltaTime < 7) {
+			if (delta < 5.75 && deltaTime < 7) {
 				deltaTime++;
 			}
 
-			if (delta < 5.5 && difference < 25) {
+			if (delta < 5.75 && difference < 25) {
 				difference++;
 			}
 
-			if (delta > 5.5) {
+			if (delta > 5.75) {
 				deltaTime = 0;
 			}
 
-			if (delta > 5.5 && (difference < 7 || difference > 15)) {
+			if (delta > 5.75 && (difference < 7 || difference > 15)) {
 				difference = 0;
 			}
 
-			rhythm = (delta > 5.5 || deltaTime < 7) && difference < 7 ? true : false;
+			rhythm = (delta > 5.75 || deltaTime < 7) && difference < 7 ? true : false;
 
 			if (rhythm && !showDrum) {
 				drums.push(Date.now());
@@ -218,7 +265,7 @@
 
 				lastTime = Date.now();
 				
-				if (lastTime - lastTime2 < 50) {
+				if (lastTime - lastTime2 < 150) {
 					drums.pop();
 					drums.push(lastTime2);
 
@@ -230,6 +277,12 @@
 				showDrum = false;
 			}
 
+			context.lineWidth = 4;			
+			context.strokeStyle = "White";
+			
+			context.strokeRect(40, 40, 30, 30);
+			
+			context.lineWidth = 2;
 			context.strokeStyle = "Black";
 
 			context.strokeRect(40, 40, 30, 30);
@@ -245,11 +298,15 @@
 			
 			for (var i = 0;i < drums.length;i++) {
 				context.fillStyle = "Red";
-				context.fillRect(990 - 0.33 * (Date.now() - drums[i]) + 50, 50, 10, 10);
+				context.fillRect(WIDTH - (WIDTH / speed) * (Date.now() - drums[i]) + 50, 50, 10, 10);
 
-				if (((990 - 0.33 * (Date.now() - drums[i])) > -20) && ((990 - 0.33 * (Date.now() - drums[i])) < 20) && spacePress) {
+				if (((WIDTH - (WIDTH / speed) * (Date.now() - drums[i])) > -25) && ((WIDTH - (WIDTH / speed) * (Date.now() - drums[i])) < 25) && spacePress) {
 					drums.splice(i, 1);
 					console.log("a");
+				}
+
+				if ((WIDTH - (WIDTH / speed) * (Date.now() - drums[i]) + 50) < 0) {
+					perfect = false;
 				}
 			}
 
@@ -268,23 +325,23 @@
 
 			var delta2 = prevLevel2 - avgLevel2;
 
-			if (delta2 < 0.45 && deltaTime2 < 7) {
+			if (delta2 < 0.6 && deltaTime2 < 7) {
 				deltaTime2++;
 			}
 
-			if (delta2 < 0.45 && difference2 < 25) {
+			if (delta2 < 0.6 && difference2 < 25) {
 				difference2++;
 			}
 
-			if (delta2 > 0.45) {
+			if (delta2 > 0.6) {
 				deltaTime2 = 0;
 			}
 
-			if (delta2 > 0.45 && (difference2 < 7 || difference2 > 15)) {
+			if (delta2 > 0.6 && (difference2 < 7 || difference2 > 15)) {
 				difference2 = 0;
 			}
 
-			rhythm2 = (delta2 > 0.45 || deltaTime2 < 7) && difference2 < 7 ? true : false;
+			rhythm2 = (delta2 > 0.6 || deltaTime2 < 7) && difference2 < 7 ? true : false;
 
 			if (rhythm2 && !showDrum2) {
 				drums2.push(Date.now());
@@ -292,7 +349,7 @@
 
 				lastTime2 = Date.now();
 
-				if (lastTime2 - lastTime < 50) {
+				if (lastTime2 - lastTime < 150) {
 					drums2.pop();
 					drums2.push(lastTime);
 
@@ -304,9 +361,16 @@
 				showDrum2 = false;
 			}
 
+			context.lineWidth = 4;			
+			context.strokeStyle = "White";
+			
+			context.strokeRect(40, 140, 30, 30);
+			
+			context.lineWidth = 2;
 			context.strokeStyle = "Black";
 
 			context.strokeRect(40, 140, 30, 30);
+
 
 			if (spacePress2) {
 				context.beginPath();
@@ -319,10 +383,14 @@
 			
 			for (var i = 0;i < drums2.length;i++) {
 				context.fillStyle = "Blue";
-				context.fillRect(990 - 0.33 * (Date.now() - drums2[i]) + 50, 150, 10, 10);
+				context.fillRect(WIDTH - (WIDTH / speed) * (Date.now() - drums2[i]) + 50, 150, 10, 10);
 
-				if (((990 - 0.33 * (Date.now() - drums2[i])) > -20) && ((990 - 0.33 * (Date.now() - drums2[i])) < 20) && spacePress2) {
+				if (((WIDTH - (WIDTH / speed) * (Date.now() - drums2[i])) > -25) && ((WIDTH - (WIDTH / speed) * (Date.now() - drums2[i])) < 25) && spacePress2) {
 					drums2.splice(i, 1);
+				}
+
+				if ((WIDTH - (WIDTH / speed) * (Date.now() - drums2[i]) + 50) < 0) {
+					perfect = false;
 				}
 			}
 		};
@@ -332,16 +400,14 @@
 		onkeydown = function (dwe) {
 			if (dwe.keyCode == 32) {
 				spacePress = true;
+				setTimeout(function () {
+					spacePress = false;
+				}, 100);
 			} else if (dwe.keyCode == 40) {
 				spacePress2 = true;
-			}
-		}
-		
-		onkeyup = function (dwe) {
-			if (dwe.keyCode == 32) {
-				spacePress = false;
-			} else if (dwe.keyCode == 40) {
-				spacePress2 = false;
+				setTimeout(function () {
+					spacePress2 = false;
+				}, 100);
 			}
 		}
 	</script>
