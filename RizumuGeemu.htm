@@ -128,7 +128,7 @@
 			
 			filter2 = audioContext.createBiquadFilter();
 			filter2.type = "bandpass";
-			filter2.frequency.value = 1000;
+			filter2.frequency.value = 500;
 
 			source2.buffer = buffer;
 
@@ -194,23 +194,23 @@
 
 			var delta = prevLevel - avgLevel;
 
-			if (delta < 5 && deltaTime < 7) {
+			if (delta < 5.5 && deltaTime < 7) {
 				deltaTime++;
 			}
 
-			if (delta < 5 && difference < 25) {
+			if (delta < 5.5 && difference < 25) {
 				difference++;
 			}
 
-			if (delta > 5) {
+			if (delta > 5.5) {
 				deltaTime = 0;
 			}
 
-			if (delta > 5 && (difference < 7 || difference > 15)) {
+			if (delta > 5.5 && (difference < 7 || difference > 15)) {
 				difference = 0;
 			}
 
-			rhythm = (delta > 5 || deltaTime < 7) && difference < 7 ? true : false;
+			rhythm = (delta > 5.5 || deltaTime < 7) && difference < 7 ? true : false;
 
 			if (rhythm && !showDrum) {
 				drums.push(Date.now());
@@ -247,7 +247,7 @@
 				context.fillStyle = "Red";
 				context.fillRect(990 - 0.33 * (Date.now() - drums[i]) + 50, 50, 10, 10);
 
-				if (((990 - 0.33 * (Date.now() - drums[i])) > -10) && ((990 - 0.33 * (Date.now() - drums[i])) < 10) && spacePress) {
+				if (((990 - 0.33 * (Date.now() - drums[i])) > -20) && ((990 - 0.33 * (Date.now() - drums[i])) < 20) && spacePress) {
 					drums.splice(i, 1);
 					console.log("a");
 				}
@@ -268,23 +268,23 @@
 
 			var delta2 = prevLevel2 - avgLevel2;
 
-			if (delta2 < 0.4 && deltaTime2 < 7) {
+			if (delta2 < 0.45 && deltaTime2 < 7) {
 				deltaTime2++;
 			}
 
-			if (delta2 < 0.4 && difference2 < 25) {
+			if (delta2 < 0.45 && difference2 < 25) {
 				difference2++;
 			}
 
-			if (delta2 > 0.4) {
+			if (delta2 > 0.45) {
 				deltaTime2 = 0;
 			}
 
-			if (delta2 > 0.4 && (difference2 < 7 || difference2 > 15)) {
+			if (delta2 > 0.45 && (difference2 < 7 || difference2 > 15)) {
 				difference2 = 0;
 			}
 
-			rhythm2 = (delta2 > 0.4 || deltaTime2 < 7) && difference2 < 7 ? true : false;
+			rhythm2 = (delta2 > 0.45 || deltaTime2 < 7) && difference2 < 7 ? true : false;
 
 			if (rhythm2 && !showDrum2) {
 				drums2.push(Date.now());
@@ -321,7 +321,7 @@
 				context.fillStyle = "Blue";
 				context.fillRect(990 - 0.33 * (Date.now() - drums2[i]) + 50, 150, 10, 10);
 
-				if (((990 - 0.33 * (Date.now() - drums2[i])) > -10) && ((990 - 0.33 * (Date.now() - drums2[i])) < 10) && spacePress2) {
+				if (((990 - 0.33 * (Date.now() - drums2[i])) > -20) && ((990 - 0.33 * (Date.now() - drums2[i])) < 20) && spacePress2) {
 					drums2.splice(i, 1);
 				}
 			}
