@@ -9,6 +9,23 @@
 	<button onclick="grid = JSON.parse(JSON.stringify(initState));updatePossibilities();">RESET</button>
 	<button onclick="clearInterval(inter2); solving=false;">STOP</button>
 	<button onclick="clearGrid()">ZERO</button>
+<p></p>
+
+<table>
+<tr>
+<td><button onclick="addNumber(1)">1</button></td>
+<td><button onclick="addNumber(2)">1</button></td>
+<td><button onclick="addNumber(3)">1</button></td>
+<td><button onclick="addNumber(4)">1</button></td>
+<td><button onclick="addNumber(5)">1</button></td>
+<td><button onclick="addNumber(6)">1</button></td>
+<td><button onclick="addNumber(7)">1</button></td>
+<td><button onclick="addNumber(8)">1</button></td>
+<td><button onclick="addNumber(9)">1</button></td>
+<td><button onclick="addNumber(0)">1</button></td>
+</tr>
+</table>
+
 	<script>
 		var canvas = document.getElementById("tabulaRasa");
 		var context = canvas.getContext("2d");
@@ -400,6 +417,10 @@
 
 			return [min, miniCells, miniVal, possibleNr];
 		}
+
+function addNumber(val) {
+grid[cellX][cellY] = val;
+}
 		
 		var inter = setInterval(update, 10);
 	</script>
