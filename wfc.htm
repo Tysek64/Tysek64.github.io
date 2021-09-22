@@ -249,10 +249,10 @@
 			mouseX = dwe.clientX;
 			mouseY = dwe.clientY;
 
+if (Math.floor(mouseY / cellWidth) < 9) {
 			cellX = Math.floor(mouseX / cellWidth);
 			cellY = Math.floor(mouseY / cellWidth);
-
-alert(cellX+" "+cellY);
+}
 		}
 
 		onkeydown = function(dwe) {
@@ -422,7 +422,6 @@ alert(cellX+" "+cellY);
 
 function addNumber(val) {
 grid[cellX][cellY] = Number(val);
-alert(cellX + " " + cellY);
 }
 		
 		var inter = setInterval(update, 10);
