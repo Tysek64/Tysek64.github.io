@@ -427,6 +427,168 @@
 				}
 			}
 
+			
+			var clicky1 = function(dwe) {
+				if (mouseDown) {
+					prevx = x;
+					prevy = y;
+					x = dwe.touches[0].clientX;
+					y = dwe.touches[0].clientY-100;
+					if (!began) {
+						prevx = x;
+						prevy = y;
+					}
+					began = true;
+					if (!tool) {
+				context.strokeStyle = colour;
+						context.lineWidth = size;
+						context.beginPath();
+						context.moveTo(prevx, prevy);
+						context.lineTo(x, y);
+						context.stroke();
+					} else if (tool == 1) {
+						document.getElementById("textInput").style.display = "block";
+						began = false;
+						text = document.getElementById("textInput").value;
+						text = "";
+				updateSize();
+						context.font = size*10 + "px Arial";
+						began = false;
+						$("#textInput").offset({
+							left: dwe.pageX-10,
+							top: dwe.pageY-10
+						})
+						mouseDown = false;
+					} else if (tool == 2) {
+						context.globalAlpha = 0.25;
+						context.strokeStyle = colour;
+						context.lineWidth = size;
+						context.beginPath();
+						context.moveTo(prevx, prevy);
+						context.lineTo(x, y);
+						context.stroke();
+						context.globalAlpha = 1;
+						context.strokeStyle = colour;
+					} else if (tool == 3) {
+						if (scheme == 0) {
+						context.strokeStyle = "#202020";
+						} else {
+						context.strokeStyle = "#FFFFFF";
+						}
+						context.lineWidth = size * 2;
+						context.beginPath();
+						context.moveTo(prevx, prevy);
+						context.lineTo(x, y);
+						context.stroke();
+						context.strokeStyle = colour;
+					} else if (tool == 5) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+							context.beginPath();
+							context.moveTo(beginX, beginY);
+							context.lineTo(endX, endY);
+							context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 6) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				context.fillStyle = colour;
+				context.fillRect(beginX, beginY, endX-beginX, endY-beginY);
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 7) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+							context.beginPath();
+							context.moveTo(beginX, beginY);
+							context.lineTo(endX, beginY);
+							context.lineTo(endX, endY);
+							context.lineTo(beginX, endY);
+							context.lineTo(beginX, beginY);
+							context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 8) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				var angle = Math.atan2(endY-beginY, endX-beginX);
+				var len = 10;
+				console.log(angle);
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+							context.beginPath();
+							context.moveTo(beginX, beginY);
+							context.lineTo(endX, endY);
+							context.stroke();
+				context.beginPath();
+				context.moveTo(endX, endY);
+				context.lineTo(endX - len * Math.cos((angle) - Math.PI / 6), endY - len * Math.sin((angle) - Math.PI / 6));
+				context.moveTo(endX, endY);
+				context.lineTo(endX - len * Math.cos((angle) + Math.PI / 6), endY - len * Math.sin((angle) + Math.PI / 6));
+				context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 9) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				var radius = Math.sqrt((endY-beginY)*(endY-beginY) + (endX-beginX)*(endX-beginX));
+				context.fillStyle = colour;
+				context.beginPath();
+				context.arc(beginX, beginY, radius, 0, Math.PI*2, 0);
+				context.fill();
+				beginX = -99;
+				beginY = -99;
+				}
+			} else if (tool == 10) {
+				if (beginX == -99 || beginY == -99) {
+				beginX = x;
+				beginY = y;
+				} else {
+				endX = x;
+				endY = y;
+				var radius = Math.sqrt((endY-beginY)*(endY-beginY) + (endX-beginX)*(endX-beginX));
+				context.strokeStyle = colour;
+				context.lineWidth = size;
+				context.beginPath();
+				context.arc(beginX, beginY, radius, 0, Math.PI*2, 0);
+				context.stroke();
+				beginX = -99;
+				beginY = -99;
+				}
+			}
+				}
+			}
+
+			
 		function calcLeft () {
 			var i = 0;
 			var result = 0;
@@ -456,11 +618,25 @@
 			$("canvas").mousedown(function(){
 				mouseDown = true;
 			});
+			
+			$("canvas").touchend(function(){
+				began = false;
+				mouseDown = false;
+			});
+			$("canvas").touchstert(function(){
+				mouseDown = true;
+			});
+			
 			if (!tool) {
 				$("canvas").mousemove(clicky);
 				$("canvas").mousedown(clicky);
+				
+				$("canvas").touchmove(clicky1);
+				$("canvas").touchstart(clicky1);
 			} else {
 				$("canvas").mousedown(clicky);
+				
+				$("canvas").touchstart(clicky1);
 			}
 
 			function save () {
