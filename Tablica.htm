@@ -619,11 +619,11 @@
 				mouseDown = true;
 			});
 			
-			$("canvas").addEventListener("touchend", function(){
+			document.getElementById("tabulaRasa").addEventListener("touchend", function(){
 				began = false;
 				mouseDown = false;
 			});
-			$("canvas").addEventListener("touchstart", function(){
+			document.getElementById("tabulaRasa").addEventListener("touchstart", function(){
 				mouseDown = true;
 			});
 			
@@ -631,12 +631,12 @@
 				$("canvas").mousemove(clicky);
 				$("canvas").mousedown(clicky);
 				
-				$("canvas").addEventListener("touchmove", function(dwe){clicky1(dwe)});
-				$("canvas").addEventListener("touchstart", function(dwe){clicky1(dwe)});
+				document.getElementById("tabulaRasa").addEventListener("touchmove", function(dwe){clicky1(dwe)});
+				document.getElementById("tabulaRasa").addEventListener("touchstart", function(dwe){clicky1(dwe)});
 			} else {
 				$("canvas").mousedown(clicky);
 				
-				$("canvas").addEventListener("touchstart", function(dwe){clicky1(dwe)});
+				document.getElementById("tabulaRasa").addEventListener("touchstart", function(dwe){clicky1(dwe)});
 			}
 
 			function save () {
