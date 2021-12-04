@@ -619,11 +619,11 @@
 				mouseDown = true;
 			});
 			
-			$("canvas").touchend(function(){
+			$("canvas").addEventListener("touchend", function(){
 				began = false;
 				mouseDown = false;
 			});
-			$("canvas").touchstert(function(){
+			$("canvas").addEventListener("touchstart", function(){
 				mouseDown = true;
 			});
 			
@@ -631,12 +631,12 @@
 				$("canvas").mousemove(clicky);
 				$("canvas").mousedown(clicky);
 				
-				$("canvas").touchmove(clicky1);
-				$("canvas").touchstart(clicky1);
+				$("canvas").addEventListener("touchmove", function(dwe){clicky1(dwe)});
+				$("canvas").addEventListener("touchstart", function(dwe){clicky1(dwe)});
 			} else {
 				$("canvas").mousedown(clicky);
 				
-				$("canvas").touchstart(clicky1);
+				$("canvas").addEventListener("touchstart", function(dwe){clicky1(dwe)});
 			}
 
 			function save () {
