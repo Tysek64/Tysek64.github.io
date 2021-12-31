@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>今年も来年もよろしくお願いします。</title>
+	<style>
+		body {
+			background-color: black;
+			color: white;
+			font-family: monospace;
+			font-size: 44pt;
+		}
+		h2 {
+			margin-bottom: 0px;
+		}
+		#main {
+			display: flex;
+			justify-items: center;
+			align-items: center;
+			flex-direction: column;
+			align-content: center;
+			justify-content: center;
+		}
+	</style>
+</head>
+<body>
+	<div id=main>
+		<h2 id=t1>Do nowego roku</h2><h2 id=t2>pozostało:</h2>
+		<h1 id="remain"></h1>
+	</div>
+	<script>
+		var total = 0;
+		var h = 0;
+		var m = 0;
+		var s = 0;
+		var prev = 0;
+
+		function update () {
+			total = Math.ceil((1640991600000 - Date.now()) / 1000);
+
+			if (prev != s) {
+				remain.style.color = "rgb(" + Math.floor(Math.random() * 128 + 128) + ", " + Math.floor(Math.random() * 128 + 128) + ", " + Math.floor(Math.random() * 128 + 128) + ")";
+				t1.style.color = "rgb(" + Math.floor(Math.random() * 128 + 128) + ", " + Math.floor(Math.random() * 128 + 128) + ", " + Math.floor(Math.random() * 128 + 128) + ")";
+				t2.style.color = "rgb(" + Math.floor(Math.random() * 128 + 128) + ", " + Math.floor(Math.random() * 128 + 128) + ", " + Math.floor(Math.random() * 128 + 128) + ")";
+			}
+
+			h = (total - (total % 3600)) / 3600;
+			m = ((total - (total % 60)) / 60) % 60;
+			prev = s;
+			s = total % 60;
+
+			remain.innerHTML = (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+		}
+
+		var inter = setInterval(update, 10);
+	</script>
+</body>
+</html>
