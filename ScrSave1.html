@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Metaballs</title>
+
+	<style>
+		canvas {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="tabulaRasa" width=640 height=480></canvas>
+	<script>
+		var canvas = document.getElementById("tabulaRasa");
+		var context = canvas.getContext("2d");
+
+		canvas.width = window.screen.width * window.devicePixelRatio;
+		canvas.height = window.screen.height * window.devicePixelRatio;
+
+		var number = 10;
+
+		var centers = [];
+		for (var i = 0;i < number;i++) {
+			centers.push([Math.floor(Math.random() * canvas.width), Math.floor(Math.random() * canvas.height), Math.floor(Math.random() * 10 + 12)]);
+		}
+
+		var dirs = [];
+		for (var i = 0;i < number;i++) {
+			dirs.push([Math.floor(Math.random() * 2) * 6 - 3, Math.floor(Math.random() * 2) * 6 - 3]);
+		}
+
+		var bs = [];
+		var bsTemp = [];
+
+		var cs = 10;
+
+		for (var x = 0;x < canvas.width / cs + 1;x++) {
+			for (var y = 0;y < canvas.height / cs + 1;y++) {
+				bsTemp.push(0);
+			}
+			bs.push(bsTemp);
+			bsTemp = [];
+		}
+
+		function update () {
+			var brightness = 0;
+
+			context.fillStyle = "Black";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+
+			for (var x = 0;x < canvas.width + cs;x += cs) {
+				for (var y = 0;y < canvas.height + cs;y += cs) {
+					brightness = 0;
+
+					for (var i = 0;i < centers.length;i++) {
+						brightness += centers[i][2] / Math.sqrt(Math.pow(x - centers[i][0], 2) + Math.pow(y - centers[i][1], 2));
+					}
+
+					bs[x / cs][y / cs] = brightness;
+				}
+			}
+			
+			for (var x = 0;x < canvas.width;x += cs) {
+				for (var y = 0;y < canvas.height;y += cs) {
+					march(x / cs, y / cs);
+				}
+			}
+
+			for (var i = 0;i < centers.length;i++) {
+				if (centers[i][0] + dirs[i][0] < 0 || centers[i][0] + dirs[i][0] > canvas.width) {
+					dirs[i][0] *= -1;
+				}
+				if (centers[i][1] + dirs[i][1] < 0 || centers[i][1] + dirs[i][1] > canvas.height) {
+					dirs[i][1] *= -1;
+				}
+				
+				centers[i][0] += dirs[i][0];
+				centers[i][1] += dirs[i][1];
+			}
+		}
+
+		function march (x, y) {
+			var lu = bs[x][y] > 0.5;
+			var ru = bs[x+1][y] > 0.5;
+			var ld = bs[x][y+1] > 0.5;
+			var rd = bs[x+1][y+1] > 0.5;
+
+			id = rd * 8 + ld * 4 + ru * 2 + lu;
+
+			var left = x * cs;
+			var right = (x + 1) * cs;
+			var top = y * cs;
+			var bottom = (y + 1) * cs;
+
+			var deltaXT = ((0.5 - bs[x][y]) / (bs[x+1][y] - bs[x][y])) * (cs / 1);
+			var deltaXB = ((0.5 - bs[x][y+1]) / (bs[x+1][y+1] - bs[x][y+1])) * (cs / 1);
+			var deltaYL = ((0.5 - bs[x][y]) / (bs[x][y+1] - bs[x][y])) * (cs / 1);
+			var deltaYR = ((0.5 - bs[x+1][y]) / (bs[x+1][y+1] - bs[x+1][y])) * (cs / 1);
+
+			context.strokeStyle = "rgb(0, " + ((y * 1270) / canvas.height + 128) + ", " + ((x * 1270) / canvas.width + 128) + ")";
+			context.lineWidth = 2;
+			switch (id) {
+				case 0:
+					break;
+				case 1:
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(left, top + deltaYL);
+					context.stroke();
+					break;
+				case 2:
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(right, top + deltaYR);
+					context.stroke();
+					break;
+				case 3:
+					context.beginPath();
+					context.moveTo(left, top + deltaYL);
+					context.lineTo(right, top + deltaYR);
+					context.stroke();
+					break;
+				case 4:
+					context.beginPath();
+					context.moveTo(left, top + deltaYL);
+					context.lineTo(left + deltaXB, bottom);
+					context.stroke();
+					break;
+				case 5:
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(left + deltaXB, bottom);
+					context.stroke();
+					break;
+				case 6:
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(left, top + deltaYL);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(right, top + deltaYR);
+					context.lineTo(left + deltaXB, bottom);
+					context.stroke();
+					break;
+				case 7:
+					context.beginPath();
+					context.moveTo(left + deltaXB, bottom);
+					context.lineTo(right, top + deltaYR);
+					context.stroke();
+					break;
+				case 8:
+					context.beginPath();
+					context.moveTo(left + deltaXB, bottom);
+					context.lineTo(right, top + deltaYR);
+					context.stroke();
+					break;
+				case 9:
+					context.beginPath();
+					context.moveTo(left, top + deltaYL);
+					context.lineTo(left + deltaXB, bottom);
+					context.stroke();
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(right, top + deltaYR);
+					context.stroke();
+					break;
+				case 10:
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(left + deltaXB, bottom);
+					context.stroke();
+					break;
+				case 11:
+					context.beginPath();
+					context.moveTo(left, top + deltaYL);
+					context.lineTo(left + deltaXB, bottom);
+					context.stroke();
+					break;
+				case 12:
+					context.beginPath();
+					context.moveTo(left, top + deltaYL);
+					context.lineTo(right, top + deltaYR);
+					context.stroke();
+					break;
+				case 13:
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(right, top + deltaYR);
+					context.stroke();
+					break;
+				case 14:
+					context.beginPath();
+					context.moveTo(left + deltaXT, top);
+					context.lineTo(left, top + deltaYL);
+					context.stroke();
+					break;
+				case 15:
+					break;
+			}
+		}
+
+		var inter = setInterval(update, 1);
+	</script>
+</body>
+</html>
