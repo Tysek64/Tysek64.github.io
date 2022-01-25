@@ -256,8 +256,8 @@
 
         function start () {
             fieldSize = 10 * Math.pow(2, document.getElementById("difficulty").value - 1);
-            canvas.width = window.screen.width * window.deviceAspectRatio - (window.screen.width  * window.deviceAspectRatio % fieldSize);
-            canvas.height = window.screen.height * window.deviceAspectRatio - (window.screen.height * window.deviceAspectRatio % fieldSize);
+            canvas.width = window.screen.width * window.devicePixelRatio - (window.screen.width  * window.devicePixelRatio % fieldSize);
+            canvas.height = window.screen.height * window.devicePixelRatio - (window.screen.height * window.devicePixelRatio % fieldSize);
             mazeWidth = canvas.width / fieldSize;
             mazeHeight = canvas.height / fieldSize;
             for (var i = 0;i < mazeWidth;i++) {
