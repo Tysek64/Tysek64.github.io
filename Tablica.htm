@@ -122,8 +122,8 @@
 			}
 
 			var canvas = document.getElementById("tabulaRasa");
-			canvas.width = window.screen.width;
-			canvas.height = window.screen.height - 100;
+			canvas.width = window.screen.width * window.deviceAspectRatio;
+			canvas.height = window.screen.height * window.deviceAspectRatio - 100;
 			var context = canvas.getContext("2d");
 			context.lineCap = "round";
 			context.fillStyle = "#202020";
