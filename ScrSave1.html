@@ -36,7 +36,7 @@
 		var bs = [];
 		var bsTemp = [];
 
-		var cs = 10;
+		var cs = 20;
 
 		for (var x = 0;x < canvas.width / cs + 1;x++) {
 			for (var y = 0;y < canvas.height / cs + 1;y++) {
@@ -81,6 +81,8 @@
 				centers[i][0] += dirs[i][0];
 				centers[i][1] += dirs[i][1];
 			}
+
+window.requestAnimationFrame(update);
 		}
 
 		function march (x, y) {
@@ -102,7 +104,7 @@
 			var deltaYR = ((0.5 - bs[x+1][y]) / (bs[x+1][y+1] - bs[x+1][y])) * (cs / 1);
 
 			context.strokeStyle = "rgb(0, " + ((y * 1270) / canvas.height + 128) + ", " + ((x * 1270) / canvas.width + 128) + ")";
-			context.lineWidth = 5;
+			context.lineWidth = 2;
 			switch (id) {
 				case 0:
 					break;
@@ -202,8 +204,6 @@
 					break;
 			}
 		}
-
-		var inter = setInterval(update, 1);
 	</script>
 </body>
 </html>
