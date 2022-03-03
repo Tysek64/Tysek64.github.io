@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+<canvas id="tabulaRasa" width=1280 height=480></canvas>
+<input id="complex" type="range" min=1 max=100 onchange="draw()" disabled></input>
+<script>
+var canvas = document.getElementById("tabulaRasa");
+var context = canvas.getContext("2d");
+
+var px = 0;
+var py = 0;
+
+var level = 1;
+
+function draw () {
+px = 0;
+py = 0;
+context.fillStyle = "White";
+context.fillRect(0, 0, canvas.width, canvas.height);
+for (var x = 0;x < canvas.width;x++) {
+var y = 0;
+for (var i = 0;i < level;i++) {
+y += ((((i % 2) * 2) - 1) * 50 *  (1 / (2 * i + 1)) * Math.cos((2 * i + 1) * x/50));
+}
+context.strokeStyle = "Black";
+context.lineWidth = 2;
+context.beginPath();
+context.moveTo(px, py + canvas.height / 2);
+context.lineTo(x, y + canvas.height / 2);
+context.stroke();
+px = x;
+py = y;
+}
+
+level++;
+if (level > 100) {
+level = 1;
+}
+complex.value = level;
+}
+
+var inter = setInterval(draw, 100);
+</script>
+</body>
+</html>
