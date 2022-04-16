@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Przymiotnik</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14pt;
+            background-color: antiquewhite;
+            user-select: none;
+        }
+
+        table {
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 10px;
+            border: 1px solid black;
+            table-layout: fixed;
+            width: 300px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            width: 150px;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        p {
+            font-size: 28px;
+            margin: 0px;
+            text-align: center;
+        }
+
+        button {
+           font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+           font-size: 14pt;
+           text-align: center;
+           margin: 20px;
+           background-color: antiquewhite;
+           transition-duration: 0.2s;
+           border: 1px solid;
+           border-color: black;
+        }
+
+        button:hover {
+            background-color: burlywood;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <p id="de"></p>
+
+        <button onclick="check()" id="check">Sprawdź</button>
+    </center>
+
+    <table>
+        <tr>
+            <th>Przypadek</th>
+            <th>Przyimek</th>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="1" id="a1" />N</td>
+            <td><input type="checkbox" name="2" id="b1" />-</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="1" id="a2" />G</td>
+            <td><input type="checkbox" name="2" id="b2" />an</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="1" id="a3" />D</td>
+            <td><input type="checkbox" name="2" id="b3" />auf</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="1" id="a4" />Akk</td>
+            <td><input type="checkbox" name="2" id="b4" />bei</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b5" />für</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b6" />gegen</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b7" />in</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b8" />mit</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b9" />nach</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b10" />über</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b11" />um</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b12" />von</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b13" />vor</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="checkbox" name="2" id="b14" />zu</td>
+        </tr>
+    </table>
+
+    <table>
+        <tr>
+            <th>Nieznane: </th>
+            <td id="c1">0</td>
+        </tr>
+        <tr>
+            <th>Widziane: </th>
+            <td id="c2">0</td>
+        </tr>
+        <tr>
+            <th>Odgadnięte: </th>
+            <td id="c3">0</td>
+        </tr>
+    </table>
+
+    <script src="dane przymiotnik.js"></script>
+    <script>
+        var numer = Math.floor(Math.random() * dane.length);
+        var dobrze = true;
+
+        var odgadniete = [];
+        var widziane = [];
+        var nieznane = [];
+
+        var stats = [0, 0, 0];
+
+        for (var i = 0; i < dane.length; i++) {
+            odgadniete.push(false);
+            widziane.push(false);
+            nieznane.push(true);
+        }
+
+        document.getElementById("de").innerHTML = dane[numer].de;
+        widziane[numer] = true;
+        nieznane[numer] = false;
+
+        function update() {
+            stats[0] = 0;
+            stats[1] = 0;
+            stats[2] = 0;
+            for (var i = 0; i < dane.length; i++) {
+                stats[0] += nieznane[i];
+                stats[1] += widziane[i];
+                stats[2] += odgadniete[i];
+            }
+            document.getElementById("c1").innerHTML = stats[0];
+            document.getElementById("c2").innerHTML = stats[1];
+            document.getElementById("c3").innerHTML = stats[2];
+        }
+
+        update();
+
+        function check() {
+            var p1 = 0;
+            var p2 = 0;
+
+            for (var i = 1 ; i <= 4; i++) {
+                p1 += eval("document.getElementById('a" + i + "').checked") * Math.pow(2, i - 1);
+            }
+
+            for (var i = 1 ; i <= 14; i++) {
+                p2 += eval("document.getElementById('b" + i + "').checked") * Math.pow(2, i - 1);
+            }
+
+            if (p1 == dane[numer].p1 && p2 == dane[numer].p2) {
+                if (dobrze) {
+                    odgadniete[numer] = true;
+                    dane[2]++;
+                    alert("Sukces!");
+                }
+                dobrze = true;
+
+                for (var i = 1 ; i <= 4; i++) {
+                    eval("document.getElementById('a" + i + "').checked = false;");
+                }
+
+                for (var i = 1 ; i <= 14; i++) {
+                    eval("document.getElementById('b" + i + "').checked = false;");
+                }
+
+                do {
+                    numer = Math.floor(Math.random() * dane.length);
+                } while (odgadniete[numer]);
+
+                nieznane[numer] = false;
+                widziane[numer] = true;
+                document.getElementById("de").innerHTML = dane[numer].de;
+                update();
+            } else {
+                alert("Porażka…");
+                dobrze = false;
+
+                p1 = dane[numer].p1;
+                p2 = dane[numer].p2;
+
+                for (var i = 1 ; i <= 4 ; i++) {
+                    if (p1 % 2 == 1) {
+                        eval("document.getElementById('a" + i + "').checked = true;");
+                    } else {
+                        eval("document.getElementById('a" + i + "').checked = false;");
+                    }
+                    p1 /= 2;
+                    p1 -= (p1 % 1);
+                }
+
+                for (var i = 1 ; i <= 14 ; i++) {
+                    if (p2 % 2 == 1) {
+                        eval("document.getElementById('b" + i + "').checked = true;");
+                    } else {
+                        eval("document.getElementById('b" + i + "').checked = false;");
+                    }
+                    p2 /= 2;
+                    p2 -= (p2 % 1);
+                }
+            }
+        }
+
+        document.addEventListener("keydown", function (dwe) {
+            if (dwe.keyCode == 13) {
+                document.getElementById("check").click();
+            }
+        });
+    </script>
+</body>
+</html>
