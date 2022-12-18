@@ -1,0 +1,301 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>万華鏡クイズ</title>
+</head>
+<body>
+    <center>
+        <canvas id="tabulaRasa" width=640 height=480 style="border-style: solid; border-color: black;"></canvas>
+        <table>
+            <tr>
+                <td><button id="repeatButton" onclick="repeat()" disabled>Noch einmal!</button></td>
+                <td><button id="revealButton" onclick="reveal()" disabled>Zeig die Antwort!</button></td>
+            </tr>
+        </table>
+        <input id="fileInput" type="file" accept="image/*" onchange="updatePreview()" />
+    </center>
+    <img id="sourceImg" style="display: none;" />
+    <audio id="music" src="quiz.wav" style="display: none;"></audio>
+    <script>
+        var canvas = document.getElementById("tabulaRasa");
+        var context = canvas.getContext("2d");
+
+        var startT = 0;
+        var t = 0;
+        var s = 0;
+
+        function updatePreview() {
+            document.getElementById("sourceImg").src = URL.createObjectURL(document.getElementById("fileInput").files[0]);
+
+            document.getElementById("sourceImg").addEventListener("load", (e) => {
+                startT = Date.now()
+                document.getElementById("music").play();
+                inter = setInterval(start, 10);
+                document.getElementById("repeatButton").disabled = true;
+                document.getElementById("revealButton").disabled = true;
+                document.getElementById("fileInput").disabled = true;
+            });
+        }
+
+        function repeat() {
+            startT = Date.now()
+            document.getElementById("music").play();
+            inter = setInterval(start, 10);
+            document.getElementById("repeatButton").disabled = true;
+            document.getElementById("revealButton").disabled = true;
+            document.getElementById("fileInput").disabled = true;
+        }
+
+        function reveal() {
+            document.getElementById("repeatButton").disabled = true;
+            document.getElementById("revealButton").disabled = true;
+            document.getElementById("fileInput").disabled = true;
+            context.fillStyle = "Black";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            inter = setInterval(function () {
+                context.globalAlpha = 0.1;
+                context.fillStyle = "White";
+                context.font = "96px Segoe UI";
+                context.textAlign = "center";
+                context.fillText("正解は～？", canvas.width / 2, canvas.height / 2);
+                if (++t > 100) {
+                    clearInterval(inter);
+                    t = 101;
+                }
+            }, 50);
+
+            inter2 = setInterval(function () {
+                if (t > 100) {
+                    context.globalAlpha = 1;
+                    context.setTransform(1, 0, 0, 1, 0, 0);
+                    context.translate(0, -1 * (((100 - s) / 100) * canvas.height));
+                    context.drawImage(document.getElementById("sourceImg"), 0, 0, document.getElementById("sourceImg").naturalWidth, document.getElementById("sourceImg").naturalHeight, 0, 0, canvas.width, canvas.height);
+                    if (++s > 100) {
+                        clearInterval(inter2);
+                        s = 0;
+                        document.getElementById("fileInput").disabled = false;
+                    }
+                }
+            }, 10);
+            }
+
+        function start() {
+            var image = document.getElementById("sourceImg");
+            var width = image.naturalWidth;
+            var height = image.naturalHeight;
+
+            context.setTransform(1, 0, 0, 1, 0, 0);
+
+            //kaleido(image, ((width / 2 - 100) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 100) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 150 + 50 * Math.sin(20 * (Date.now() - startT) * (2 * Math.PI / 20000)), 150 - 50 * Math.cos(20 * (Date.now() - startT) * (2 * Math.PI / 20000)), width, height, 0, 0, canvas.width / 2 - 100, canvas.height / 2 - 173);
+
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1300, canvas.height / 2 + 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1300, canvas.height / 2 - 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1300, canvas.height / 2 - 3 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1300, canvas.height / 2 - 5 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1300, canvas.height / 2 - 7 * 173, (Date.now() - startT) / 2500);
+
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1000, canvas.height / 2 + 2 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1000, canvas.height / 2, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1000, canvas.height / 2 - 2 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1000, canvas.height / 2 - 4 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 1000, canvas.height / 2 - 6 * 173, (Date.now() - startT) / 2500);
+
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 700, canvas.height / 2 + 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 700, canvas.height / 2 - 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 700, canvas.height / 2 - 3 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 700, canvas.height / 2 - 5 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 700, canvas.height / 2 - 7 * 173, (Date.now() - startT) / 2500);
+
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 400, canvas.height / 2 + 2 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 400, canvas.height / 2, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 400, canvas.height / 2 - 2 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 400, canvas.height / 2 - 4 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 400, canvas.height / 2 - 6 * 173, (Date.now() - startT) / 2500);
+
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 100, canvas.height / 2 + 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 100, canvas.height / 2 - 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 100, canvas.height / 2 - 3 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 100, canvas.height / 2 - 5 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 - 100, canvas.height / 2 - 7 * 173, (Date.now() - startT) / 2500);
+
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 200, canvas.height / 2 + 2 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 200, canvas.height / 2, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 200, canvas.height / 2 - 2 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 200, canvas.height / 2 - 4 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 200, canvas.height / 2 - 6 * 173, (Date.now() - startT) / 2500);
+
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 500, canvas.height / 2 + 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 500, canvas.height / 2 - 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 500, canvas.height / 2 - 3 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 500, canvas.height / 2 - 5 * 173, (Date.now() - startT) / 2500);
+            kaleido(image, ((width / 2 - 150) * (1 + Math.sin((Date.now() - startT) * (2 * Math.PI / 20000)))), ((height / 2 - 150) * (1 + Math.sin(2 * (Date.now() - startT) * (2 * Math.PI / 20000)))), 300, 300, width, height, 0, 0, canvas.width / 2 + 500, canvas.height / 2 - 7 * 173, (Date.now() - startT) / 2500);
+
+            if ((Date.now() - startT) > 20000) {
+                clearInterval(inter);
+                context.setTransform(1, 0, 0, 1, 0, 0);
+                context.fillStyle = "Black";
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                context.fillStyle = "White";
+                context.font = "24px Segoe UI";
+                context.textAlign = "center";
+                context.fillText("これな～んだ", canvas.width / 2, canvas.height / 2);
+                document.getElementById("repeatButton").disabled = false;
+                document.getElementById("revealButton").disabled = false;
+                document.getElementById("fileInput").disabled = true;
+            }
+        }
+
+        function kaleido(image, imageX, imageY, imageW, imageH, width, height, x, y, offsetX, offsetY, offsetA) {
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.rotate(offsetA);
+            context.translate(offsetX, offsetY);
+
+            context.save();
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.closePath();
+            context.clip();
+            context.drawImage(image, imageX, imageY, imageW, imageH, x, y, 200, 173);
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.clip();
+            context.closePath();
+            context.restore();
+
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.rotate(offsetA);
+            context.translate(offsetX, offsetY);
+            context.translate(300, 173);
+            context.rotate(Math.PI / 3);
+            context.scale(-1, 1);
+
+            context.save();
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.closePath();
+            context.clip();
+            context.drawImage(image, imageX, imageY, imageW, imageH, x, y, 200, 173);
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.clip();
+            context.closePath();
+            context.restore();
+
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.rotate(offsetA);
+            context.translate(offsetX, offsetY);
+            context.translate(300, 173);
+            context.rotate(2 * Math.PI / 3);
+
+            context.save();
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.closePath();
+            context.clip();
+            context.drawImage(image, imageX, imageY, imageW, imageH, x, y, 200, 173);
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.clip();
+            context.closePath();
+            context.restore();
+
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.rotate(offsetA);
+            context.translate(offsetX, offsetY);
+            context.translate(0, 2 * 173);
+            context.rotate(Math.PI);
+            context.scale(-1, 1);
+
+            context.save();
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.closePath();
+            context.clip();
+            context.drawImage(image, imageX, imageY, imageW, imageH, x, y, 200, 173);
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.clip();
+            context.closePath();
+            context.restore();
+
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.rotate(offsetA);
+            context.translate(offsetX, offsetY);
+            context.translate(0, 2 * 173);
+            context.rotate(4 * Math.PI / 3);
+
+            context.save();
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.closePath();
+            context.clip();
+            context.drawImage(image, imageX, imageY, imageW, imageH, x, y, 200, 173);
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.clip();
+            context.closePath();
+            context.restore();
+
+            context.setTransform(1, 0, 0, 1, 0, 0);
+            context.rotate(offsetA);
+            context.translate(offsetX, offsetY);
+            context.rotate(5 * Math.PI / 3);
+            context.scale(-1, 1);
+
+            context.save();
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.closePath();
+            context.clip();
+            context.drawImage(image, imageX, imageY, imageW, imageH, x, y, 200, 173);
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + 200, y);
+            context.lineTo(x + 100, y + 173);
+            context.lineTo(x, y);
+            context.clip();
+            context.closePath();
+            context.restore();
+
+        }
+
+        var inter = undefined;
+        var inter2 = undefined;
+    </script>
+</body>
+</html>
