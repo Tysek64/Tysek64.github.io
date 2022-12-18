@@ -15,6 +15,7 @@
             </tr>
         </table>
         <input id="fileInput" type="file" accept="image/*" onchange="updatePreview()" />
+        <button id="startButton" onclick="startGame()" style="display: none;">START</button>
     </center>
     <img id="sourceImg" style="display: none;" />
     <audio id="music" src="quiz.wav" style="display: none;"></audio>
@@ -28,15 +29,21 @@
 
         function updatePreview() {
             document.getElementById("sourceImg").src = URL.createObjectURL(document.getElementById("fileInput").files[0]);
+            document.getElementById("fileInput").style.display = "none";
 
             document.getElementById("sourceImg").addEventListener("load", (e) => {
-                startT = Date.now()
-                document.getElementById("music").play();
-                inter = setInterval(start, 10);
-                document.getElementById("repeatButton").disabled = true;
-                document.getElementById("revealButton").disabled = true;
-                document.getElementById("fileInput").disabled = true;
+                document.getElementById("startButton").style.display = "block";
             });
+        }
+
+        function startGame() {
+            startT = Date.now()
+            document.getElementById("music").play();
+            inter = setInterval(start, 10);
+            document.getElementById("repeatButton").disabled = true;
+            document.getElementById("revealButton").disabled = true;
+            document.getElementById("fileInput").disabled = true;
+            document.getElementById("startButton").style.display = "none";
         }
 
         function repeat() {
@@ -49,8 +56,6 @@
         }
 
         function reveal() {
-t = 0;
-s = 0;
             document.getElementById("repeatButton").disabled = true;
             document.getElementById("revealButton").disabled = true;
             document.getElementById("fileInput").disabled = true;
@@ -77,6 +82,8 @@ s = 0;
                     if (++s > 100) {
                         clearInterval(inter2);
                         s = 0;
+                        t = 0;
+                        document.getElementById("fileInput").style.display = "block";
                         document.getElementById("fileInput").disabled = false;
                     }
                 }
