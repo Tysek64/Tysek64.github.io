@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Rozpisywanie formuł</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Znak</th>
+            <th>Znaczenie</th>
+        </tr>
+        <tr>
+            <td>~</td>
+            <td>Negacja</td>
+        </tr>
+        <tr>
+            <td>&</td>
+            <td>Koniunkcja</td>
+        </tr>
+        <tr>
+            <td>|</td>
+            <td>Alternatywa</td>
+        </tr>
+        <tr>
+            <td>></td>
+            <td>Implikacja</td>
+        </tr>
+        <tr>
+            <td>=</td>
+            <td>Równoważność</td>
+        </tr>
+    </table>
+    <input id="input" />
+    <button onclick="
+    globalError = false;
+    masterTree = parseInput(document.getElementById('input').value);
+    if (globalError) {
+        alert('NIE');
+    } else {
+        alert('TAK');
+    }
+        masterTree.draw(1, 0);
+    ">CZY JEST FORMUŁĄ???</button>
+
+    <canvas id="tabulaRasa" width=640 height=480></canvas>
+
+    <script>
+        var canvas = document.getElementById("tabulaRasa");
+        var context = canvas.getContext("2d");
+
+        var operations = ['~', '&', '|', '>', '='];
+
+        var globalError = false;
+
+        var Node = function (left, right, val, parent) {
+            this.left = left;
+            this.right = right;
+
+            this.val = val;
+
+            this.parent = parent;
+        }
+
+        Node.prototype.draw = function (posX, posY) {
+            context.fillStyle = "black";
+            context.font = "16px UD Digi Kyokasho N-R";
+            context.strokeStyle = "black";
+            context.lineWidth = 1;
+
+            if (this.val != null) {
+                context.fillText(this.val, canvas.width / Math.pow(2, posY + 1) * posX, (posY + 1) * 40);
+            }
+
+            if (this.left != null && this.val != null) {
+                context.beginPath();
+                context.moveTo(canvas.width / Math.pow(2, posY + 1) * posX + 4, (posY + 1) * 40 + 3);
+                context.lineTo(canvas.width / Math.pow(2, posY + 2) * (2 * posX - 1) + 4, (posY + 2) * 40 - 16);
+                context.stroke();
+            }
+
+            if (this.right != null && this.val != null) {
+                context.beginPath();
+                context.moveTo(canvas.width / Math.pow(2, posY + 1) * posX + 4, (posY + 1) * 40 + 3);
+                context.lineTo(canvas.width / Math.pow(2, posY + 2) * (2 * posX + 1) + 4, (posY + 2) * 40 - 16);
+                context.stroke();
+            }
+
+            if (this.left instanceof Node) {
+                this.left.draw(2 * posX - 1, posY + 1);
+            } else if (this.left != null) {
+                context.fillText(this.left, canvas.width / Math.pow(2, posY + 2) * (2 * posX - 1), (posY + 2) * 40);
+            }
+
+            if (this.right instanceof Node) {
+                this.right.draw(2 * posX + 1, posY + 1);
+            } else if (this.right != null) {
+                context.fillText(this.right, canvas.width / Math.pow(2, posY + 2) * (2 * posX + 1), (posY + 2) * 40);
+            }
+
+            return;
+        }
+
+        var masterTree = new Node(null, null, null, null);
+
+        function checkErrors(node) {
+            var current = (node.val != null) && ((node.left == null && node.right == null) || ((node.val == '~' && node.left != null && node.right != null) || (node.val != '~' && (node.left == null || node.right == null))));
+            var left = false;
+            var right = false;
+
+            if (node.left instanceof Node) {
+                left = checkErrors(node.left);
+            }
+
+            if (node.right instanceof Node) {
+                right = checkErrors(node.right);
+            }
+
+            return current || left || right;
+        }
+
+        function searchParentheses(input, start) {
+            var depth = 1;
+            var result = "";
+
+            for (var i = start + 1; i < input.length; i++) {
+                if (input[i] == '(') {
+                    depth++;
+                } else if (input[i] == ')') {
+                    depth--;
+                }
+
+                if (depth == 0) {
+                    break;
+                }
+
+                result += input[i];
+            }
+
+            return depth == 0 ? result : "-1";
+        }
+
+        function search (startNode, newWeight, child) {
+            if (startNode.parent == null) {
+                if (operations.indexOf(startNode.val) > newWeight) {
+                    return (startNode.right == child ? startNode.right : startNode.left);
+                } else {
+                    return startNode;
+                }
+            } else if (operations.indexOf(startNode.val) < newWeight && operations.indexOf(startNode.parent.val) > newWeight) {
+                return startNode;
+            } else {
+                return search(startNode.parent, newWeight, startNode);
+            }
+        }
+
+        function parseInput(input) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            var tree = new Node(null, null, null, null);
+            var pointer = tree;
+
+            var error = false;
+
+            for (var i = 0; i < input.length; i++) {
+                if (operations.indexOf(input[i]) == -1 && input[i] != '(' && input[i] != ')') {
+                    //variable
+
+                    if (pointer.val == null) {
+                        if (pointer.left == null) {
+                            pointer.left = input[i];
+                        } else {
+                            error = true;
+                            break;
+                        }
+                    } else {
+                        if (pointer.right == null) {
+                            pointer.right = input[i];
+                        } else {
+                            error = true;
+                            break;
+                        }
+
+                        if ((pointer.val == '~' && pointer.left != null && pointer.right != null) || (pointer.val != '~' && (pointer.left == null || pointer.right == null))) {
+                            error = true;
+                            break;
+                        }
+                    }
+                } else if (input[i] == '(') {
+                    //priority operation
+
+                    var subSentence = searchParentheses(input, i);
+
+                    if (subSentence != "-1") {
+                        var subTree = parseInput(searchParentheses(input, i));
+
+                        if (pointer.left == null) {
+                            pointer.left = subTree;
+                        } else {
+                            pointer.right = subTree;
+                        }
+
+                        i += searchParentheses(input, i).length;
+                    } else {
+                        error = true;
+
+                        break;
+                    }
+                } else if (input[i] == ')') {
+                    //do nothing
+                } else {
+                    //operator
+
+                    if (pointer.val == null) {
+                        if (input[i] == '~') {
+                            if (pointer.left != null || pointer.right != null) {
+                                error = true;
+                                break;
+                            } else {
+                                pointer.val = input[i];
+                            }
+                        } else {
+                            pointer.val = input[i];
+                        }
+                    } else {
+                        if (input[i] == '~') {
+                            pointer.right = new Node(pointer.right, null, input[i], pointer);
+                            pointer = pointer.right;
+                            if (pointer.left != null || pointer.right != null) {
+                                error = true;
+                                break;
+                            }
+                        } else if ((operations.indexOf(input[i]) > operations.indexOf(pointer.val)) || (((operations.indexOf(input[i]) == operations.indexOf(pointer.val)) && (operations.indexOf(input[i]) <= 2)))) {
+                            var newNode = search(pointer, operations.indexOf(input[i]), pointer);
+                            console.log(input[i], newNode.val);
+                            //newNode = new Node(newNode, null, input[i], (newNode.parent == null ? null : newNode.parent));
+                            console.log(newNode);
+                            pointer = newNode;
+
+                            pointer.left = new Node(newNode.left, newNode.right, newNode.val, null);
+                            pointer.right = null;
+                            pointer.val = input[i];
+                            pointer.left.parent = pointer;
+
+                            console.log(pointer);
+                        } else {
+                            pointer.right = new Node(pointer.right, null, input[i], pointer);
+                            pointer = pointer.right;
+                        }
+                    }
+                }
+            }
+
+            if (checkErrors(tree)) {
+                error = true;
+            }
+
+            if (error) {
+                globalError = true;
+            }
+
+            return tree;
+        }
+    </script>
+</body>
+</html>
