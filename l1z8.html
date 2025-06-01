@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Lista 1. zadanie 8.</title>
+		<meta charset="utf-8">
+		<style>
+			h2 {
+				font-size: 26pt;
+			}
+
+			input {
+				font-size: 20pt;
+				width: 100px;
+				text-align: right;
+				font-family: monospace;
+			}
+
+			p, button, td, th {
+				font-size: 20pt;
+				text-align: center;
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+
+			td {
+				text-align: right;
+			}
+		</style>
+	</head>
+	<body>
+		<center>
+			<h2>Krzysztof Żałobka 280454</h2>
+			<p>Maksymalna masa: <input id="maxMass" value=12></input></p>
+			<table id="items">
+				<tr>
+					<th>Masa</th>
+					<th>Wartość</th>
+					<th>Liczba sztuk</th>
+				</tr>
+				<tr>
+					<td><input value=4></input></td>
+					<td><input value=5></input></td>
+					<td>0</td>
+					<td><button onclick="deleteRow(this)">-</button></td>
+				</tr>
+				<tr>
+					<td><input value=2></input></td>
+					<td><input value=3></input></td>
+					<td>0</td>
+					<td><button onclick="deleteRow(this)">-</button></td>
+				</tr>
+				<tr>
+					<td><input value=6></input></td>
+					<td><input value=4></input></td>
+					<td>0</td>
+					<td><button onclick="deleteRow(this)">-</button></td>
+				</tr>
+				<tr>
+					<td><input value=5></input></td>
+					<td><input value=8></input></td>
+					<td>0</td>
+					<td><button onclick="deleteRow(this)">-</button></td>
+				</tr>
+				<tr>
+					<td colspan="4"><button onclick="addRow()" style="width: 100%;">+</button></td>
+				</tr>
+			</table>
+			<p id="result">Wynik: 0</p>
+			<button onclick="calculateSolution()">Rozwiąż</button>
+			<button onclick="clearSolution()">Wyczyść</button>
+		</center>
+		<script src="l1z8.js"></script>
+	</body>
+</html>
