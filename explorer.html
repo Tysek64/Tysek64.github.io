@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>KNN explorer</title>
+		<style>
+			canvas {
+				position: absolute;
+				left: 0;
+				top: 0;
+				cursor: none;
+			}
+			input {
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="mainCanvas" width="640" height="480"></canvas>
+		<canvas id="subCanvas" width="640" height="480"></canvas>
+		<label>Number of clusters: </label>
+		<input id="nClasses" type="range" min="1" max="10" value="3">
+		<p></p>
+		<label>Number of neighbors: </label>
+		<input id="nNeighbors" type="range" min="1" max="10" value="5">
+
+		<script src="explorer.js"></script>
+	</body>
+</html>
