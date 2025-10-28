@@ -20,7 +20,7 @@ let classes = [];
 let pan = false;
 let transformX = 600;
 let transformY = 400;
-let scale = 200;
+let scale = 100;
 let mouseX = 0;
 let mouseY = 0;
 
