@@ -1,5 +1,6 @@
 // HTML elements
 let nClassesSlider = document.getElementById("nClasses");
+let cSizeSlider = document.getElementById("cSize");
 let nNeighborsSlider = document.getElementById("nNeighbors");
 let xRangeMinInput = document.getElementById("xRangeMin");
 let xRangeMaxInput = document.getElementById("xRangeMax");
@@ -25,8 +26,8 @@ let mouseY = 0;
 
 function buildClusters () {
 	classes = Array.from({length: nClassesSlider.value}, () => ({
-		x: Math.random() * (Number(xRangeMaxInput.value) + Number(xRangeMinInput.value)) - xRangeMinInput.value,
-		y: Math.random() * (Number(yRangeMaxInput.value) + Number(yRangeMinInput.value)) - yRangeMaxInput.value,
+		x: Math.random() * (Number(xRangeMaxInput.value) - Number(xRangeMinInput.value)) + Number(xRangeMinInput.value),
+		y: Math.random() * (Number(yRangeMaxInput.value) - Number(yRangeMinInput.value)) - yRangeMaxInput.value,
 		color: Array.from({length: 3}, () => Math.floor(Math.random() * 256)),
 		objects: buildObjects(),
 	}));
@@ -35,7 +36,7 @@ function buildClusters () {
 function buildObjects () {
 	let retVal = Array.from({length: 10}, () => ({
 		theta: Math.random() * 2 * Math.PI,
-		r: Math.random() * 0.1,
+		r: Math.random() * 0.1 * cSizeSlider.value,
 	}));
 
 	for (let object of retVal) {
@@ -47,7 +48,7 @@ function buildObjects () {
 }
 
 function drawGrid () {
-	pointCtx.lineWidth = 2;
+	pointCtx.lineWidth = 3;
 	pointCtx.strokeStyle = "rgb(128, 128, 128)";
 
 	pointCtx.beginPath();
@@ -55,6 +56,20 @@ function drawGrid () {
 	pointCtx.lineTo(pointCanvas.width, transformY);
 	pointCtx.moveTo(transformX, 0);
 	pointCtx.lineTo(transformX, pointCanvas.height);
+	pointCtx.stroke();
+
+	pointCtx.lineWidth = 1;
+	pointCtx.strokeStyle = "rgb(100, 100, 100)";
+
+	pointCtx.beginPath();
+	for (let i = transformX - scale * Math.floor(transformX / scale);i < pointCanvas.width;i += scale) {
+		pointCtx.moveTo(i, 0);
+		pointCtx.lineTo(i, pointCanvas.height);
+	}
+	for (let i = transformY - scale * Math.floor(transformY / scale);i < pointCanvas.height;i += scale) {
+		pointCtx.moveTo(0, i);
+		pointCtx.lineTo(pointCanvas.width, i);
+	}
 	pointCtx.stroke();
 }
 
@@ -115,11 +130,36 @@ function kNeighbors () {
 	neighborsCtx.fill();
 }
 
+cSizeSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
 nClassesSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
 xRangeMinInput.addEventListener("change", () => {buildClusters(); drawClusters();});
 xRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
 yRangeMinInput.addEventListener("change", () => {buildClusters(); drawClusters();});
 yRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
+
+xRangeMinInput.addEventListener("input", () => {
+	if (Number(xRangeMinInput.value) >= Number(xRangeMaxInput.value)) {
+		xRangeMinInput.value = xRangeMaxInput.value - 1;
+	}
+});
+
+xRangeMaxInput.addEventListener("input", () => {
+	if (Number(xRangeMaxInput.value) <= Number(xRangeMinInput.value)) {
+		xRangeMaxInput.value = Number(xRangeMinInput.value) + 1;
+	}
+});
+
+yRangeMinInput.addEventListener("input", () => {
+	if (Number(yRangeMinInput.value) >= Number(yRangeMaxInput.value)) {
+		yRangeMinInput.value = yRangeMaxInput.value - 1;
+	}
+});
+
+yRangeMaxInput.addEventListener("input", () => {
+	if (Number(yRangeMaxInput.value) <= Number(yRangeMinInput.value)) {
+		yRangeMaxInput.value = Number(yRangeMinInput.value) + 1;
+	}
+});
 
 neighborsCanvas.addEventListener("mousemove", (e) => {
 	mouseX = e.clientX;
@@ -180,7 +220,7 @@ document.addEventListener("mouseup", function(e) {
 document.addEventListener("wheel", function(e) {
 	let prevZoom = scale;
 	scale -= (e.deltaY / 500) * scale;
-	scale = Math.max(1, scale);
+	scale = Math.max(10, scale);
 	scale = Math.min(1000, scale);
 
 	transformX += (1 - scale / prevZoom) * (e.clientX - transformX);

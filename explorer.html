@@ -25,28 +25,64 @@
 			input {
 				position: absolute;
 			}
+			td {
+				text-align: right;
+				padding: 1vh;
+			}
+			.sliderContainer {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
 		</style>
 	</head>
 	<body>
 		<canvas id="mainCanvas" width="640" height="480"></canvas>
 		<canvas id="subCanvas" width="640" height="480"></canvas>
-		<label>Number of clusters: </label>
-		<input id="nClasses" type="range" min="1" max="10" value="3">
-		<p></p>
-		<label>Number of neighbors: </label>
-		<input id="nNeighbors" type="range" min="1" max="10" value="5">
-		<p></p>
-		<label>X axis min: </label>
-		<input id="xRangeMin" type="range" min="1" max="10" value="5">
-		<p></p>
-		<label>X axis max: </label>
-		<input id="xRangeMax" type="range" min="1" max="10" value="5">
-		<p></p>
-		<label>Y axis min: </label>
-		<input id="yRangeMin" type="range" min="1" max="10" value="5">
-		<p></p>
-		<label>Y axis max: </label>
-		<input id="yRangeMax" type="range" min="1" max="10" value="5">
+		<table>
+			<tbody>
+				<tr>
+					<td><label>Number of clusters: </label></td>
+					<td><div class="sliderContainer">
+						<input id="nClasses" type="range" min="1" max="10" value="3">
+					</div></td>
+				</tr>
+				<tr>
+					<td><label>Cluster size: </label></td>
+					<td><div class="sliderContainer">
+						<input id="cSize" type="range" min="1" max="10" value="3">
+					</div></td>
+				</tr>
+				<tr>
+					<td><label>Number of neighbors: </label></td>
+					<td><div class="sliderContainer">
+						<input id="nNeighbors" type="range" min="1" max="10" value="5">
+					</div></td>
+				</tr>
+				<tr>
+					<td><label>X axis range: </label></td>
+					<td><div>
+						<div style="display: flex; flex-direction: column; justify-content: center;">
+							<input id="xRangeMin" type="range" min="-10" max="10" value="-5" style="height: 0; z-index: 1;">
+							<input id="xRangeMax" type="range" min="-10" max="10" value="5">
+						</div>
+					</div></td>
+				</tr>
+				<tr>
+					<td><label>Y axis range: </label></td>
+					<td><div>
+						<div style="display: flex; flex-direction: column; justify-content: center;">
+							<input id="yRangeMin" type="range" min="-10" max="10" value="-5" style="height: 0; z-index: 1;">
+							<input id="yRangeMax" type="range" min="-10" max="10" value="5">
+						</div>
+					</div></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
 
 		<script src="explorer.js"></script>
 	</body>
