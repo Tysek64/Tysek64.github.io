@@ -4,11 +4,22 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>KNN explorer</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">
 		<style>
+			:root {
+				color-scheme: light dark;
+			}
+			body {
+				font-family: "Kosugi Maru";
+			}
 			canvas {
 				position: absolute;
 				left: 0;
 				top: 0;
+				width: 100%;
+				height: 100%;
 				cursor: none;
 			}
 			input {
@@ -24,6 +35,18 @@
 		<p></p>
 		<label>Number of neighbors: </label>
 		<input id="nNeighbors" type="range" min="1" max="10" value="5">
+		<p></p>
+		<label>X axis min: </label>
+		<input id="xRangeMin" type="range" min="1" max="10" value="5">
+		<p></p>
+		<label>X axis max: </label>
+		<input id="xRangeMax" type="range" min="1" max="10" value="5">
+		<p></p>
+		<label>Y axis min: </label>
+		<input id="yRangeMin" type="range" min="1" max="10" value="5">
+		<p></p>
+		<label>Y axis max: </label>
+		<input id="yRangeMax" type="range" min="1" max="10" value="5">
 
 		<script src="explorer.js"></script>
 	</body>

@@ -1,42 +1,81 @@
+// HTML elements
 let nClassesSlider = document.getElementById("nClasses");
 let nNeighborsSlider = document.getElementById("nNeighbors");
+let xRangeMinInput = document.getElementById("xRangeMin");
+let xRangeMaxInput = document.getElementById("xRangeMax");
+let yRangeMinInput = document.getElementById("yRangeMin");
+let yRangeMaxInput = document.getElementById("yRangeMax");
 let pointCanvas = document.getElementById("mainCanvas");
 let neighborsCanvas = document.getElementById("subCanvas");
 
+// contexts
 let pointCtx = pointCanvas.getContext("2d");
 let neighborsCtx = neighborsCanvas.getContext("2d");
 
-pointCtx.strokeStyle = "black";
-pointCtx.lineWidth = 10;
-pointCtx.lineCap = "round";
-
+// important globals
 let classes = [];
 
-function buildClasses () {
+// view parameters
+let pan = false;
+let transformX = 600;
+let transformY = 400;
+let scale = 200;
+let mouseX = 0;
+let mouseY = 0;
+
+function buildClusters () {
 	classes = Array.from({length: nClassesSlider.value}, () => ({
-		x: Math.random(),
-		y: Math.random(),
-		objects: Array.from({length: 10}, () => ({
-			theta: Math.random() * 2 * Math.PI,
-			r: Math.random(),
-		})),
+		x: Math.random() * (Number(xRangeMaxInput.value) + Number(xRangeMinInput.value)) - xRangeMinInput.value,
+		y: Math.random() * (Number(yRangeMaxInput.value) + Number(yRangeMinInput.value)) - yRangeMaxInput.value,
 		color: Array.from({length: 3}, () => Math.floor(Math.random() * 256)),
+		objects: buildObjects(),
 	}));
 }
 
-function drawClasses () {
+function buildObjects () {
+	let retVal = Array.from({length: 10}, () => ({
+		theta: Math.random() * 2 * Math.PI,
+		r: Math.random() * 0.1,
+	}));
+
+	for (let object of retVal) {
+		object.x = object.r * Math.cos(object.theta);
+		object.y = object.r * Math.sin(object.theta);
+	}
+
+	return retVal;
+}
+
+function drawGrid () {
+	pointCtx.lineWidth = 2;
+	pointCtx.strokeStyle = "rgb(128, 128, 128)";
+
+	pointCtx.beginPath();
+	pointCtx.moveTo(0, transformY);
+	pointCtx.lineTo(pointCanvas.width, transformY);
+	pointCtx.moveTo(transformX, 0);
+	pointCtx.lineTo(transformX, pointCanvas.height);
+	pointCtx.stroke();
+}
+
+function drawClusters () {
 	pointCtx.clearRect(0, 0, pointCanvas.width, pointCanvas.height);
+
+	drawGrid();
+
+	pointCtx.lineWidth = 10;
+	pointCtx.lineCap = "round";
 	for (let clas of classes) {
 		pointCtx.strokeStyle = "rgb(" + clas.color.reduce((acc, cur) => acc + ", " + cur) + ")"
 		for (let object of clas.objects) {
 			pointCtx.beginPath();
-			pointCtx.arc(clas.x * pointCanvas.width, clas.y * pointCanvas.height, object.r * pointCanvas.width * 0.1, object.theta, object.theta + 0.0001);
+			pointCtx.arc(clas.x * scale + transformX, clas.y * scale + transformY, object.r * scale, object.theta, object.theta + 0.0001);
 			pointCtx.stroke();
 		}
 	}
 }
 
-function kNeighbors (x, y) {
+function kNeighbors () {
 	neighborsCtx.clearRect(0, 0, neighborsCanvas.width, neighborsCanvas.height);
 
 	let distances = [];
@@ -45,11 +84,11 @@ function kNeighbors (x, y) {
 		for (let object of clas.objects) {
 			distances.push({
 				color: clas.color,
-				x: clas.x * pointCanvas.width + (object.r * pointCanvas.width * 0.1 * Math.cos(object.theta)),
-				y: clas.y * pointCanvas.height + (object.r * pointCanvas.width * 0.1 * Math.sin(object.theta)),
+				x: clas.x * scale + transformX + (object.x * scale),
+				y: clas.y * scale + transformY + (object.y * scale),
 				distance: Math.sqrt(
-					Math.pow(x - (clas.x * pointCanvas.width + (object.r * pointCanvas.width * 0.1 * Math.cos(object.theta))), 2) + 
-					Math.pow(y - (clas.y * pointCanvas.height + (object.r * pointCanvas.width * 0.1 * Math.sin(object.theta))), 2)
+					Math.pow(clas.x * scale + transformX + (object.x * scale) - mouseX, 2) + 
+					Math.pow(clas.y * scale + transformY + (object.y * scale) - mouseY, 2)
 				),
 			});
 		}
@@ -62,7 +101,7 @@ function kNeighbors (x, y) {
 		neighborsCtx.strokeStyle = "rgb(" + object.color.reduce((acc, cur) => acc + ", " + cur) + ")"
 		neighborsCtx.beginPath();
 		neighborsCtx.moveTo(object.x, object.y);
-		neighborsCtx.lineTo(x, y);
+		neighborsCtx.lineTo(mouseX, mouseY);
 		neighborsCtx.stroke();
 	}
 
@@ -72,13 +111,83 @@ function kNeighbors (x, y) {
 
 	neighborsCtx.fillStyle = "rgb(" + mostCommonColor.reduce((acc, cur) => acc + ", " + cur) + ")"
 	neighborsCtx.beginPath();
-	neighborsCtx.arc(x, y, 10, 0, 2 * Math.PI);
+	neighborsCtx.arc(mouseX, mouseY, 10, 0, 2 * Math.PI);
 	neighborsCtx.fill();
 }
 
-nClassesSlider.addEventListener("change", () => {buildClasses(); drawClasses();});
-neighborsCanvas.addEventListener("mousemove", (e) => kNeighbors(e.clientX, e.clientY));
+nClassesSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
+xRangeMinInput.addEventListener("change", () => {buildClusters(); drawClusters();});
+xRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
+yRangeMinInput.addEventListener("change", () => {buildClusters(); drawClusters();});
+yRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
+
+neighborsCanvas.addEventListener("mousemove", (e) => {
+	mouseX = e.clientX;
+	mouseY = e.clientY;
+	kNeighbors();
+	if (pan) {
+		transformX += e.movementX;
+		transformY += e.movementY;
+		drawClusters();
+		kNeighbors();
+	}
+});
 neighborsCanvas.addEventListener("mouseleave", () => {neighborsCtx.clearRect(0, 0, neighborsCanvas.width, neighborsCanvas.height);});
 
-buildClasses();
-drawClasses();
+buildClusters();
+
+window.addEventListener("resize", () => {
+	neighborsCanvas.width = neighborsCanvas.scrollWidth;
+	neighborsCanvas.height = neighborsCanvas.scrollHeight;
+	pointCanvas.width = pointCanvas.scrollWidth;
+	pointCanvas.height = pointCanvas.scrollHeight;
+
+	drawClusters();
+});
+window.addEventListener("load", () => {
+	neighborsCanvas.width = neighborsCanvas.scrollWidth;
+	neighborsCanvas.height = neighborsCanvas.scrollHeight;
+	pointCanvas.width = pointCanvas.scrollWidth;
+	pointCanvas.height = pointCanvas.scrollHeight;
+
+	transformX = pointCanvas.width / 2;
+	transformY = pointCanvas.height / 2;
+
+	drawClusters();
+});
+
+window.addEventListener("keypress", (e) => {
+	nNeighborsSlider.value = (e.key - 10) % 10 + 10;
+	kNeighbors();
+});
+
+document.addEventListener("mousedown", function(e) {
+	if ((e.buttons & 2) != 0) {
+		scale = 100;
+		transformX = 600;
+		transformY = 400;
+		drawClusters();
+		kNeighbors();
+	} else if ((e.buttons & 1) != 0) {
+		pan = true;
+	}
+});
+
+document.addEventListener("mouseup", function(e) {
+	pan = false;
+});
+
+document.addEventListener("wheel", function(e) {
+	let prevZoom = scale;
+	scale -= (e.deltaY / 500) * scale;
+	scale = Math.max(1, scale);
+	scale = Math.min(1000, scale);
+
+	transformX += (1 - scale / prevZoom) * (e.clientX - transformX);
+	transformY += (1 - scale / prevZoom) * (e.clientY - transformY);
+
+	drawClusters();
+	kNeighbors();
+});
+
+document.addEventListener("contextmenu", e => e.preventDefault());
