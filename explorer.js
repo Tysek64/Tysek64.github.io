@@ -272,9 +272,11 @@ window.addEventListener("load", () => {
 });
 
 window.addEventListener("keypress", (e) => {
-	nNeighborsSlider.value = (e.key - 10) % 10 + 10;
-	if (e.key == " ") {
-		preprocessCheckbox.checked = !preprocessCheckbox.checked;
+	if (document.activeElement.type != "number") {
+		nNeighborsSlider.value = (e.key - 10) % 10 + 10;
+		if (e.key == " ") {
+			preprocessCheckbox.checked = !preprocessCheckbox.checked;
+		}
 	}
 	transformObjects();
 	drawClusters();
@@ -320,6 +322,7 @@ preprocessCheckbox.addEventListener("input", (e) => {
 
 for (let element of document.getElementsByClassName("stepInput")) {
 	element.addEventListener("input", (e) => {
+		console.log(element.value);
 		transformObjects();
 		drawClusters();
 		kNeighbors();
