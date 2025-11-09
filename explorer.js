@@ -185,7 +185,7 @@ function drawClusters () {
 		pointCtx.fillStyle = "rgb(" + clas.color.reduce((acc, cur) => acc + ", " + cur) + ")"
 		for (let object of clas.objects) {
 			pointCtx.beginPath();
-			pointCtx.arc(object.transformedX * scale + transformX, object.transformedY * scale + transformY, 5, 0, 2 * Math.PI);
+			pointCtx.arc(object.transformedX * scale + transformX, object.transformedY * scale + transformY, 3 * Math.log10(scale), 0, 2 * Math.PI);
 			pointCtx.fill();
 		}
 	}
@@ -221,13 +221,31 @@ function kNeighbors () {
 		neighborsCtx.stroke();
 	}
 
+	/*
 	let mostCommonColor = distances.sort((a,b) =>
 		distances.filter(v => v.color===a.color).length - distances.filter(v => v.color===b.color).length
-	).pop().color;
+	);
+	*/
+
+	let mostCommonColor = Object.fromEntries(
+		distances.map(
+			obj => [
+				obj.color, 
+				[distances.filter(v => v.color === obj.color).length, 
+				Math.min(...distances.filter(v => v.color === obj.color).map(v => v.distance))]
+			]
+		)
+	);
+
+	mostCommonColor = Object.keys(mostCommonColor).map(v => [v, mostCommonColor[v]]);
+
+	mostCommonColor = mostCommonColor.sort((a, b) => b[1][0] - a[1][0]);
+
+	mostCommonColor = mostCommonColor.shift()[0].split(',');
 
 	neighborsCtx.fillStyle = "rgb(" + mostCommonColor.reduce((acc, cur) => acc + ", " + cur) + ")"
 	neighborsCtx.beginPath();
-	neighborsCtx.arc(mouseX, mouseY, 10, 0, 2 * Math.PI);
+	neighborsCtx.arc(mouseX, mouseY, 14, 0, 2 * Math.PI);
 	neighborsCtx.fill();
 }
 
@@ -303,7 +321,7 @@ document.addEventListener("wheel", function(e) {
 	let prevZoom = scale;
 	scale -= (e.deltaY / 500) * scale;
 	scale = Math.max(10, scale);
-	scale = Math.min(1000, scale);
+	scale = Math.min(10000, scale);
 
 	transformX += (1 - scale / prevZoom) * (e.clientX - transformX);
 	transformY += (1 - scale / prevZoom) * (e.clientY - transformY);
