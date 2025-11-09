@@ -9,6 +9,9 @@ let yRangeMaxInput = document.getElementById("yRangeMax");
 let pointCanvas = document.getElementById("mainCanvas");
 let neighborsCanvas = document.getElementById("subCanvas");
 
+let preprocessCheckbox = document.getElementById("preprocessCheckbox");
+let stepContainer = document.getElementById("stepContainer");
+
 // contexts
 let pointCtx = pointCanvas.getContext("2d");
 let neighborsCtx = neighborsCanvas.getContext("2d");
@@ -31,6 +34,8 @@ function buildClusters () {
 		color: Array.from({length: 3}, () => Math.floor(Math.random() * 256)),
 		objects: buildObjects(),
 	}));
+
+	transformObjects();
 }
 
 function buildObjects () {
@@ -45,6 +50,67 @@ function buildObjects () {
 	}
 
 	return retVal;
+}
+
+function transformObjects () {
+	let xPositions = [];
+	let yPositions = [];
+
+	for (let clas of classes) {
+		for (let object of clas.objects) {
+			object.transformedX = object.x + clas.x;
+			object.transformedY = object.y + clas.y;
+
+			xPositions.push(object.transformedX);
+			yPositions.push(object.transformedY);
+		}
+	}
+
+	if (preprocessCheckbox.checked) {
+		for (let step of stepContainer.children) {
+			let currentMinX = Math.min(...xPositions);
+			let currentMaxX = Math.max(...xPositions);
+
+			let currentMinY = Math.min(...yPositions);
+			let currentMaxY = Math.max(...yPositions);
+
+			xPositions = [];
+			yPositions = [];
+
+			switch (step.children[0].innerHTML) {
+				case "X scale: ":
+					let targetMinX = Number(step.children[1].value);
+					let targetMaxX = Number(step.children[2].value);
+
+					for (let clas of classes) {
+						for (let object of clas.objects) {
+							object.transformedX *= ((targetMaxX - targetMinX) / (currentMaxX - currentMinX));
+							object.transformedX += targetMaxX - currentMaxX * ((targetMaxX - targetMinX) / (currentMaxX - currentMinX));
+
+							xPositions.push(object.transformedX);
+							yPositions.push(object.transformedY);
+						}
+					}
+					break;
+				case "Y scale: ":
+					let targetMinY = -1 * Number(step.children[2].value);
+					let targetMaxY = -1 * Number(step.children[1].value);
+
+					for (let clas of classes) {
+						for (let object of clas.objects) {
+							object.transformedY *= ((targetMaxY - targetMinY) / (currentMaxY - currentMinY));
+							object.transformedY += targetMaxY - currentMaxY * ((targetMaxY - targetMinY) / (currentMaxY - currentMinY));
+
+							xPositions.push(object.transformedX);
+							yPositions.push(object.transformedY);
+						}
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}
 }
 
 function drawGrid () {
@@ -81,11 +147,11 @@ function drawClusters () {
 	pointCtx.lineWidth = 10;
 	pointCtx.lineCap = "round";
 	for (let clas of classes) {
-		pointCtx.strokeStyle = "rgb(" + clas.color.reduce((acc, cur) => acc + ", " + cur) + ")"
+		pointCtx.fillStyle = "rgb(" + clas.color.reduce((acc, cur) => acc + ", " + cur) + ")"
 		for (let object of clas.objects) {
 			pointCtx.beginPath();
-			pointCtx.arc(clas.x * scale + transformX, clas.y * scale + transformY, object.r * scale, object.theta, object.theta + 0.0001);
-			pointCtx.stroke();
+			pointCtx.arc(object.transformedX * scale + transformX, object.transformedY * scale + transformY, 5, 0, 2 * Math.PI);
+			pointCtx.fill();
 		}
 	}
 }
@@ -99,11 +165,11 @@ function kNeighbors () {
 		for (let object of clas.objects) {
 			distances.push({
 				color: clas.color,
-				x: clas.x * scale + transformX + (object.x * scale),
-				y: clas.y * scale + transformY + (object.y * scale),
+				x: object.transformedX * scale + transformX,
+				y: object.transformedY * scale + transformY,
 				distance: Math.sqrt(
-					Math.pow(clas.x * scale + transformX + (object.x * scale) - mouseX, 2) + 
-					Math.pow(clas.y * scale + transformY + (object.y * scale) - mouseY, 2)
+					Math.pow((object.transformedX * scale + transformX) - mouseX, 2) + 
+					Math.pow((object.transformedY * scale + transformY) - mouseY, 2)
 				),
 			});
 		}
@@ -198,6 +264,11 @@ window.addEventListener("load", () => {
 
 window.addEventListener("keypress", (e) => {
 	nNeighborsSlider.value = (e.key - 10) % 10 + 10;
+	if (e.key == " ") {
+		preprocessCheckbox.checked = !preprocessCheckbox.checked;
+	}
+	transformObjects();
+	drawClusters();
 	kNeighbors();
 });
 
@@ -231,3 +302,17 @@ document.addEventListener("wheel", function(e) {
 });
 
 document.addEventListener("contextmenu", e => e.preventDefault());
+
+preprocessCheckbox.addEventListener("input", (e) => {
+	transformObjects();
+	drawClusters();
+	kNeighbors();
+});
+
+for (let element of document.getElementsByClassName("stepInput")) {
+	element.addEventListener("input", (e) => {
+		transformObjects();
+		drawClusters();
+		kNeighbors();
+	});
+}

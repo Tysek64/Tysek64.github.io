@@ -11,6 +11,9 @@
 			:root {
 				color-scheme: light dark;
 			}
+			table {
+				position: absolute;
+			}
 			body {
 				font-family: "Kosugi Maru";
 			}
@@ -24,6 +27,18 @@
 			}
 			input {
 				position: absolute;
+				border: 1px solid currentColor;
+				border-radius: 5px;
+			}
+			input[type="number"] {
+				width: 50px;
+			}
+			button {
+				width: 20px;
+				height: 20px;
+				margin: 3px;
+				border: 1px solid currentColor;
+				border-radius: 5px;
 			}
 			td {
 				text-align: right;
@@ -33,6 +48,15 @@
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
+			}
+			.step {
+				background-color: Canvas;
+				border: 1px solid currentColor;
+				border-radius: 5px;
+				padding: 1vh;
+			}
+			.step * {
+				position: unset;
 			}
 		</style>
 	</head>
@@ -64,7 +88,12 @@
 					<td><div>
 						<div style="display: flex; flex-direction: column; justify-content: center;">
 							<input id="xRangeMin" type="range" min="-10" max="10" value="-5" style="height: 0; z-index: 1;">
-							<input id="xRangeMax" type="range" min="-10" max="10" value="5">
+							<input id="xRangeMax" type="range" min="-10" max="10" value="5" list="xTicks">
+							<datalist id="xTicks">
+								<option value="0"></option>
+								<option value="-5"></option>
+								<option value="5"></option>
+							</datalist>
 						</div>
 					</div></td>
 				</tr>
@@ -73,13 +102,44 @@
 					<td><div>
 						<div style="display: flex; flex-direction: column; justify-content: center;">
 							<input id="yRangeMin" type="range" min="-10" max="10" value="-1" style="height: 0; z-index: 1;">
-							<input id="yRangeMax" type="range" min="-10" max="10" value="1">
+							<input id="yRangeMax" type="range" min="-10" max="10" value="1" list="yTicks">
+							<datalist id="yTicks">
+								<option value="0"></option>
+								<option value="-1"></option>
+								<option value="1"></option>
+							</datalist>
 						</div>
 					</div></td>
 				</tr>
 				<tr>
-					<td></td>
-					<td></td>
+					<td><label>Apply preprocessing: </label></td>
+					<td><div class="sliderContainer">
+						<input type="checkbox" id="preprocessCheckbox" style="width: 20px; height: 20px;">
+					</div></td>
+				</tr>
+				<!--
+				<tr>
+					<td><label>Add step: </label></td>
+					<td><div class="sliderContainer">
+						<button>+</button>
+					</div></td>
+				</tr>
+-->
+				<tr>
+					<td colspan="2"><div id="stepContainer">
+						<div class="step">
+							<label>X scale: </label>
+							<input type="number" class="stepInput">
+							<input type="number" class="stepInput">
+							<!--<button>-</button>-->
+						</div>
+						<div class="step">
+							<label>Y scale: </label>
+							<input type="number" class="stepInput">
+							<input type="number" class="stepInput">
+						<!--<button>-</button>-->
+						</div>
+					</div></td>
 				</tr>
 			</tbody>
 		</table>
