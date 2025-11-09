@@ -2,9 +2,7 @@
 let nClassesSlider = document.getElementById("nClasses");
 let cSizeSlider = document.getElementById("cSize");
 let nNeighborsSlider = document.getElementById("nNeighbors");
-let xRangeMinInput = document.getElementById("xRangeMin");
 let xRangeMaxInput = document.getElementById("xRangeMax");
-let yRangeMinInput = document.getElementById("yRangeMin");
 let yRangeMaxInput = document.getElementById("yRangeMax");
 let pointCanvas = document.getElementById("mainCanvas");
 let neighborsCanvas = document.getElementById("subCanvas");
@@ -18,6 +16,7 @@ let neighborsCtx = neighborsCanvas.getContext("2d");
 
 // important globals
 let classes = [];
+let colors = [];
 
 // view parameters
 let pan = false;
@@ -27,11 +26,44 @@ let scale = 100;
 let mouseX = 0;
 let mouseY = 0;
 
+function acceptColor (newColor) {
+	let results = [];
+	for (let color of colors) {
+		results.push(Math.abs(color[0] - newColor[0]) + Math.abs(color[1] - newColor[1]) + Math.abs(color[2] - newColor[2]));
+	}
+	return Math.min(...results) > 150;
+}
+
+function generateColor () {
+	let result = [0, 0, 0];
+
+	do {
+		let tokens = 500;
+		result = [0, 0, 0];
+
+		let transfer = 0;
+
+		while (tokens > 100) {
+			for (let i = 0;i < 3;i++) {
+				transfer = Math.floor(Math.random() * tokens);
+				transfer = Math.min(transfer, 255 - result[i]);
+
+				result[i] += transfer;
+				tokens -= transfer;
+			}
+		}
+	} while (!acceptColor(result));
+
+	colors.push(result);
+
+	return result;
+}
+
 function buildClusters () {
 	classes = Array.from({length: nClassesSlider.value}, () => ({
-		x: Math.random() * (Number(xRangeMaxInput.value) - Number(xRangeMinInput.value)) + Number(xRangeMinInput.value),
-		y: Math.random() * (Number(yRangeMaxInput.value) - Number(yRangeMinInput.value)) - yRangeMaxInput.value,
-		color: Array.from({length: 3}, () => Math.floor(Math.random() * 256)),
+		x: Math.random() * (2 * Number(xRangeMaxInput.value)) - xRangeMaxInput.value,
+		y: Math.random() * (2 * Number(yRangeMaxInput.value)) - yRangeMaxInput.value,
+		color: generateColor(),
 		objects: buildObjects(),
 	}));
 
@@ -41,7 +73,7 @@ function buildClusters () {
 function buildObjects () {
 	let retVal = Array.from({length: 10}, () => ({
 		theta: Math.random() * 2 * Math.PI,
-		r: Math.random() * 0.1 * cSizeSlider.value,
+		r: (Math.random() < 0.95) ? (Math.random() * 0.1 * cSizeSlider.value) : (Math.random() * 0.5 * cSizeSlider.value + 0.5 * cSizeSlider.value),
 	}));
 
 	for (let object of retVal) {
@@ -198,34 +230,8 @@ function kNeighbors () {
 
 cSizeSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
 nClassesSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
-xRangeMinInput.addEventListener("change", () => {buildClusters(); drawClusters();});
 xRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
-yRangeMinInput.addEventListener("change", () => {buildClusters(); drawClusters();});
 yRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
-
-xRangeMinInput.addEventListener("input", () => {
-	if (Number(xRangeMinInput.value) >= Number(xRangeMaxInput.value)) {
-		xRangeMinInput.value = xRangeMaxInput.value - 1;
-	}
-});
-
-xRangeMaxInput.addEventListener("input", () => {
-	if (Number(xRangeMaxInput.value) <= Number(xRangeMinInput.value)) {
-		xRangeMaxInput.value = Number(xRangeMinInput.value) + 1;
-	}
-});
-
-yRangeMinInput.addEventListener("input", () => {
-	if (Number(yRangeMinInput.value) >= Number(yRangeMaxInput.value)) {
-		yRangeMinInput.value = yRangeMaxInput.value - 1;
-	}
-});
-
-yRangeMaxInput.addEventListener("input", () => {
-	if (Number(yRangeMaxInput.value) <= Number(yRangeMinInput.value)) {
-		yRangeMaxInput.value = Number(yRangeMinInput.value) + 1;
-	}
-});
 
 neighborsCanvas.addEventListener("mousemove", (e) => {
 	mouseX = e.clientX;

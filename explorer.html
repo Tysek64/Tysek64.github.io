@@ -74,7 +74,7 @@
 				<tr>
 					<td><label>Cluster size: </label></td>
 					<td><div class="sliderContainer">
-						<input id="cSize" type="range" min="1" max="10" value="10">
+						<input id="cSize" type="range" min="1" max="10" value="5">
 					</div></td>
 				</tr>
 				<tr>
@@ -87,13 +87,7 @@
 					<td><label>X axis range: </label></td>
 					<td><div>
 						<div style="display: flex; flex-direction: column; justify-content: center;">
-							<input id="xRangeMin" type="range" min="-10" max="10" value="-5" style="height: 0; z-index: 1;">
-							<input id="xRangeMax" type="range" min="-10" max="10" value="5" list="xTicks">
-							<datalist id="xTicks">
-								<option value="0"></option>
-								<option value="-5"></option>
-								<option value="5"></option>
-							</datalist>
+							<input id="xRangeMax" type="range" min="1" max="5" value="5" list="xTicks">
 						</div>
 					</div></td>
 				</tr>
@@ -101,13 +95,7 @@
 					<td><label>Y axis range: </label></td>
 					<td><div>
 						<div style="display: flex; flex-direction: column; justify-content: center;">
-							<input id="yRangeMin" type="range" min="-10" max="10" value="-1" style="height: 0; z-index: 1;">
-							<input id="yRangeMax" type="range" min="-10" max="10" value="1" list="yTicks">
-							<datalist id="yTicks">
-								<option value="0"></option>
-								<option value="-1"></option>
-								<option value="1"></option>
-							</datalist>
+							<input id="yRangeMax" type="range" min="1" max="5" value="1">
 						</div>
 					</div></td>
 				</tr>
@@ -129,14 +117,14 @@
 					<td colspan="2"><div id="stepContainer">
 						<div class="step">
 							<label>X scale: </label>
-							<input type="number" class="stepInput">
-							<input type="number" class="stepInput">
+							<input type="number" class="stepInput" value="0">
+							<input type="number" class="stepInput" value="1">
 							<!--<button>-</button>-->
 						</div>
 						<div class="step">
 							<label>Y scale: </label>
-							<input type="number" class="stepInput">
-							<input type="number" class="stepInput">
+							<input type="number" class="stepInput" value="0">
+							<input type="number" class="stepInput" value="1">
 						<!--<button>-</button>-->
 						</div>
 					</div></td>
