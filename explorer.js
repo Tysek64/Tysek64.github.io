@@ -291,9 +291,10 @@ window.addEventListener("load", () => {
 
 window.addEventListener("keypress", (e) => {
 	if (document.activeElement.type != "number") {
-		nNeighborsSlider.value = (e.key - 10) % 10 + 10;
 		if (e.key == " ") {
 			preprocessCheckbox.checked = !preprocessCheckbox.checked;
+		} else if (e.key >= "0" && e.key <= "9") {
+			nNeighborsSlider.value = (e.key - 10) % 10 + 10;
 		}
 	}
 	transformObjects();
