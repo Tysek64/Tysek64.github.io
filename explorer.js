@@ -26,16 +26,17 @@ let scale = 100;
 let mouseX = 0;
 let mouseY = 0;
 
-function acceptColor (newColor) {
+function acceptColor (newColor, strict) {
 	let results = [];
 	for (let color of colors) {
 		results.push(Math.abs(color[0] - newColor[0]) + Math.abs(color[1] - newColor[1]) + Math.abs(color[2] - newColor[2]));
 	}
-	return Math.min(...results) > 150;
+	return Math.min(...results) > (strict ? 150 : 100);
 }
 
 function generateColor () {
 	let result = [0, 0, 0];
+	let counter = 0;
 
 	do {
 		let tokens = 500;
@@ -52,7 +53,7 @@ function generateColor () {
 				tokens -= transfer;
 			}
 		}
-	} while (!acceptColor(result));
+	} while (!acceptColor(result, ++counter < 50));
 
 	colors.push(result);
 
