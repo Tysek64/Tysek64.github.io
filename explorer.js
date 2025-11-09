@@ -61,6 +61,8 @@ function generateColor () {
 }
 
 function buildClusters () {
+	colors = [];
+
 	classes = Array.from({length: nClassesSlider.value}, () => ({
 		x: Math.random() * (2 * Number(xRangeMaxInput.value)) - xRangeMaxInput.value,
 		y: Math.random() * (2 * Number(yRangeMaxInput.value)) - yRangeMaxInput.value,
