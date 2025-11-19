@@ -4,133 +4,164 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>KNN explorer</title>
-		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<!--<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">
-		<style>
-			:root {
-				color-scheme: light dark;
-			}
-			table {
-				position: absolute;
-			}
-			body {
-				font-family: "Kosugi Maru";
-			}
-			canvas {
-				position: absolute;
-				left: 0;
-				top: 0;
-				width: 100%;
-				height: 100%;
-				cursor: none;
-			}
-			input {
-				position: absolute;
-				border: 1px solid currentColor;
-				border-radius: 5px;
-			}
-			input[type="number"] {
-				width: 50px;
-			}
-			button {
-				width: 20px;
-				height: 20px;
-				margin: 3px;
-				border: 1px solid currentColor;
-				border-radius: 5px;
-			}
-			td {
-				text-align: right;
-				padding: 1vh;
-			}
-			.sliderContainer {
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-			}
-			.step {
-				background-color: Canvas;
-				border: 1px solid currentColor;
-				border-radius: 5px;
-				padding: 1vh;
-			}
-			.step * {
-				position: unset;
-			}
-		</style>
+<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">-->
+		<link rel="stylesheet" href="explorer.css">
 	</head>
 	<body>
 		<canvas id="mainCanvas" width="640" height="480"></canvas>
 		<canvas id="subCanvas" width="640" height="480"></canvas>
-		<table>
-			<tbody>
-				<tr>
-					<td><label>Number of clusters: </label></td>
-					<td><div class="sliderContainer">
-						<input id="nClasses" type="range" min="1" max="10" value="10">
-					</div></td>
-				</tr>
-				<tr>
-					<td><label>Cluster size: </label></td>
-					<td><div class="sliderContainer">
-						<input id="cSize" type="range" min="1" max="10" value="5">
-					</div></td>
-				</tr>
-				<tr>
-					<td><label>Number of neighbors: </label></td>
-					<td><div class="sliderContainer">
-						<input id="nNeighbors" type="range" min="1" max="10" value="5">
-					</div></td>
-				</tr>
-				<tr>
-					<td><label>X axis range: </label></td>
-					<td><div>
-						<div style="display: flex; flex-direction: column; justify-content: center;">
-							<input id="xRangeMax" type="range" min="1" max="5" value="5" list="xTicks">
-						</div>
-					</div></td>
-				</tr>
-				<tr>
-					<td><label>Y axis range: </label></td>
-					<td><div>
-						<div style="display: flex; flex-direction: column; justify-content: center;">
-							<input id="yRangeMax" type="range" min="1" max="5" value="1">
-						</div>
-					</div></td>
-				</tr>
-				<tr>
-					<td><label>Apply preprocessing: </label></td>
-					<td><div class="sliderContainer">
-						<input type="checkbox" id="preprocessCheckbox" style="width: 20px; height: 20px;">
-					</div></td>
-				</tr>
-				<!--
-				<tr>
-					<td><label>Add step: </label></td>
-					<td><div class="sliderContainer">
-						<button>+</button>
-					</div></td>
-				</tr>
--->
-				<tr>
-					<td colspan="2"><div id="stepContainer">
-						<div class="step">
-							<label>X scale: </label>
-							<input type="number" class="stepInput" value="0">
-							<input type="number" class="stepInput" value="1">
-							<!--<button>-</button>-->
-						</div>
-						<div class="step">
-							<label>Y scale: </label>
-							<input type="number" class="stepInput" value="0">
-							<input type="number" class="stepInput" value="1">
-						<!--<button>-</button>-->
-						</div>
-					</div></td>
-				</tr>
-			</tbody>
-		</table>
+		<div>
+			<div class="displayModeButton">
+				<button style="width: unset;" onclick="
+					generationTable.style.display = 'none';
+					preprocessingTable.style.display = 'none';
+				">Hide all</button>
+				<button style="width: unset;" onclick="
+					generationTable.style.display = 'block';
+					preprocessingTable.style.display = 'none';
+				">Generation options</button>
+				<button style="width: unset;" onclick="
+					generationTable.style.display = 'none';
+					preprocessingTable.style.display = 'block';
+				">Preprocessing options</button>
+			</div>
+			<table id="generationOptions">
+				<tbody>
+					<tr>
+						<td><label>Number of clusters: </label></td>
+						<td><div class="sliderContainer">
+							<input id="nClasses" type="range" min="1" max="10" value="3">
+						</div></td>
+					</tr>
+					<tr>
+						<td><label>Cluster size: </label></td>
+						<td><div class="sliderContainer">
+							<input id="cSize" type="range" min="1" max="10" value="10">
+						</div></td>
+					</tr>
+					<tr>
+						<td><label>Outlier distance: </label></td>
+						<td><div class="sliderContainer">
+							<input id="outDistance" type="range" min="0.25" max="1.5" value="0.5" step="0.25">
+						</div></td>
+					</tr>
+					<tr>
+						<td><label></label></td>
+						<td><select id="genTransform">
+							<option value="none">none</option>
+							<option value="exp">exponential</option>
+							<option value="sqr">quadratic</option>
+						</select></td>
+					</tr>
+					<tr>
+						<td><label>Number of neighbors [1~0]: </label></td>
+						<td><div class="sliderContainer">
+							<input id="nNeighbors" type="range" min="1" max="10" value="5">
+						</div></td>
+					</tr>
+					<tr>
+						<td><label>X axis range: </label></td>
+						<td><div>
+							<div style="display: flex; flex-direction: column; justify-content: center;">
+								<input id="xRangeMax" type="range" min="1" max="5" value="4" list="xTicks">
+							</div>
+						</div></td>
+					</tr>
+					<tr>
+						<td><label>Y axis range: </label></td>
+						<td><div>
+							<div style="display: flex; flex-direction: column; justify-content: center;">
+								<input id="yRangeMax" type="range" min="1" max="5" value="1">
+							</div>
+						</div></td>
+					</tr>
+					<tr>
+						<td><label>Generate new data [r]: </label></td>
+						<td><div class="sliderContainer">
+							<button onclick="buildClusters();drawClusters();">↻</button>
+						</div></td>
+					</tr>
+				</tbody>
+			</table>
+			<table id="preprocessingOptions">
+				<tbody>
+					<tr>
+						<td><label>Apply preprocessing [space]: </label></td>
+						<td><div class="sliderContainer">
+							<input type="checkbox" id="preprocessCheckbox" style="width: 20px; height: 20px;">
+						</div></td>
+					</tr>
+					<tr>
+						<td><label>Add step: </label></td>
+						<td><div class="sliderContainer">
+							<button onclick="addStep()">+</button>
+						</div></td>
+					</tr>
+					<tr>
+						<td colspan="2"><div id="stepContainer">
+						</div></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<table id="dataStats">
+				<tbody>
+					<tr>
+						<th></th>
+						<th>X</th>
+						<th>Y</th>
+					</tr>
+					<tr id="dataStatsMinRow">
+						<td>Minimum</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr id="dataStatsMaxRow">
+						<td>Maximum</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr id="dataStatsAvgRow">
+						<td>Average</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr id="dataStatsDevRow">
+						<td>Standard deviation</td>
+						<td></td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div id="baseStepContainer" style="display: none;">
+			<div class="step">
+				<input type="checkbox" class="stepActivator" style="width: 20px; height: 20px" onchange="transformObjects();drawClusters();if(mouseActive){kNeighbors();}" checked>
+				<select class="axisSelector" onchange="transformObjects();drawClusters();if(mouseActive){kNeighbors();}">
+					<option value="X">X axis</option>
+					<option value="Y">Y axis</option>
+				</select>
+				<select class="operationSelector" onchange="transformObjects();drawClusters();if(mouseActive){kNeighbors();}unlockValue(this);">
+					<option value="sub">translate (subtract)</option>
+					<option value="div">scale (divide)</option>
+					<option value="log">natural log</option>
+					<option value="sqrt">square root</option>
+				</select>
+				<select class="valueSelector" onchange="transformObjects();drawClusters();if(mouseActive){kNeighbors();}unlockCustom(this);">
+					<option value="min">minimum value</option>
+					<option value="max">maximum value</option>
+					<option value="dif">max - min</option>
+					<option value="avg">average value</option>
+					<option value="dev">standard deviation</option>
+					<option value="cus">custom</option>
+				</select>
+				<input type="number" class="customValueInput" value="0" disabled onchange="transformObjects();drawClusters();if(mouseActive){kNeighbors();}">
+				<button onclick="removeStep(this)">-</button>
+			</div>
+		</div>
 
 		<script src="explorer.js"></script>
 	</body>

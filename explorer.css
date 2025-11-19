@@ -1,0 +1,75 @@
+:root {
+	color-scheme: light dark;
+}
+table {
+	position: absolute;
+}
+#generationOptions {
+	top: 30px;
+	display: none;
+}
+#preprocessingOptions {
+	top: 30px;
+	display: none;
+}
+#dataStats {
+	right: 10px;
+}
+body, select, option, input, button {
+	font-family: "Kosugi Maru", monospace;
+}
+canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	cursor: none;
+}
+input {
+	position: absolute;
+	border: 1px solid currentColor;
+	border-radius: 5px;
+}
+input[type="number"] {
+	width: 50px;
+}
+button {
+	width: 20px;
+	height: 20px;
+	margin: 3px;
+	border: 1px solid currentColor;
+	border-radius: 5px;
+}
+td {
+	text-align: right;
+	padding: 1vh;
+}
+.displayModeButton {
+	position: absolute;
+}
+.sliderContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+#stepContainer {
+	position: absolute;
+	inline-size: max-content;
+}
+.step {
+	background-color: Canvas;
+	border: 1px solid currentColor;
+	border-radius: 5px;
+	padding: 1vh;
+}
+.step * {
+	position: unset;
+	height: 20px;
+	margin: 3px;
+	border: 1px solid currentColor;
+	border-radius: 5px;
+}
+.step input {
+	height: 16px;
+}

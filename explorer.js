@@ -1,6 +1,12 @@
 // HTML elements
+let generationTable = document.getElementById("generationOptions");
+let preprocessingTable = document.getElementById("preprocessingOptions");
+let statsTable = document.getElementById("dataStats");
+
 let nClassesSlider = document.getElementById("nClasses");
 let cSizeSlider = document.getElementById("cSize");
+let outDistanceSlider = document.getElementById("outDistance");
+let generationTransformSelector = document.getElementById("genTransform");
 let nNeighborsSlider = document.getElementById("nNeighbors");
 let xRangeMaxInput = document.getElementById("xRangeMax");
 let yRangeMaxInput = document.getElementById("yRangeMax");
@@ -9,6 +15,8 @@ let neighborsCanvas = document.getElementById("subCanvas");
 
 let preprocessCheckbox = document.getElementById("preprocessCheckbox");
 let stepContainer = document.getElementById("stepContainer");
+
+let baseStep = document.getElementById("baseStepContainer").children[0];
 
 // contexts
 let pointCtx = pointCanvas.getContext("2d");
@@ -19,6 +27,7 @@ let classes = [];
 let colors = [];
 
 // view parameters
+let mouseActive = false;
 let pan = false;
 let transformX = 600;
 let transformY = 400;
@@ -64,7 +73,7 @@ function buildClusters () {
 	colors = [];
 
 	classes = Array.from({length: nClassesSlider.value}, () => ({
-		x: Math.random() * (2 * Number(xRangeMaxInput.value)) - xRangeMaxInput.value,
+		x: Math.random() * (2 * Number(xRangeMaxInput.value)) - (generationTransformSelector.value == "exp" ? 0 : xRangeMaxInput.value),
 		y: Math.random() * (2 * Number(yRangeMaxInput.value)) - yRangeMaxInput.value,
 		color: generateColor(),
 		objects: buildObjects(),
@@ -76,7 +85,7 @@ function buildClusters () {
 function buildObjects () {
 	let retVal = Array.from({length: 10}, () => ({
 		theta: Math.random() * 2 * Math.PI,
-		r: (Math.random() < 0.95) ? (Math.random() * 0.1 * cSizeSlider.value) : (Math.random() * 0.5 * cSizeSlider.value + 0.5 * cSizeSlider.value),
+		r: (Math.random() < 0.95) ? (Math.random() * 0.1 * cSizeSlider.value) : (Math.random() * outDistanceSlider.valueAsNumber * cSizeSlider.value + outDistanceSlider.valueAsNumber * cSizeSlider.value),
 	}));
 
 	for (let object of retVal) {
@@ -93,7 +102,7 @@ function transformObjects () {
 
 	for (let clas of classes) {
 		for (let object of clas.objects) {
-			object.transformedX = object.x + clas.x;
+			object.transformedX = generationTransformSelector.value == "exp" ? Math.exp(object.x + clas.x) : object.x + clas.x;
 			object.transformedY = object.y + clas.y;
 
 			xPositions.push(object.transformedX);
@@ -103,49 +112,137 @@ function transformObjects () {
 
 	if (preprocessCheckbox.checked) {
 		for (let step of stepContainer.children) {
-			let currentMinX = Math.min(...xPositions);
-			let currentMaxX = Math.max(...xPositions);
+			let active = step.getElementsByClassName("stepActivator")[0].checked;
 
-			let currentMinY = Math.min(...yPositions);
-			let currentMaxY = Math.max(...yPositions);
+			if (active) {
+				let axis = step.getElementsByClassName("axisSelector")[0].value;
+				let operation = step.getElementsByClassName("operationSelector")[0].value;
+				let value = step.getElementsByClassName("valueSelector")[0].value;
+				let customValue = step.getElementsByClassName("customValueInput")[0].valueAsNumber;
 
-			xPositions = [];
-			yPositions = [];
+				let currentMinX = Math.min(...xPositions);
+				let currentMaxX = Math.max(...xPositions);
+				let currentAvgX = xPositions.reduce((acc, cur) => (acc + cur), 0) / xPositions.length;
+				let currentDevX = Math.sqrt(xPositions.reduce((acc, cur) => (acc + Math.pow(cur - currentAvgX, 2)), 0) / xPositions.length);
 
-			switch (step.children[0].innerHTML) {
-				case "X scale: ":
-					let targetMinX = Number(step.children[1].value);
-					let targetMaxX = Number(step.children[2].value);
+				let currentMinY = Math.max(...yPositions);
+				let currentMaxY = Math.min(...yPositions);
+				let currentAvgY = yPositions.reduce((acc, cur) => (acc + cur), 0) / yPositions.length;
+				let currentDevY = Math.sqrt(yPositions.reduce((acc, cur) => (acc + Math.pow(cur - currentAvgX, 2)), 0) / yPositions.length);
 
-					for (let clas of classes) {
-						for (let object of clas.objects) {
-							object.transformedX *= ((targetMaxX - targetMinX) / (currentMaxX - currentMinX));
-							object.transformedX += targetMaxX - currentMaxX * ((targetMaxX - targetMinX) / (currentMaxX - currentMinX));
+				if (axis == "X") {
+					value = value == "min" ? currentMinX : (value == "max" ? currentMaxX : (value == "dif" ? currentMaxX - currentMinX : (value == "avg" ? currentAvgX : (value == "dev" ? currentDevX : customValue))));
+				} else {
+					value = value == "min" ? currentMinY : (value == "max" ? currentMaxY : (value == "dif" ? currentMaxY - currentMinY : (value == "avg" ? currentAvgY : (value == "dev" ? currentDevY : customValue))));
+				}
 
-							xPositions.push(object.transformedX);
-							yPositions.push(object.transformedY);
+				xPositions = [];
+				yPositions = [];
+
+				switch (operation) {
+					case "sub":
+						for (let clas of classes) {
+							for (let object of clas.objects) {
+								if (axis == "X") {
+									object.transformedX -= value;
+								} else {
+									object.transformedY -= value;
+								}
+
+								xPositions.push(object.transformedX);
+								yPositions.push(object.transformedY);
+							}
 						}
-					}
-					break;
-				case "Y scale: ":
-					let targetMinY = -1 * Number(step.children[2].value);
-					let targetMaxY = -1 * Number(step.children[1].value);
+						break;
+					case "div":
+						for (let clas of classes) {
+							for (let object of clas.objects) {
+								if (axis == "X") {
+									object.transformedX /= value;
+								} else {
+									object.transformedY /= value;
+								}
 
-					for (let clas of classes) {
-						for (let object of clas.objects) {
-							object.transformedY *= ((targetMaxY - targetMinY) / (currentMaxY - currentMinY));
-							object.transformedY += targetMaxY - currentMaxY * ((targetMaxY - targetMinY) / (currentMaxY - currentMinY));
-
-							xPositions.push(object.transformedX);
-							yPositions.push(object.transformedY);
+								xPositions.push(object.transformedX);
+								yPositions.push(object.transformedY);
+							}
 						}
-					}
-					break;
-				default:
-					break;
+						break;
+					case "log":
+						for (let clas of classes) {
+							for (let object of clas.objects) {
+								if (axis == "X") {
+									object.transformedX = Math.log(object.transformedX);
+								} else {
+									object.transformedY = Math.log(object.transformedY);
+								}
+
+								xPositions.push(object.transformedX);
+								yPositions.push(object.transformedY);
+							}
+						}
+						break;
+					case "sqrt":
+						for (let clas of classes) {
+							for (let object of clas.objects) {
+								if (axis == "X") {
+									object.transformedX = Math.sqrt(object.transformedX);
+								} else {
+									object.transformedY = Math.sqrt(object.transformedY);
+								}
+
+								xPositions.push(object.transformedX);
+								yPositions.push(object.transformedY);
+							}
+						}
+						break;
+				}
 			}
 		}
 	}
+
+	updateStats();
+}
+
+function updateStats () {
+	let xPositions = [];
+	let yPositions = [];
+
+	for (let clas of classes) {
+		for (let object of clas.objects) {
+			//object.transformedX = object.x + clas.x;
+			//object.transformedY = object.y + clas.y;
+
+			xPositions.push(object.transformedX);
+			yPositions.push(object.transformedY);
+		}
+	}
+
+	let currentMinX = Math.min(...xPositions);
+	let currentMaxX = Math.max(...xPositions);
+	let currentAvgX = xPositions.reduce((acc, cur) => (acc + cur), 0) / xPositions.length;
+	let currentDevX = Math.sqrt(xPositions.reduce((acc, cur) => (acc + Math.pow(cur - currentAvgX, 2)), 0) / xPositions.length);
+
+	let currentMinY = Math.max(...yPositions);
+	let currentMaxY = Math.min(...yPositions);
+	let currentAvgY = yPositions.reduce((acc, cur) => (acc + cur), 0) / yPositions.length;
+	let currentDevY = Math.sqrt(yPositions.reduce((acc, cur) => (acc + Math.pow(cur - currentAvgX, 2)), 0) / yPositions.length);
+
+	let minRow = document.getElementById("dataStatsMinRow");
+	minRow.children[1].innerHTML = currentMinX.toFixed(3);
+	minRow.children[2].innerHTML = currentMinY.toFixed(3);
+
+	let maxRow = document.getElementById("dataStatsMaxRow");
+	maxRow.children[1].innerHTML = currentMaxX.toFixed(3);
+	maxRow.children[2].innerHTML = currentMaxY.toFixed(3);
+
+	let avgRow = document.getElementById("dataStatsAvgRow");
+	avgRow.children[1].innerHTML = currentAvgX.toFixed(3);
+	avgRow.children[2].innerHTML = currentAvgY.toFixed(3);
+
+	let devRow = document.getElementById("dataStatsDevRow");
+	devRow.children[1].innerHTML = currentDevX.toFixed(3);
+	devRow.children[2].innerHTML = currentDevY.toFixed(3);
 }
 
 function drawGrid () {
@@ -204,7 +301,7 @@ function kNeighbors () {
 				y: object.transformedY * scale + transformY,
 				distance: Math.sqrt(
 					Math.pow((object.transformedX * scale + transformX) - mouseX, 2) + 
-					Math.pow((object.transformedY * scale + transformY) - mouseY, 2)
+						Math.pow((object.transformedY * scale + transformY) - mouseY, 2)
 				),
 			});
 		}
@@ -221,18 +318,12 @@ function kNeighbors () {
 		neighborsCtx.stroke();
 	}
 
-	/*
-	let mostCommonColor = distances.sort((a,b) =>
-		distances.filter(v => v.color===a.color).length - distances.filter(v => v.color===b.color).length
-	);
-	*/
-
 	let mostCommonColor = Object.fromEntries(
 		distances.map(
 			obj => [
 				obj.color, 
 				[distances.filter(v => v.color === obj.color).length, 
-				Math.min(...distances.filter(v => v.color === obj.color).map(v => v.distance))]
+					Math.min(...distances.filter(v => v.color === obj.color).map(v => v.distance))]
 			]
 		)
 	);
@@ -249,14 +340,56 @@ function kNeighbors () {
 	neighborsCtx.fill();
 }
 
+function addStep () {
+	stepContainer.appendChild(baseStep.cloneNode(true));
+	transformObjects();
+	drawClusters();
+	if (mouseActive) {
+		kNeighbors();
+	}
+}
+
+function removeStep (a) {
+	stepContainer.removeChild(a.parentElement);
+	transformObjects();
+	drawClusters();
+	if (mouseActive) {
+		kNeighbors();
+	}
+}
+
+function unlockValue (a) {
+	let valueInput = a.parentElement.getElementsByClassName("valueSelector")[0];
+	let customInput = a.parentElement.getElementsByClassName("customValueInput")[0];
+	if (a.value == "sub" || a.value == "div") {
+		valueInput.disabled = false;
+		unlockCustom(valueInput);
+	} else {
+		valueInput.disabled = true;
+		customInput.disabled = true;
+	}
+}
+
+function unlockCustom (a) {
+	let customInput = a.parentElement.getElementsByClassName("customValueInput")[0];
+	if (a.value == "cus") {
+		customInput.disabled = false;
+	} else {
+		customInput.disabled = true;
+	}
+}
+
 cSizeSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
 nClassesSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
+outDistanceSlider.addEventListener("change", () => {buildClusters(); drawClusters();});
+generationTransformSelector.addEventListener("change", () => {buildClusters(); drawClusters();});
 xRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
 yRangeMaxInput.addEventListener("change", () => {buildClusters(); drawClusters();});
 
 neighborsCanvas.addEventListener("mousemove", (e) => {
 	mouseX = e.clientX;
 	mouseY = e.clientY;
+	mouseActive = true;
 	kNeighbors();
 	if (pan) {
 		transformX += e.movementX;
@@ -265,7 +398,7 @@ neighborsCanvas.addEventListener("mousemove", (e) => {
 		kNeighbors();
 	}
 });
-neighborsCanvas.addEventListener("mouseleave", () => {neighborsCtx.clearRect(0, 0, neighborsCanvas.width, neighborsCanvas.height);});
+neighborsCanvas.addEventListener("mouseleave", () => {neighborsCtx.clearRect(0, 0, neighborsCanvas.width, neighborsCanvas.height); mouseActive = false;});
 
 buildClusters();
 
@@ -295,11 +428,16 @@ window.addEventListener("keypress", (e) => {
 			preprocessCheckbox.checked = !preprocessCheckbox.checked;
 		} else if (e.key >= "0" && e.key <= "9") {
 			nNeighborsSlider.value = (e.key - 10) % 10 + 10;
+		} else if (e.key == "r") {
+			buildClusters();
+			drawClusters();
 		}
 	}
 	transformObjects();
 	drawClusters();
-	kNeighbors();
+	if (mouseActive) {
+		kNeighbors();
+	}
 });
 
 document.addEventListener("mousedown", function(e) {
@@ -308,7 +446,9 @@ document.addEventListener("mousedown", function(e) {
 		transformX = 600;
 		transformY = 400;
 		drawClusters();
-		kNeighbors();
+		if (mouseActive) {
+			kNeighbors();
+		}
 	} else if ((e.buttons & 1) != 0) {
 		pan = true;
 	}
@@ -328,7 +468,9 @@ document.addEventListener("wheel", function(e) {
 	transformY += (1 - scale / prevZoom) * (e.clientY - transformY);
 
 	drawClusters();
-	kNeighbors();
+	if (mouseActive) {
+		kNeighbors();
+	}
 });
 
 document.addEventListener("contextmenu", e => e.preventDefault());
@@ -336,14 +478,22 @@ document.addEventListener("contextmenu", e => e.preventDefault());
 preprocessCheckbox.addEventListener("input", (e) => {
 	transformObjects();
 	drawClusters();
-	kNeighbors();
+	if (mouseActive) {
+		kNeighbors();
+	}
 });
 
 for (let element of document.getElementsByClassName("stepInput")) {
 	element.addEventListener("input", (e) => {
-		console.log(element.value);
 		transformObjects();
 		drawClusters();
-		kNeighbors();
+		if (mouseActive) {
+			kNeighbors();
+		}
+	});
+}
+
+for (let element of document.getElementsByClassName("stepInput")) {
+	element.addEventListener("change", (e) => {
 	});
 }
