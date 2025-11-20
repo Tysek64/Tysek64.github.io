@@ -211,7 +211,7 @@ function updateStats () {
 	for (let clas of classes) {
 		for (let object of clas.objects) {
 			xPositions.push(object.transformedX);
-			yPositions.push(object.transformedY);
+			yPositions.push(-object.transformedY);
 		}
 	}
 
@@ -220,8 +220,8 @@ function updateStats () {
 	let currentAvgX = xPositions.reduce((acc, cur) => (acc + cur), 0) / xPositions.length;
 	let currentDevX = Math.sqrt(xPositions.reduce((acc, cur) => (acc + Math.pow(cur - currentAvgX, 2)), 0) / xPositions.length);
 
-	let currentMinY = Math.max(...yPositions);
-	let currentMaxY = Math.min(...yPositions);
+	let currentMinY = Math.min(...yPositions);
+	let currentMaxY = Math.max(...yPositions);
 	let currentAvgY = yPositions.reduce((acc, cur) => (acc + cur), 0) / yPositions.length;
 	let currentDevY = Math.sqrt(yPositions.reduce((acc, cur) => (acc + Math.pow(cur - currentAvgX, 2)), 0) / yPositions.length);
 
