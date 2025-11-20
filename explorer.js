@@ -73,7 +73,7 @@ function buildClusters () {
 	colors = [];
 
 	classes = Array.from({length: nClassesSlider.value}, () => ({
-		x: Math.random() * (2 * Number(xRangeMaxInput.value)) - (generationTransformSelector.value == "exp" ? 0 : xRangeMaxInput.value),
+		x: Math.random() * (2 * Number(xRangeMaxInput.value)) - (generationTransformSelector.value != "none" ? 0 : xRangeMaxInput.value),
 		y: Math.random() * (2 * Number(yRangeMaxInput.value)) - yRangeMaxInput.value,
 		color: generateColor(),
 		objects: buildObjects(),
@@ -102,7 +102,7 @@ function transformObjects () {
 
 	for (let clas of classes) {
 		for (let object of clas.objects) {
-			object.transformedX = generationTransformSelector.value == "exp" ? Math.exp(object.x + clas.x) : object.x + clas.x;
+			object.transformedX = generationTransformSelector.value == "exp" ? Math.exp(object.x + clas.x) : (generationTransformSelector.value == "sqr" ? Math.pow(object.x + clas.x, 2) : object.x + clas.x);
 			object.transformedY = object.y + clas.y;
 
 			xPositions.push(object.transformedX);
@@ -133,7 +133,7 @@ function transformObjects () {
 				if (axis == "X") {
 					value = value == "min" ? currentMinX : (value == "max" ? currentMaxX : (value == "dif" ? currentMaxX - currentMinX : (value == "avg" ? currentAvgX : (value == "dev" ? currentDevX : customValue))));
 				} else {
-					value = value == "min" ? currentMinY : (value == "max" ? currentMaxY : (value == "dif" ? currentMaxY - currentMinY : (value == "avg" ? currentAvgY : (value == "dev" ? currentDevY : customValue))));
+					value = value == "min" ? currentMinY : (value == "max" ? currentMaxY : (value == "dif" ? currentMinY - currentMaxY : (value == "avg" ? currentAvgY : (value == "dev" ? currentDevY : customValue))));
 				}
 
 				xPositions = [];
@@ -174,7 +174,7 @@ function transformObjects () {
 								if (axis == "X") {
 									object.transformedX = Math.log(object.transformedX);
 								} else {
-									object.transformedY = Math.log(object.transformedY);
+									object.transformedY = -Math.log(-object.transformedY);
 								}
 
 								xPositions.push(object.transformedX);
@@ -188,7 +188,7 @@ function transformObjects () {
 								if (axis == "X") {
 									object.transformedX = Math.sqrt(object.transformedX);
 								} else {
-									object.transformedY = Math.sqrt(object.transformedY);
+									object.transformedY = -Math.sqrt(-object.transformedY);
 								}
 
 								xPositions.push(object.transformedX);
@@ -210,9 +210,6 @@ function updateStats () {
 
 	for (let clas of classes) {
 		for (let object of clas.objects) {
-			//object.transformedX = object.x + clas.x;
-			//object.transformedY = object.y + clas.y;
-
 			xPositions.push(object.transformedX);
 			yPositions.push(object.transformedY);
 		}
