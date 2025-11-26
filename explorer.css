@@ -14,6 +14,7 @@ table {
 }
 #dataStats {
 	right: 10px;
+	font-size: 18pt;
 }
 body, select, option, input, button {
 	font-family: "Kosugi Maru", monospace;
