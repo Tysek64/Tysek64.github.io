@@ -971,6 +971,17 @@
                 "-7ca74864",
                 "-5b47c143"
             ]
+        },
+        {
+            "name": "Internetowe wydarzenie",
+            "info": "Opis internetowego wydarzenia",
+            "startDate": "2026/01/01",
+            "endDate": "2026/12/31",
+            "imagePath": "46327b90",
+            "stations": [
+                "-7ca74864",
+                "-5b47c143"
+            ]
         }
     ]
 }
