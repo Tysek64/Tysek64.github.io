@@ -1,0 +1,976 @@
+{
+    "regions": {
+        "DS": "Dolnośląskie",
+        "KP": "Kujawsko-pomorskie",
+        "LU": "Lubelskie",
+        "LB": "Lubuskie",
+        "LD": "Łódzkie",
+        "MA": "Małopolskie",
+        "MZ": "Mazowieckie",
+        "OP": "Opolskie",
+        "PK": "Podkarpackie",
+        "PD": "Podlaskie",
+        "PM": "Pomorskie",
+        "SL": "Śląskie",
+        "SK": "Świętokrzyskie",
+        "WN": "Warmińsko-mazurskie",
+        "WP": "Wielkopolskie",
+        "ZP": "Zachodniopomorskie"
+    },
+    "stations": [
+        {
+            "name": "Chojnice",
+            "info": "Węzłowa stacja kolejowa w Chojnicach, w województwie pomorskim, powiecie chojnickim. Stacja znajduje się przy ulicy Dworcowej, w południowo-wschodniej części miasta.\n\nNa placu przed dworcem do grudnia 2021 znajdował się dworzec autobusowy, przeniesiony z początkiem 2022 na ul. Towarową (na północ od stacji).\n\nZdobywca nagrody publiczności w konkursie „Dworzec Roku 2025\".",
+            "builtYear": 1873,
+            "numberOfPlatforms": 8,
+            "region": "PM",
+            "latitude": 53.689,
+            "longitude": 17.578,
+            "imagePath": "70ea107d"
+        },
+        {
+            "name": "Częstochowa Stradom",
+            "info": "Druga co do wielkości stacja kolejowa Częstochowy, położona w dzielnicy Podjasnogórska (do 2004 roku w dzielnicy Stradom). Dworzec kategorii „A” (aglomeracyjny).\n\nW roku 2018 stacja obsługiwała 1000–1500 pasażerów na dobę. ",
+            "builtYear": 1903,
+            "numberOfPlatforms": 3,
+            "region": "SL",
+            "latitude": 50.798,
+            "longitude": 19.107,
+            "imagePath": "-620dd466"
+        },
+        {
+            "name": "Gdańsk Główny",
+            "info": "Największa pasażerska stacja kolejowa w Gdańsku, położona na trasie Tczew – Gdynia. Mieści się w zabytkowym budynku przy ulicy Podwale Grodzkie, w Śródmieściu Gdańska. Obsługuje połączenia zarówno międzymiastowe, jak i międzynarodowe. Ze stacji Gdańsk Główny odprawianych jest najwięcej pociągów trójmiejskiej SKM. Na stacji zatrzymują się pociągi pasażerskie wszystkich kategorii. Według klasyfikacji PKP ma najwyższą kategorię – Premium. W grudniu 2023 dworzec otrzymał imię Mieczysława Jałowieckiego.",
+            "builtYear": 1900,
+            "numberOfPlatforms": 10,
+            "region": "PM",
+            "latitude": 54.356,
+            "longitude": 18.644,
+            "imagePath": "-12b4c4ee"
+        },
+        {
+            "name": "Gdańsk Stocznia",
+            "info": "Przystanek Szybkiej Kolei Miejskiej (SKM) leżący wzdłuż granicy gdańskich dzielnic Młyniska (północny wschód) i Aniołki (południowy zachód). Południowo-wschodni fragment ociera się o granicę ze Śródmieściem.",
+            "builtYear": 1952,
+            "numberOfPlatforms": 2,
+            "region": "PM",
+            "latitude": 54.365,
+            "longitude": 18.642,
+            "imagePath": "325efae9"
+        },
+        {
+            "name": "Gdańsk Wrzeszcz",
+            "info": "Stacja kolejowa na granicy dzielnic Wrzeszcz Dolny i Wrzeszcz Górny w Gdańsku, w województwie pomorskim, w Polsce na wysokości ok. 17 m n.p.m..",
+            "builtYear": 1870,
+            "numberOfPlatforms": 7,
+            "region": "PM",
+            "latitude": 54.382,
+            "longitude": 18.605,
+            "imagePath": "7af5b38c"
+        },
+        {
+            "name": "Gdynia Główna",
+            "info": "Największy dworzec kolejowy w Gdyni, charakteryzujący się największą roczną przepustowością w północnej Polsce i jedną z największych w kraju – w 2022 obsłużył 13,41 mln pasażerów, co umiejscowiło go na szóstym miejscu wśród polskich dworców. Według kategoryzacji PKP Gdynia Główna oznaczona została najwyższą kategorią Premium. Dworzec mieści się w zabytkowym modernistycznym budynku. Obejmuje Dworzec Główny, obsługujący trasy dalekobieżne, i Dworzec Podmiejski; oba znajdują się przy pl. Konstytucji, na styku dzielnic Śródmieście (północny wschód), Działki Leśne (południowy zachód) i Grabówek (północ).",
+            "builtYear": 1894,
+            "numberOfPlatforms": 10,
+            "region": "PM",
+            "latitude": 54.521,
+            "longitude": 18.528,
+            "imagePath": "-2c20a998"
+        },
+        {
+            "name": "Gdynia Stocznia",
+            "info": "Przystanek Szybkiej Kolei Miejskiej na granicy dzielnic: Grabówek (południowy zachód) i Śródmieście (północny zachód, w części, która niegdyś była dzielnicą Port).",
+            "builtYear": 1956,
+            "numberOfPlatforms": 2,
+            "region": "PM",
+            "latitude": 54.526,
+            "longitude": 18.519,
+            "imagePath": "-3ba60d29"
+        },
+        {
+            "name": "Gliwice",
+            "info": "Węzłowa stacja kolejowa w Śródmieściu Gliwic przy ul. Bohaterów Getta Warszawskiego 12. Dworzec kolejowy w Gliwicach jest drugim pod względem wielkości dworcem kolejowym konurbacji górnośląskiej. Stacja kolejowa została otwarta 2 października 1845 wraz z otwarciem linii kolejowej z Wrocławia. W latach 2015–2016 dworzec i perony zostały gruntownie przebudowane. Według klasyfikacji PKP stacja ma najwyższą kategorię Premium.",
+            "builtYear": 1845,
+            "numberOfPlatforms": 8,
+            "region": "SL",
+            "latitude": 50.301,
+            "longitude": 18.678,
+            "imagePath": "6a2524b8"
+        },
+        {
+            "name": "Grodzisk Mazowiecki",
+            "info": "Stacja kolejowa w Grodzisku Mazowieckim, w województwie mazowieckim w Polsce. Według klasyfikacji PKP posiada kategorię dworca aglomeracyjnego.",
+            "builtYear": 1845,
+            "numberOfPlatforms": 3,
+            "region": "MZ",
+            "latitude": 52.11,
+            "longitude": 20.623,
+            "imagePath": "3445d50"
+        },
+        {
+            "name": "Jastarnia",
+            "info": "Stacja kolejowa w Jastarni, w województwie pomorskim, w Polsce. Według klasyfikacji PKP ma kategorię dworca turystycznego.",
+            "builtYear": 1922,
+            "numberOfPlatforms": 2,
+            "region": "PM",
+            "latitude": 54.702,
+            "longitude": 18.677,
+            "imagePath": "-38fabec3"
+        },
+        {
+            "name": "Jastarnia Wczasy",
+            "info": "Przystanek kolejowy w Jastarni, w województwie pomorskim, w Polsce.",
+            "builtYear": 1994,
+            "numberOfPlatforms": 1,
+            "region": "PM",
+            "latitude": 54.708,
+            "longitude": 18.656,
+            "imagePath": "5d505cfc"
+        },
+        {
+            "name": "Jaworzyna Śląska",
+            "info": "Stacja kolejowa w Jaworzynie Śląskiej, w województwie dolnośląskim, w Polsce. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego.\n\nStacja jest stacją graniczną tzw. dużej aglomeracji wrocławskiej Wrocławskiej Kolei Aglomeracyjnej.\n\nNa tej stacji funkcjonuje także Muzeum Przemysłu i Kolejnictwa na Śląsku, gdzie przechowywane są odrestaurowane parowozy oraz pierwszy i jedyny zachowany egzemplarz lokomotywy EP23 oraz czynna lokomotywownia.",
+            "builtYear": 1842,
+            "numberOfPlatforms": 5,
+            "region": "DS",
+            "latitude": 50.913,
+            "longitude": 16.429,
+            "imagePath": "-7aa295df"
+        },
+        {
+            "name": "Katowice",
+            "info": "Największa stacja węzłowa i najważniejsza stacja kolejowa Katowic, położona w centralnej części miasta, w województwie śląskim, w Polsce. Powstała ona 3 października 1846 roku jako przelotowa stacja Kolei Górnośląskiej, która z biegiem czasu przekształciła się w jeden z największych i najważniejszych węzłów kolejowych w Polsce, z którego główne linie odchodzą w czterech kierunkach, tj. do Warszawy Centralnej, Legnicy, Oświęcimia i Zwardonia. Odjeżdżają z niej pociągi wszystkich kategorii, w tym Twoich Linii Kolejowych, InterCity, Express InterCity i Express InterCity Premium, a także pociągi międzynarodowe. Stacja przynależy do Zakładu Linii Kolejowych PKP Polskich Linii Kolejowych w Sosnowcu. W 2022 roku stacja obsługiwała średnio 44,8 tys. pasażerów na dobę, co dawało jej 4. miejsce w Polsce.",
+            "builtYear": 1846,
+            "numberOfPlatforms": 9,
+            "region": "SL",
+            "latitude": 50.258,
+            "longitude": 19.017,
+            "imagePath": "467aa0a5"
+        },
+        {
+            "name": "Kłodzko Główne",
+            "info": "Największa stacja kolejowa w Kłodzku, tracąca obecnie na znaczeniu jako węzeł linii Wrocław – Międzylesie i Kłodzko Główne – Wałbrzych Miasto (kursują stąd również pociągi do Kudowy-Zdroju i komunikacja zastępcza do Stronia Śląskiego), ze sporym ruchem towarowym. Według klasyfikacji PKP ma kategorię dworca regionalnego. Stacja ta została otwarta 21 września 1874 r., do roku 1993 przy stacji działała lokomotywownia.",
+            "builtYear": 1874,
+            "numberOfPlatforms": 7,
+            "region": "DS",
+            "latitude": 50.449,
+            "longitude": 16.658,
+            "imagePath": "427ad964"
+        },
+        {
+            "name": "Kraków Główny",
+            "info": "Stacja kolejowa w Krakowie, będąca jedną z najważniejszych w Polsce, obsługująca połączenia lokalne i dalekobieżne w ruchu krajowym i międzynarodowym. Według kategoryzacji PKP ma najwyższą kategorię – premium. Pod względem liczby pasażerów w 2024 stacja była 2. w Polsce.",
+            "builtYear": 1847,
+            "numberOfPlatforms": 10,
+            "region": "MA",
+            "latitude": 50.069,
+            "longitude": 19.948,
+            "imagePath": "19317f5"
+        },
+        {
+            "name": "Legnica",
+            "info": "Główna osobowa węzłowa stacja kolejowa w Legnicy, położona na linii nr 275 z Wrocławia do Gubinka, stanowiąca jednocześnie początek linii do Katowic, Jerzmanic-Zdroju i Rudnej. Została ona otwarta 18 października 1844. Zatrzymują się na niej wszystkie rodzaje przejeżdżających pociągów. Według klasyfikacji PKP ma kategorię dworca wojewódzkiego.",
+            "builtYear": 1844,
+            "numberOfPlatforms": 9,
+            "region": "DS",
+            "latitude": 51.214,
+            "longitude": 16.169,
+            "imagePath": "66921a47"
+        },
+        {
+            "name": "Łódź Fabryczna",
+            "info": "Główna i czołowa stacja kolejowa w Łodzi, mieszcząca się na linii do Koluszek, powstała z inicjatywy przemysłowca Karola Scheiblera w 1866 roku. Od 2016 roku dworzec kolejowy jest elementem nowego kompleksu, łączącego kolej z komunikacją autobusową (miejską i dalekobieżną), tramwajową oraz rowerową i samochodową. Dworzec ma najwyższą kategorię Premium.",
+            "builtYear": 1865,
+            "numberOfPlatforms": 8,
+            "region": "LD",
+            "latitude": 51.77,
+            "longitude": 19.47,
+            "imagePath": "-db8e060"
+        },
+        {
+            "name": "Łódź Widzew",
+            "info": "Trzeci co do wielkości dworzec kolejowy i stacja węzłowa w Łodzi, ulokowana na trasie z Łodzi Fabrycznej do Koluszek, w obrębie łódzkiej kolei obwodowej. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego. Zatrzymują się tu wszystkie przejeżdżające pociągi pospieszne i osobowe.",
+            "builtYear": 1903,
+            "numberOfPlatforms": 6,
+            "region": "LD",
+            "latitude": 51.763,
+            "longitude": 19.544,
+            "imagePath": "18e617f2"
+        },
+        {
+            "name": "Medyka",
+            "info": "Medyka – stacja kolejowa w Medyce, w województwie podkarpackim, w Polsce. Od 1 września 2016 czynna w ruchu pasażerskim.",
+            "builtYear": 1861,
+            "numberOfPlatforms": 1,
+            "region": "PK",
+            "latitude": 49.804,
+            "longitude": 22.946,
+            "imagePath": "-76dc499d"
+        },
+        {
+            "name": "Nędza",
+            "info": "Stacja kolejowa położona we wsi Nędza, w powiecie raciborskim, w województwie śląskim.",
+            "builtYear": 1846,
+            "numberOfPlatforms": 6,
+            "region": "SL",
+            "latitude": 50.157,
+            "longitude": 18.292,
+            "imagePath": "4cc6c20"
+        },
+        {
+            "name": "Opole Główne",
+            "info": "Największa stacja kolejowa w województwie opolskim, zlokalizowana w centrum Opola. Według klasyfikacji PKP oznaczona jest kategorią Premium.",
+            "builtYear": 1845,
+            "numberOfPlatforms": 9,
+            "region": "OP",
+            "latitude": 50.662,
+            "longitude": 17.927,
+            "imagePath": "208720af"
+        },
+        {
+            "name": "Ostrów Wielkopolski",
+            "info": "Stacja kolejowa kategorii dworca regionalnego w Ostrowie Wielkopolskim, w województwie wielkopolskim.",
+            "builtYear": 1875,
+            "numberOfPlatforms": 5,
+            "region": "WP",
+            "latitude": 51.649,
+            "longitude": 17.805,
+            "imagePath": "-63d23ee5"
+        },
+        {
+            "name": "Oświęcim",
+            "info": "Stacja kolejowa w Oświęcimiu, w województwie małopolskim, w Polsce. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego. Jest to stacja węzłowa – linia kolejowa nr 138 z Katowic oraz linia kolejowa nr 94 z Krakowa Płaszowa łączą się tutaj z linią nr 93. W przyszłości planowane jest połączenie do stacji Orzesze Jaśkowice poprzez Nowy Bieruń i Tychy. W pobliżu stacji znajduje się parking wielopoziomowy park and ride.",
+            "builtYear": 1856,
+            "numberOfPlatforms": 7,
+            "region": "MA",
+            "latitude": 50.042,
+            "longitude": 19.2,
+            "imagePath": "-6c174334"
+        },
+        {
+            "name": "Piła Główna",
+            "info": "Pasażerska i towarowa stacja kolejowa w Pile, jedna z największych na terenie województwa wielkopolskiego. Jest to stacja węzłowa; krzyżuje się tu pięć linii kolejowych (18, 203, 354, 374, 405). Dodatkowo, tor łączący nr 999 zapewnia dodatkowy wjazd na stację od strony północnej i połączenie z linią 403 w kierunku Wałcza.",
+            "builtYear": 1851,
+            "numberOfPlatforms": 10,
+            "region": "WP",
+            "latitude": 53.143,
+            "longitude": 16.744,
+            "imagePath": "-43e9cf26"
+        },
+        {
+            "name": "Poznań Główny",
+            "info": "Dworzec kolejowy w Polsce sklasyfikowany przez PKP w kategorii Premium. Położony w centrum Poznania, przy ul. Dworcowej, na terenie pomiędzy ulicami: Zachodnią, Głogowską, Mostem Dworcowym, Przemysłową i Spichrzową (dawniej również ul. Składową na terenie tzw. Wolnych Torów).",
+            "builtYear": 1879,
+            "numberOfPlatforms": 16,
+            "region": "WP",
+            "latitude": 52.402,
+            "longitude": 16.912,
+            "imagePath": "-65774f6c"
+        },
+        {
+            "name": "Poznań Starołęka",
+            "info": "Stacja kolejowa na Starołęce, w Poznaniu, leżąca na szlaku kolejowym Kluczbork – Poznań Główny. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego.",
+            "builtYear": 1883,
+            "numberOfPlatforms": 2,
+            "region": "WP",
+            "latitude": 52.367,
+            "longitude": 16.934,
+            "imagePath": "71574ba0"
+        },
+        {
+            "name": "Przemyśl Główny",
+            "info": "Węzłowa stacja kolejowa w śródmieściu Przemyśla, w województwie podkarpackim w Polsce; znajduje się przy Placu Legionów, usytuowana jest na linii E 30, między przystankami kolejowymi Przemyśl Zasanie, Przemyśl Wschodni i stacją Przemyśl Bakończyce. Stacja obsługuje dalekobieżne krajowe, międzynarodowe i regionalne pasażerskie połączenia kolejowe.\n\nWedług klasyfikacji PKP posiada kategorię dworca regionalnego. Znajduje się w centrum miasta.",
+            "builtYear": 1860,
+            "numberOfPlatforms": 9,
+            "region": "PK",
+            "latitude": 49.784,
+            "longitude": 22.777,
+            "imagePath": "2ccd9c80"
+        },
+        {
+            "name": "Świnoujście",
+            "info": "Stacja kolejowa w Świnoujściu, w województwie zachodniopomorskim. Według klasyfikacji PKP ma kategorię dworca turystycznego.\n\nOd 1959 znajduje się w granicach Świnoujścia, dawniej w miejscowości Warszów i tak też się nazywała.",
+            "builtYear": 1900,
+            "numberOfPlatforms": 3,
+            "region": "ZP",
+            "latitude": 53.905,
+            "longitude": 14.267,
+            "imagePath": "-40057ba"
+        },
+        {
+            "name": "Tczew",
+            "info": "Stacja kolejowa w Tczewie, w województwie pomorskim, w Polsce. Leży ona na północny-wschód od centrum miasta, przy ulicy Pomorskiej. Ważna stacja węzłowa dla ruchu pasażerskiego i towarowego. Według klasyfikacji PKP ma kategorię dworca regionalnego.",
+            "builtYear": 1852,
+            "numberOfPlatforms": 7,
+            "region": "PM",
+            "latitude": 54.098,
+            "longitude": 18.789,
+            "imagePath": "4ce8dbd"
+        },
+        {
+            "name": "Wałbrzych Fabryczny",
+            "info": "Dworzec został oficjalnie otwarty 15 sierpnia 1867 roku pod nazwą Waldenburg Oberer Banhof. 27 sierpnia 1945 roku, a więc jak dworce Wałbrzych Główny i Wałbrzych Szczawienko zostaje on nazwany Borowieck, potem Wałbrzych. 6 września 1947 roku dworzec został przemianowany na Wałbrzych Fabryczny. Obecnie jest to duża stacja towarowa oraz niewielka stacja pasażerska położona na odludziu. Dworzec mieści się blisko śródmieścia. Dawniej w pobliżu stacji mieściły się Zakłady Koksownicze nr 2 „Bolesław Chrobry” oraz kopalnia „Wałbrzych”. Budynek stacyjny został przeznaczony na cele mieszkalne.",
+            "builtYear": 1867,
+            "numberOfPlatforms": 2,
+            "region": "DS",
+            "latitude": 50.761,
+            "longitude": 16.268,
+            "imagePath": "-7ca74864"
+        },
+        {
+            "name": "Wałbrzych Główny",
+            "info": "Stacja kolejowa w Wałbrzychu, w województwie dolnośląskim, w Polsce. Według klasyfikacji PKP ma kategorię dworca wojewódzkiego.",
+            "builtYear": 1867,
+            "numberOfPlatforms": 6,
+            "region": "DS",
+            "latitude": 50.744,
+            "longitude": 16.28,
+            "imagePath": "-59507c22"
+        },
+        {
+            "name": "Wałbrzych Miasto",
+            "info": "Stacja kolejowa w Wałbrzychu w dzielnicy Stary Zdrój. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego.",
+            "builtYear": 1853,
+            "numberOfPlatforms": 2,
+            "region": "DS",
+            "latitude": 50.786,
+            "longitude": 16.285,
+            "imagePath": "-5b47c143"
+        },
+        {
+            "name": "Warszawa Centralna",
+            "info": "Podziemna stacja kolejowa w Warszawie, obsługująca przewozy dalekobieżne. Znajduje się w dzielnicy Śródmieście, przy Alejach Jerozolimskich, między al. Jana Pawła II i ul. Emilii Plater, w tunelu średnicowym łączącym ją ze stacjami Warszawa Wschodnia i Warszawa Zachodnia.",
+            "builtYear": 1975,
+            "numberOfPlatforms": 8,
+            "region": "MZ",
+            "latitude": 52.229,
+            "longitude": 21.003,
+            "imagePath": "a4b5c04"
+        },
+        {
+            "name": "Warszawa Ochota",
+            "info": "Zabytkowy przystanek kolejowy położony na terenie warszawskiej Woli w Alejach Jerozolimskich 58 przy placu Artura Zawiszy.\n\nWedług klasyfikacji PKP ma kategorię dworca aglomeracyjnego. W jego skład wchodzi budynek dworca zarządzany przez PKP, peron 1 zarządzany przez PKP PLK oraz obsługujący pociągi Szybkiej Kolei Miejskiej w Warszawie i Kolei Mazowieckich, a także peron 2 tworzący przystanek Warszawa Ochota WKD zarządzany i obsługiwany przez Warszawską Kolej Dojazdową. Dworzec i peron 1 zostały uruchomione 29 września 1963, zaś peron 2 został oddany do użytku 8 grudnia 1963.",
+            "builtYear": 1963,
+            "numberOfPlatforms": 4,
+            "region": "MZ",
+            "latitude": 52.226,
+            "longitude": 20.991,
+            "imagePath": "-40125b14"
+        },
+        {
+            "name": "Warszawa Powiśle",
+            "info": "Przystanek kolejowy Polskich Kolei Państwowych na warszawskiej linii średnicowej, położony na terenie warszawskiego śródmieścia, przy ul. Leona Kruczkowskiego i Smolnej. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego.",
+            "builtYear": 1963,
+            "numberOfPlatforms": 2,
+            "region": "MZ",
+            "latitude": 52.234,
+            "longitude": 21.028,
+            "imagePath": "-78049981"
+        },
+        {
+            "name": "Warszawa Wschodnia",
+            "info": "Druga co do wielkości stacja kolejowa w Warszawie, położona na warszawskiej linii średnicowej. Znajduje się między dzielnicami Praga-Północ (Szmulowizna) i Praga-Południe (Kamionek). Znajdujący się na niej Dworzec Warszawa Wschodnia im. Romana Dmowskiego według klasyfikacji PKP ma najwyższą kategorię dworca Premium i znajduje się między ulicami Kijowską a Lubelską, na zachodnim krańcu terenów stacji.",
+            "builtYear": 1866,
+            "numberOfPlatforms": 14,
+            "region": "MZ",
+            "latitude": 52.252,
+            "longitude": 21.052,
+            "imagePath": "-c931974"
+        },
+        {
+            "name": "Wieliczka Rynek-Kopalnia",
+            "info": "Przystanek kolejowy w Wieliczce, w województwie małopolskim, w Polsce.",
+            "builtYear": 1928,
+            "numberOfPlatforms": 1,
+            "region": "MA",
+            "latitude": 49.986,
+            "longitude": 20.057,
+            "imagePath": "-77a373ee"
+        },
+        {
+            "name": "Wrocław Brochów",
+            "info": "Wrocławska stacja kolejowa przy ulicy Ignacego Mościckiego, na osiedlu Brochów. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego. Stację zbudowano w roku 1896 ze względu na powstanie w Brochowie dużego osiedla kolejowego, związanego z jednym z największych węzłów towarowych na wschodnich terenach Cesarstwa Niemieckiego, przy zbudowanej w 1842 roku linii kolejowej Wrocław – Oława, będącej pierwszym etapem Kolei Górnośląskiej.",
+            "builtYear": 1896,
+            "numberOfPlatforms": 2,
+            "region": "DS",
+            "latitude": 51.064,
+            "longitude": 17.085,
+            "imagePath": "-5187d90f"
+        },
+        {
+            "name": "Wrocław Główny",
+            "info": "Największa z osobowych stacji kolejowych we Wrocławiu, zlokalizowana na granicy osiedli Przedmieście Świdnickie i Huby, w sąsiedztwie głównego dworca autobusowego znajdującego się w podziemiu centrum handlowego Wroclavia. Jeden z nielicznych w Polsce dworców kolejowych, który ma halę peronową. Położony na liniach kolejowych prowadzących z południowego wschodu (Częstochowa, Lubliniec, Opole), południa (Świdnica, Kłodzko) na zachód (Jelenia Góra, Legnica), na północny zachód (Głogów, Zielona Góra), na północ (Poznań) i na północny wschód (Oleśnica, Łódź, Warszawa).",
+            "builtYear": 1857,
+            "numberOfPlatforms": 11,
+            "region": "DS",
+            "latitude": 51.098,
+            "longitude": 17.038,
+            "imagePath": "-38bc3d7f"
+        },
+        {
+            "name": "Wrocław Mikołajów",
+            "info": "Przystanek osobowy we Wrocławiu, na osiedlu Szczepin, przy ul. Stacyjnej 5, położony w obrębie skrzyżowania linii nr 271 Wrocław Główny – Poznań Główny oraz linii nr 143 Kalety – Wrocław Popowice WP2. Dworzec znajduje się w bezpośrednim sąsiedztwie ul. Legnickiej, ważnej arterii miejskiej. Według klasyfikacji PKP ma kategorię dworca aglomeracyjnego. Przystanek jest drugim co do popularności na terytorium Wrocławia i pełni ważną rolę w ruchu miejskim i podmiejskim w ramach Dolnośląskich Kolei Aglomeracyjnych.",
+            "builtYear": 1906,
+            "numberOfPlatforms": 4,
+            "region": "DS",
+            "latitude": 51.117,
+            "longitude": 16.998,
+            "imagePath": "-a50d2e8"
+        },
+        {
+            "name": "Wrocław Nadodrze",
+            "info": "Stacja kolejowa i przedostatni ze wszystkich wybudowanych we Wrocławiu normalnotorowych dworców, powstały w 1868 według projektu Hermanna Grapowa, który często mylony jest z Wilhelmem Grapowem, autorem zaprojektowanego kilkanaście lat wcześniej dworca Kolei Górnośląskiej, który w 1857 zastąpił stary (z 1842) Dworzec Górnośląski i dziś nosi nazwę Wrocław Główny. Stacja jest położona na linii kolejowej nr 143 łączącej Kalety i Wrocław Popowice, przy placu Powstańców Wielkopolskich na osiedlu Nadodrze. Jest ważną stacją w obrębie Dolnośląskiej Kolei Aglomeracyjnej i w ruchu wewnątrzmiejskim.",
+            "builtYear": 1868,
+            "numberOfPlatforms": 3,
+            "region": "DS",
+            "latitude": 51.126,
+            "longitude": 17.033,
+            "imagePath": "69b0f88e"
+        },
+        {
+            "name": "Żywiec",
+            "info": "Stacja kolejowa w Żywcu, w województwie śląskim, w Polsce, posiadająca według klasyfikacji PKP kategorię dworca aglomeracyjnego.",
+            "builtYear": 1878,
+            "numberOfPlatforms": 5,
+            "region": "SL",
+            "latitude": 49.679,
+            "longitude": 19.186,
+            "imagePath": "-726281b2"
+        },
+        {
+            "name": "Warszawa Lotnisko Chopina",
+            "info": "Przystanek osobowy znajdujący się na terenie warszawskiej dzielnicy Włochy w części podziemnej Lotniska Chopina. Przystanek jest częścią infrastruktury stacji kolejowej Warszawa Okęcie, w całości obsługiwanej z nastawni OKL. Umożliwia dojazd pociągiem z Lotniska Chopina do centrum miasta (stacje Warszawa Śródmieście i Warszawa Centralna). Przystanek w stanie surowym został wybudowany w 2008.",
+            "builtYear": 2012,
+            "numberOfPlatforms": 2,
+            "region": "MZ",
+            "latitude": 52.17,
+            "longitude": 20.973,
+            "imagePath": "-718412fb"
+        }
+    ],
+    "operators": {
+        "-7791e592": "Koleje Dolnośląskie",
+        "7b8fc0bf": "Koleje Śląskie",
+        "1f0805a6": "Koleje Mazowieckie",
+        "7009cb7c": "PKP Intercity",
+        "414810d4": "PKP SKM Trójmiasto",
+        "4fbe968d": "POLREGIO",
+        "3966d722": "Łódzka Kolej Aglomeracyjna",
+        "-315309c4": "Koleje Wielkopolskie",
+        "-7325e228": "Koleje Małopolskie"
+    },
+    "lines": [
+        {
+            "name": "Ostbahn",
+            "lineOperator": "4fbe968d",
+            "builtYear": 1873,
+            "length": 342.89,
+            "maxSpeed": 120,
+            "numberStations": 0,
+            "imagePath": "1dda4475",
+            "stations": [
+                "70ea107d",
+                "-43e9cf26",
+                "4ce8dbd"
+            ]
+        },
+        {
+            "name": "L61+L144",
+            "lineOperator": "7b8fc0bf",
+            "builtYear": 1903,
+            "length": 253.042,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "558885a9",
+            "stations": [
+                "-620dd466",
+                "208720af"
+            ]
+        },
+        {
+            "name": "SKM S1",
+            "lineOperator": "414810d4",
+            "builtYear": 1956,
+            "length": 34.067,
+            "maxSpeed": 70,
+            "numberStations": 0,
+            "imagePath": "-6e195eb7",
+            "stations": [
+                "-12b4c4ee",
+                "325efae9",
+                "7af5b38c",
+                "-2c20a998",
+                "-3ba60d29"
+            ]
+        },
+        {
+            "name": "LK 9",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1877,
+            "length": 323.393,
+            "maxSpeed": 200,
+            "numberStations": 0,
+            "imagePath": "23a9d8",
+            "stations": [
+                "-12b4c4ee",
+                "4ce8dbd",
+                "-c931974"
+            ]
+        },
+        {
+            "name": "LK 202",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1870,
+            "length": 334.363,
+            "maxSpeed": 140,
+            "numberStations": 0,
+            "imagePath": "-7a1f806d",
+            "stations": [
+                "-12b4c4ee",
+                "7af5b38c",
+                "-2c20a998"
+            ]
+        },
+        {
+            "name": "Magistrala podsudecka",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1876,
+            "length": 284.12,
+            "maxSpeed": 120,
+            "numberStations": 0,
+            "imagePath": "6d913c36",
+            "stations": [
+                "6a2524b8",
+                "467aa0a5",
+                "-7aa295df",
+                "66921a47"
+            ]
+        },
+        {
+            "name": "Centralna magistrala kolejowa",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1977,
+            "length": 223.824,
+            "maxSpeed": 200,
+            "numberStations": 0,
+            "imagePath": "56ee0f99",
+            "stations": [
+                "3445d50"
+            ]
+        },
+        {
+            "name": "LK 1",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1859,
+            "length": 316.066,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "23a9d0",
+            "stations": [
+                "3445d50",
+                "467aa0a5"
+            ]
+        },
+        {
+            "name": "LK 213",
+            "lineOperator": "4fbe968d",
+            "builtYear": 1922,
+            "length": 62.827,
+            "maxSpeed": 100,
+            "numberStations": 0,
+            "imagePath": "-7a1f804d",
+            "stations": [
+                "-38fabec3",
+                "5d505cfc"
+            ]
+        },
+        {
+            "name": "KD D6",
+            "lineOperator": "-7791e592",
+            "builtYear": 1868,
+            "length": 202.535,
+            "maxSpeed": 140,
+            "numberStations": 0,
+            "imagePath": "4404c99",
+            "stations": [
+                "-7aa295df",
+                "-38bc3d7f",
+                "-7ca74864",
+                "-59507c22",
+                "-5b47c143"
+            ]
+        },
+        {
+            "name": "KŚ S31",
+            "lineOperator": "7b8fc0bf",
+            "builtYear": 1863,
+            "length": 32.761,
+            "maxSpeed": 110,
+            "numberStations": 0,
+            "imagePath": "-6ce8fb40",
+            "stations": [
+                "467aa0a5",
+                "-6c174334"
+            ]
+        },
+        {
+            "name": "KŚ S5",
+            "lineOperator": "7b8fc0bf",
+            "builtYear": 1878,
+            "length": 113.695,
+            "maxSpeed": 140,
+            "numberStations": 0,
+            "imagePath": "4bead93",
+            "stations": [
+                "467aa0a5",
+                "-726281b2"
+            ]
+        },
+        {
+            "name": "KD D96",
+            "lineOperator": "-7791e592",
+            "builtYear": 1880,
+            "length": 52,
+            "maxSpeed": 100,
+            "numberStations": 0,
+            "imagePath": "-7c36b8e6",
+            "stations": [
+                "427ad964",
+                "-59507c22"
+            ]
+        },
+        {
+            "name": "KD D9",
+            "lineOperator": "-7791e592",
+            "builtYear": 1875,
+            "length": 136.272,
+            "maxSpeed": 120,
+            "numberStations": 0,
+            "imagePath": "4404c9c",
+            "stations": [
+                "427ad964",
+                "-38bc3d7f"
+            ]
+        },
+        {
+            "name": "KML SKA1",
+            "lineOperator": "-7325e228",
+            "builtYear": 1857,
+            "length": 15.324,
+            "maxSpeed": 120,
+            "numberStations": 0,
+            "imagePath": "-242dec62",
+            "stations": [
+                "19317f5",
+                "-77a373ee"
+            ]
+        },
+        {
+            "name": "LK 91",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1861,
+            "length": 258.974,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "4519159",
+            "stations": [
+                "19317f5",
+                "-76dc499d",
+                "2ccd9c80"
+            ]
+        },
+        {
+            "name": "KD D1",
+            "lineOperator": "-7791e592",
+            "builtYear": 1846,
+            "length": 192.658,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "4404c94",
+            "stations": [
+                "66921a47",
+                "-38bc3d7f"
+            ]
+        },
+        {
+            "name": "ŁKA Łódź - Warszawa",
+            "lineOperator": "3966d722",
+            "builtYear": 1866,
+            "length": 79.626,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "-837f9a2",
+            "stations": [
+                "-db8e060",
+                "18e617f2",
+                "a4b5c04"
+            ]
+        },
+        {
+            "name": "KŚ S7",
+            "lineOperator": "7b8fc0bf",
+            "builtYear": 1856,
+            "length": 67.203,
+            "maxSpeed": 120,
+            "numberStations": 0,
+            "imagePath": "4bead95",
+            "stations": [
+                "4cc6c20",
+                "467aa0a5"
+            ]
+        },
+        {
+            "name": "LK 132",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1856,
+            "length": 166.634,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "-7a1f83d1",
+            "stations": [
+                "208720af",
+                "-5187d90f",
+                "-38bc3d7f"
+            ]
+        },
+        {
+            "name": "LK 354",
+            "lineOperator": "-315309c4",
+            "builtYear": 1879,
+            "length": 93.025,
+            "maxSpeed": 120,
+            "numberStations": 0,
+            "imagePath": "-7a1f7c0f",
+            "stations": [
+                "-43e9cf26",
+                "-65774f6c"
+            ]
+        },
+        {
+            "name": "LK 271",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1856,
+            "length": 164.212,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "-7a1f7f95",
+            "stations": [
+                "-65774f6c",
+                "-a50d2e8",
+                "-59507c22"
+            ]
+        },
+        {
+            "name": "LK 272",
+            "lineOperator": "-315309c4",
+            "builtYear": 1875,
+            "length": 201.868,
+            "maxSpeed": 120,
+            "numberStations": 0,
+            "imagePath": "-7a1f7f94",
+            "stations": [
+                "71574ba0",
+                "-65774f6c",
+                "-63d23ee5"
+            ]
+        },
+        {
+            "name": "LK 2",
+            "lineOperator": "7009cb7c",
+            "builtYear": 1867,
+            "length": 214.227,
+            "maxSpeed": 160,
+            "numberStations": 0,
+            "imagePath": "23a9d1",
+            "stations": [
+                "a4b5c04",
+                "-c931974"
+            ]
+        },
+        {
+            "name": "KM R1",
+            "lineOperator": "1f0805a6",
+            "builtYear": 1937,
+            "length": 70.182,
+            "maxSpeed": 100,
+            "numberStations": 0,
+            "imagePath": "444659d",
+            "stations": [
+                "-40125b14",
+                "-c931974",
+                "-78049981",
+                "3445d50"
+            ]
+        },
+        {
+            "name": "KM RL",
+            "lineOperator": "1f0805a6",
+            "builtYear": 2012,
+            "length": 56.002,
+            "maxSpeed": 100,
+            "numberStations": 0,
+            "imagePath": "44465b8",
+            "stations": [
+                "a4b5c04",
+                "-718412fb",
+                "-c931974"
+            ]
+        },
+        {
+            "name": "KD D8",
+            "lineOperator": "-7791e592",
+            "builtYear": 1886,
+            "length": 19.736,
+            "maxSpeed": 100,
+            "numberStations": 0,
+            "imagePath": "4404c9b",
+            "stations": [
+                "-a50d2e8",
+                "69b0f88e",
+                "-38bc3d7f"
+            ]
+        }
+    ],
+    "events": [
+        {
+            "name": "Podróż do Trójmiasta",
+            "info": "Wybierz się w podróż przez Polskę do Trójmiasta z Dworcownikiem!\nZwiedź duże miasta jak Wrocław, Poznań, czy Warszawa oraz przejedź się klimatycznym Ostbahnem, aby znaleźć się nad morzem.\nNa koniec wyrusz w podróż za pomocą \"kolejki\"!\nNa co czekasz? Ruszaj w podróż już teraz!",
+            "startDate": "2025/07/06",
+            "endDate": "2026/07/05",
+            "imagePath": "-72a4ee65",
+            "stations": [
+                "-38bc3d7f",
+                "-65774f6c",
+                "-43e9cf26",
+                "70ea107d",
+                "4ce8dbd",
+                "-2c20a998",
+                "7af5b38c",
+                "325efae9",
+                "-12b4c4ee",
+                "-c931974"
+            ]
+        },
+        {
+            "name": "Podróż do Oświęcimia",
+            "info": "Wybierz się w podróż przez południe Polski do Oświęcimia z Dworcownikiem!\nOdwiedź miasta wojewódzkie południowych województw, aby dotrzeć do Oświęcimia. Po drodze czeka Cię również przesiadka w Nędzy – czy jest nędzna, przekonaj się samemu!\nNa co czekasz? Ruszaj w podróż już teraz!",
+            "startDate": "2025/07/29",
+            "endDate": "2026/07/28",
+            "imagePath": "596d758f",
+            "stations": [
+                "-38bc3d7f",
+                "4cc6c20",
+                "467aa0a5",
+                "-6c174334",
+                "208720af"
+            ]
+        },
+        {
+            "name": "Podróż do Warszawy",
+            "info": "Wybierz się w podróż do stolicy z Dworcownikiem!\nPoznaj nie tylko największe dworce przesiadkowe, lecz także przejedź się podmiejskimi pociągami, aby odkryć kolejowe zakątki Warszawy i okolic. Podczas podróży poczuj również najwyższą w Polsce prędkość pociągu na Centralnej Magistrali Kolejowej!\nNa co czekasz? Ruszaj w podróż już teraz!",
+            "startDate": "2025/02/09",
+            "endDate": "2026/02/11",
+            "imagePath": "-5244f921",
+            "stations": [
+                "-38bc3d7f",
+                "208720af",
+                "-620dd466",
+                "a4b5c04",
+                "-40125b14",
+                "-78049981",
+                "-c931974",
+                "3445d50"
+            ]
+        },
+        {
+            "name": "Podróż do Łodzi",
+            "info": "Wybierz się w podróż do Łodzi z Dworcownikiem!\nJadąc do przemysłowego miasta poczuj klimat trasy z Ostrowa Wielkopolskiego do Łodzi Kaliskiej, a w samej Łodzi odwiedź największe jej dworce. Podczas wycieczki możesz mieć również okazję jazdy klasycznym elektrycznym zespołem trakcyjnym serii EN57!\nNa co czekasz? Ruszaj w podróż już teraz!",
+            "startDate": "2025/05/22",
+            "endDate": "2026/05/21",
+            "imagePath": "-1d0ef906",
+            "stations": [
+                "-38bc3d7f",
+                "-63d23ee5",
+                "-db8e060",
+                "18e617f2",
+                "-620dd466"
+            ]
+        },
+        {
+            "name": "Podróż \"Przemytnikiem\"",
+            "info": "Wybierz się w podróż wskroś Polski po jednej z najdłuższej z tras kolejowych z Dworcownikiem!\nOdwiedź zachodnią granicę z Niemcami w Świnoujściu, a także wschodnią granicę z Ukrainą w Medyce. Umożliwi to jazda po ponad 1000-kilometrowej trasie pociągu relacji Świnoujście - Przemyśl Główny.\nPoznaj krańce naszego kraju!\nNa co czekasz? Ruszaj w podróż już teraz!",
+            "startDate": "2025/07/11",
+            "endDate": "2026/07/10",
+            "imagePath": "-286c5822",
+            "stations": [
+                "-40057ba",
+                "-65774f6c",
+                "-38bc3d7f",
+                "208720af",
+                "19317f5",
+                "2ccd9c80",
+                "-76dc499d"
+            ]
+        },
+        {
+            "name": "Podróż fotograficzna",
+            "info": "Wybierz się w podróż po stacjach, na których można robić wyjątkowe zdjęcia pociągów z Dworcownikiem!\nOd międzynarodowych pociągów towarowych w Poznaniu, przez podmiejskie składy w Gdańsku, aż po mknące z zawrotną prędkością pociągi dalekobieżne pod Warszawą, nasz kraj oferuje niezliczone okazje do fotografowania pociągów.\nNiech to będzie również pretekstem do zwiedzania i odkrywania różnych stron Polski!\nNa co czekasz? Ruszaj w podróż już teraz! ",
+            "startDate": "2026/01/01",
+            "endDate": "2026/12/31",
+            "imagePath": "69b95375",
+            "stations": [
+                "325efae9",
+                "-3ba60d29",
+                "3445d50",
+                "208720af",
+                "71574ba0",
+                "4ce8dbd",
+                "-40125b14",
+                "a4b5c04",
+                "-5187d90f",
+                "69b0f88e"
+            ]
+        },
+        {
+            "name": "Podróż wielkomiejska",
+            "info": "Wybierz się w podróż po największych polskich miastach z Dworcownikiem!\nZwiedź główne stacje wielu dużych miast, przemieszczaj się pociągami dalekobieżnymi i poczuj nowoczesny klimat.\nPodczas tej podróży możesz zobaczyć pociągi wielu wojewódzkich przewoźników!\nNa co czekasz? Ruszaj w podróż już teraz!",
+            "startDate": "2026/01/01",
+            "endDate": "2026/12/31",
+            "imagePath": "15225161",
+            "stations": [
+                "-12b4c4ee",
+                "-2c20a998",
+                "19317f5",
+                "-db8e060",
+                "208720af",
+                "-65774f6c",
+                "2ccd9c80",
+                "a4b5c04",
+                "-38bc3d7f"
+            ]
+        },
+        {
+            "name": "Przeszłe wydarzenie",
+            "info": "Opis przeszłego wydarzenia",
+            "startDate": "2025/01/01",
+            "endDate": "2025/12/31",
+            "imagePath": "-f6f912b",
+            "stations": [
+                "-7ca74864",
+                "-5b47c143"
+            ]
+        },
+        {
+            "name": "Przyszłe wydarzenie",
+            "info": "Opis przyszłego wydarzenia",
+            "startDate": "2027/01/01",
+            "endDate": "2027/12/31",
+            "imagePath": "-700a3bbf",
+            "stations": [
+                "-7ca74864",
+                "-5b47c143"
+            ]
+        }
+    ]
+}
